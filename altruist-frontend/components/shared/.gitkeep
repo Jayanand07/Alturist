@@ -1,0 +1,2 @@
+// Shared components (Navbar, Sidebar, LoadingSpinner, etc.)
+export {};

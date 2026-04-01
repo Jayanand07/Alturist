@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+firebase:
+  credentials:
+    path: ${FIREBASE_CREDENTIALS_PATH}
+
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  cache:
+    type: simple
+
+  # CORS configuration (also handled via WebConfig.java)
+  # Allowed origin: http://localhost:3000
+
+supabase:
+  url: ${SUPABASE_URL}
+  service-key: ${SUPABASE_SERVICE_KEY}
+  bucket: prescriptions
