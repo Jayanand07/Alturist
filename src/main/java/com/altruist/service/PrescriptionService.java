@@ -47,7 +47,7 @@ public class PrescriptionService {
             prescription.setMedicines(objectMapper.writeValueAsString(request.getMedicines()));
             prescription.setDiagnosticTests(objectMapper.writeValueAsString(request.getDiagnosticTests()));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize prescription data", e);
+            throw new RuntimeException("Failed to process prescription data");
         }
 
         prescription.setNotes(request.getDiagnosis());
@@ -107,7 +107,7 @@ public class PrescriptionService {
                     .createdAt(prescription.getCreatedAt())
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to map prescription response", e);
+            throw new RuntimeException("Failed to process prescription response");
         }
     }
 }

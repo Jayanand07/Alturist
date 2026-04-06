@@ -30,7 +30,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
     Page<Doctor> findByIsAvailableTrueOrderByRatingDesc(Pageable pageable);
 
     @EntityGraph(attributePaths = {"user"})
-    @Query("SELECT d FROM Doctor d WHERE (:specialization IS NULL OR d.specialization = :specialization) " +
+    @Query("SELECT d FROM Doctor d WHERE (:specialization = '' OR d.specialization = :specialization) " +
            "AND (:minFee IS NULL OR d.consultationFee >= :minFee) " +
            "AND (:maxFee IS NULL OR d.consultationFee <= :maxFee) " +
            "AND d.isAvailable = true " +
@@ -44,8 +44,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
 
     @EntityGraph(attributePaths = {"user"})
     @Query("SELECT d FROM Doctor d WHERE " +
-           "(:search IS NULL OR LOWER(d.user.fullName) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:specialization IS NULL OR d.specialization = :specialization) AND " +
+           "(:search = '' OR LOWER(d.user.fullName) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:specialization = '' OR d.specialization = :specialization) AND " +
            "(:available IS NULL OR d.isAvailable = :available)")
     Page<Doctor> findAdminDoctors(
             @Param("search") String search,

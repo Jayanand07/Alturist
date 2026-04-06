@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class ConsultationController {
      */
     @PostMapping("/instant")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<ConsultationResponseDTO> bookInstant(@RequestBody InstantBookingRequestDTO request) {
+    public ResponseEntity<ConsultationResponseDTO> bookInstant(@Valid @RequestBody InstantBookingRequestDTO request) {
         User patient = getAuthenticatedUser();
         ConsultationResponseDTO response = consultationService.bookInstantConsultation(patient, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -41,6 +42,7 @@ public class ConsultationController {
      * Transitions the consultation from PENDING → ONGOING on first join.
      */
     @PostMapping("/{consultationId}/room/join")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RoomJoinResponseDTO> joinRoom(@PathVariable UUID consultationId) {
         User user = getAuthenticatedUser();
         RoomJoinResponseDTO response = consultationService.joinRoom(user, consultationId);
@@ -55,7 +57,7 @@ public class ConsultationController {
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<ConsultationResponseDTO> completeConsultation(
             @PathVariable UUID id,
-            @RequestBody CompleteConsultationRequestDTO request
+            @Valid @RequestBody CompleteConsultationRequestDTO request
     ) {
         User doctor = getAuthenticatedUser();
         ConsultationResponseDTO response = consultationService.completeConsultation(doctor, id, request);
@@ -68,7 +70,7 @@ public class ConsultationController {
     @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<ConsultationResponseDTO> requestReschedule(
             @PathVariable UUID id,
-            @RequestBody com.altruist.dto.RescheduleRequestDTO request
+            @Valid @RequestBody com.altruist.dto.RescheduleRequestDTO request
     ) {
         User patient = getAuthenticatedUser();
         return ResponseEntity.ok(consultationService.requestReschedule(patient, id, request));
@@ -105,10 +107,48 @@ public class ConsultationController {
 
     // ── Getters ─────────────────────────────────────────────────────────────
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ConsultationResponseDTO> getConsultation(@PathVariable UUID id) {
         User user = getAuthenticatedUser();
         ConsultationResponseDTO response = consultationService.getConsultationById(user, id);
         return ResponseEntity.ok(response);
+    }
+
+    // ── Supabase Custom JWT Generator ──────────────────────────────────────────
+    @GetMapping("/supabase-token")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.Map<String, String>> getSupabaseToken() {
+        User user = getAuthenticatedUser();
+        try {
+            String jwtSecret = System.getenv("SUPABASE_JWT_SECRET");
+            if (jwtSecret == null || jwtSecret.isBlank()) {
+                throw new RuntimeException("SUPABASE_JWT_SECRET is not configured on the server.");
+            }
+
+            // Create JWT Header
+            String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+            String headerB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            // Create Custom Payload syncing Firebase UID to Supabase RLS
+            long iat = System.currentTimeMillis() / 1000;
+            long exp = iat + 3600; // 1 hour expiration
+            // SECURITY: Sanitize firebaseUid to prevent JSON injection in JWT payload
+            String safeUid = user.getFirebaseUid().replace("\\", "\\\\").replace("\"", "\\\"");
+            String payloadJson = String.format("{\"role\":\"authenticated\",\"firebase_uid\":\"%s\",\"iat\":%d,\"exp\":%d}", safeUid, iat, exp);
+            String payloadB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            // Sign using HMAC SHA256
+            String signatureTarget = headerB64 + "." + payloadB64;
+            javax.crypto.Mac sha256_HMAC = javax.crypto.Mac.getInstance("HmacSHA256");
+            javax.crypto.spec.SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+            String signatureB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(sha256_HMAC.doFinal(signatureTarget.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+
+            String token = signatureTarget + "." + signatureB64;
+            return ResponseEntity.ok(java.util.Map.of("token", token));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Failed to generate Supabase token"));
+        }
     }
 
     // ── Helper ────────────────────────────────────────────────────────────

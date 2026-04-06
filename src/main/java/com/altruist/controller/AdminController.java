@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -40,12 +41,12 @@ public class AdminController {
     }
 
     @PostMapping("/doctors")
-    public ResponseEntity<DoctorListDTO> createDoctor(@RequestBody AdminDoctorRequestDTO request) {
+    public ResponseEntity<DoctorListDTO> createDoctor(@Valid @RequestBody AdminDoctorRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminService.createDoctor(request));
     }
 
     @PutMapping("/doctors/{id}")
-    public ResponseEntity<DoctorListDTO> updateDoctor(@PathVariable UUID id, @RequestBody AdminDoctorRequestDTO request) {
+    public ResponseEntity<DoctorListDTO> updateDoctor(@PathVariable UUID id, @Valid @RequestBody AdminDoctorRequestDTO request) {
         return ResponseEntity.ok(adminService.updateDoctor(id, request));
     }
 

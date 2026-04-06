@@ -30,9 +30,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Open login/register endpoints if any
-                        .requestMatchers(HttpMethod.GET, "/api/doctors/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/medicines").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll() 
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/available").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/{id}").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/medicines", "/api/medicines/**").permitAll()
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()

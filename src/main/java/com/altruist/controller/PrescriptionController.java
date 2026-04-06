@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/prescriptions")
@@ -21,7 +22,7 @@ public class PrescriptionController {
      */
     @PostMapping
     @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<PrescriptionResponseDTO> createPrescription(@RequestBody PrescriptionRequestDTO request) {
+    public ResponseEntity<PrescriptionResponseDTO> createPrescription(@Valid @RequestBody PrescriptionRequestDTO request) {
         PrescriptionResponseDTO response = prescriptionService.createPrescription(request);
         return ResponseEntity.ok(response);
     }

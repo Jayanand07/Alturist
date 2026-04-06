@@ -21,6 +21,11 @@ public class SupabaseStorageService {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public String uploadFile(String bucket, String filePath, byte[] fileBytes, String contentType) {
+        // Prevent path traversal
+        if (filePath.contains("..") || filePath.contains("\\")) {
+            throw new StorageUploadException("Invalid file path");
+        }
+
         try {
             // URL: {supabaseUrl}/storage/v1/object/{bucket}/{filePath}
             String url = String.format("%s/storage/v1/object/%s/%s", supabaseUrl, bucket, filePath);
@@ -39,10 +44,12 @@ public class SupabaseStorageService {
                 // Public URL: {supabaseUrl}/storage/v1/object/public/{bucket}/{filePath}
                 return String.format("%s/storage/v1/object/public/%s/%s", supabaseUrl, bucket, filePath);
             } else {
-                throw new StorageUploadException("Failed to upload to Supabase: " + response.body());
+                throw new StorageUploadException("Failed to upload file to storage");
             }
+        } catch (StorageUploadException e) {
+            throw e;
         } catch (Exception e) {
-            throw new StorageUploadException("Error communicating with Supabase Storage", e);
+            throw new StorageUploadException("Error communicating with storage service", e);
         }
     }
 }

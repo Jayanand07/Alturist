@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -24,7 +25,7 @@ public class OrderController {
     @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<OrderResponseDTO> createOrder(
             @AuthenticationPrincipal User patient,
-            @RequestBody OrderRequestDTO dto) {
+            @RequestBody @Valid OrderRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.createOrder(patient, dto));
     }

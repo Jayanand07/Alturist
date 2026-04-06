@@ -39,7 +39,9 @@ export default function VideoCallRoom({
     return `${mins}:${secs}`;
   };
 
-  const jitsiUrl = `https://meet.jit.si/altruist-${consultationId}#userInfo.displayName="${encodeURIComponent(userName)}"&config.prejoinPageEnabled=false`;
+  // Sanitize display name: allow only letters, numbers, spaces, and dots
+  const sanitizedName = userName.replace(/[^a-zA-Z0-9 .]/g, '').slice(0, 50);
+  const jitsiUrl = `https://meet.jit.si/altruist-${consultationId}#userInfo.displayName="${encodeURIComponent(sanitizedName)}"&config.prejoinPageEnabled=false`;
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 flex flex-col">

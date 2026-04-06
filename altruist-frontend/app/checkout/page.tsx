@@ -16,9 +16,18 @@ import api from "@/lib/axios"
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotalPrice, clearCart } = useCartStore()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
+
+  // Auth Guard: Redirect if not authenticated
+  React.useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login")
+    }
+  }, [user, authLoading, router])
+
+  if (authLoading || !user) return null
 
   const [formData, setFormData] = useState({
     fullName: user?.displayName || "",

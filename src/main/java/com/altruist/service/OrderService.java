@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -24,7 +25,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ObjectMapper objectMapper;
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public OrderResponseDTO createOrder(User patient, OrderRequestDTO dto) {
         try {
             String itemsJson = objectMapper.writeValueAsString(dto.getItems());
@@ -54,6 +55,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        // IMPORTANT: findAllByOrderByCreatedAtDesc MUST apply Pageable at DB level not in Java memory
         return orderRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(this::mapToResponseDTO);
     }

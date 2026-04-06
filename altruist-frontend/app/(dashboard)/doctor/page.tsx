@@ -72,9 +72,22 @@ interface DashboardData {
 export default function DoctorDashboard() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user: authUser } = useAuth();
+  const { user: authUser, userType, loading: authLoading } = useAuth();
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auth Guard: Redirect if not authenticated or not a doctor
+  useEffect(() => {
+    if (!authLoading && !authUser) {
+      router.push("/login");
+    } else if (!authLoading && userType !== "DOCTOR") {
+      router.push("/");
+    }
+  }, [authUser, userType, authLoading, router]);
+
+  if (authLoading || !authUser || userType !== "DOCTOR") {
+    return <DashboardSkeleton />;
+  }
 
   // Fetch Full Dashboard Data
   const { data, isLoading, error } = useQuery<DashboardData>({

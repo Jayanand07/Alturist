@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 import { 
   Card, 
@@ -142,9 +143,12 @@ export default function AdminDoctorsPage() {
     qualification: ""
   });
 
+  const { userType } = useAuth();
+  const canEditOrDelete = userType === "ADMIN" || userType === "DOCTOR";
+
   // --- Queries ---
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["admin-doctors", search, specialization, status, page],
+    queryKey: ["doctors", search, specialization, status, page],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -153,7 +157,7 @@ export default function AdminDoctorsPage() {
         specialization: specialization === "all" ? "" : specialization,
         available: status === "all" ? "" : (status === "available").toString()
       });
-      const response = await api.get(`/admin/doctors?${params}`);
+      const response = await api.get(`/doctors?${params}`);
       return response.data;
     }
   });
@@ -162,7 +166,7 @@ export default function AdminDoctorsPage() {
   const createMutation = useMutation({
     mutationFn: (newDoctor: DoctorRequest) => api.post("/admin/doctors", newDoctor),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
       toast.success("Doctor added successfully");
       setIsModalOpen(false);
       resetForm();
@@ -171,9 +175,9 @@ export default function AdminDoctorsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: DoctorRequest }) => api.put(`/admin/doctors/${id}`, data),
+    mutationFn: ({ id, data }: { id: string, data: DoctorRequest }) => api.put(`/doctors/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
       toast.success("Doctor updated successfully");
       setIsModalOpen(false);
       resetForm();
@@ -184,15 +188,15 @@ export default function AdminDoctorsPage() {
   const toggleMutation = useMutation({
     mutationFn: (id: string) => api.put(`/admin/doctors/${id}/availability`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
       toast.success("Availability toggled");
     }
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/admin/doctors/${id}`),
+    mutationFn: (id: string) => api.delete(`/doctors/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
       toast.success("Doctor deleted successfully");
       setIsDeleteDialogOpen(false);
     },
@@ -447,9 +451,11 @@ export default function AdminDoctorsPage() {
                       </TableCell>
                       <TableCell className="text-right pr-4">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg" onClick={() => handleEdit(doctor)}>
-                             <Edit2 size={14} />
-                          </Button>
+                          {canEditOrDelete && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg" onClick={() => handleEdit(doctor)}>
+                               <Edit2 size={14} />
+                            </Button>
+                          )}
                           <Button 
                              variant="ghost" 
                              size="icon" 
@@ -458,14 +464,16 @@ export default function AdminDoctorsPage() {
                           >
                              <Power size={14} />
                           </Button>
-                          <Button 
-                             variant="ghost" 
-                             size="icon" 
-                             className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                             onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}
-                          >
-                             <Trash2 size={14} />
-                          </Button>
+                          {canEditOrDelete && (
+                            <Button 
+                               variant="ghost" 
+                               size="icon" 
+                               className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                               onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}
+                            >
+                               <Trash2 size={14} />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

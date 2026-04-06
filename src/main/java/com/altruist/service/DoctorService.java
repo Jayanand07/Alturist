@@ -5,10 +5,13 @@ import com.altruist.exception.DoctorNotFoundException;
 import com.altruist.model.*;
 import com.altruist.repository.ConsultationRepository;
 import com.altruist.repository.DoctorRepository;
+import com.altruist.repository.UserRepository;
+import com.altruist.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final ConsultationRepository consultationRepository;
     private final ConsultationRatingRepository ratingRepository;
+    private final UserRepository userRepository;
 
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -55,6 +59,7 @@ public class DoctorService {
         BigDecimal monthlyEarnings = consultationRepository.calculateMonthlyEarnings(doctor.getId(), monthStart);
         Double averageRating = ratingRepository.getAverageRatingByDoctorId(doctor.getId());
         Long totalPatients = consultationRepository.countTotalUniquePatients(doctor.getId());
+        // IMPORTANT: Repository must use COUNT(DISTINCT patient_id) not COUNT(*)
 
         // 2. Schedule and queues (Using EntityGraph via JPA for relations)
         List<Consultation> todaysConsultationsList = consultationRepository.findByDoctorIdAndScheduledAtBetweenOrderByScheduledAtAsc(
@@ -102,6 +107,12 @@ public class DoctorService {
      */
     @Transactional
     public Map<String, UUID> acceptInstantConsultation(UUID userId, UUID consultationId) {
+        User callingUser = userRepository.findByFirebaseUid(SecurityContextHolder.getContext().getAuthentication().getName())
+            .orElseThrow(() -> new UnauthorizedException("User not found"));
+        if (!callingUser.getUserType().equals(UserType.DOCTOR)) {
+            throw new UnauthorizedException("Only doctors can accept consultations");
+        }
+
         Doctor doctor = doctorRepository.findByUserId(userId)
                 .orElseThrow(() -> new DoctorNotFoundException("No doctor profile found for this user"));
 
@@ -137,12 +148,12 @@ public class DoctorService {
 
         return DoctorDashboardDTO.ConsultationItemDTO.builder()
                 .id(c.getId().toString())
-                .patientName(p.getFullName())
+                .patientName(p != null ? p.getFullName() : "Patient")
                 .patientAge(age)
-                .patientGender(p.getGender())
-                .scheduledAt(c.getScheduledAt().format(ISO_FORMATTER))
-                .status(c.getStatus().name())
-                .type(c.getConsultationType().name())
+                .patientGender(p != null ? p.getGender() : "")
+                .scheduledAt(c.getScheduledAt() != null ? c.getScheduledAt().format(ISO_FORMATTER) : LocalDateTime.now().format(ISO_FORMATTER))
+                .status(c.getStatus() != null ? c.getStatus().name() : "PENDING")
+                .type(c.getConsultationType() != null ? c.getConsultationType().name() : "INSTANT")
                 .chiefComplaint(c.getChiefComplaint())
                 .waitingTimeMinutes(waitingTime)
                 .durationMinutes(c.getCallDurationMinutes())
@@ -156,7 +167,11 @@ public class DoctorService {
     @Transactional(readOnly = true)
     public Page<DoctorListDTO> findAvailableDoctors(int page, int size, String specialization, Double minFee, Double maxFee) {
         Pageable pageable = PageRequest.of(page, size);
-        return doctorRepository.findAvailableWithFilters(specialization, minFee, maxFee, pageable)
+        return doctorRepository.findAvailableWithFilters(
+                specialization == null || specialization.trim().isEmpty() ? "" : specialization, 
+                minFee, 
+                maxFee, 
+                pageable)
                 .map(DoctorMapper::toListDTO);
     }
 
@@ -237,5 +252,59 @@ public class DoctorService {
                 .orElseThrow(() -> new DoctorNotFoundException("No doctor profile found for this user"));
         doctor.setScheduleJson(scheduleJson);
         doctorRepository.save(doctor);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DoctorListDTO> getAllAdminDoctors(String search, String specialization, Boolean available, Pageable pageable) {
+        return doctorRepository.findAdminDoctors(
+                search == null || search.trim().isEmpty() ? "" : search.trim(),
+                specialization == null || specialization.trim().isEmpty() ? "" : specialization, 
+                available, 
+                pageable)
+                .map(DoctorMapper::toListDTO);
+    }
+
+    @Transactional
+    public DoctorListDTO updateDoctorInfo(UUID id, AdminDoctorRequestDTO request) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        User user = doctor.getUser();
+
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+
+        doctor.setSpecialization(request.getSpecialization());
+        doctor.setMedicalLicense(request.getMedicalLicense());
+        doctor.setExperienceYears(request.getExperienceYears());
+        doctor.setConsultationFee(request.getConsultationFee());
+        doctor.setQualification(request.getQualification());
+
+        doctorRepository.save(doctor);
+        // userRepository.save(user) is usually cascaded if properly mapped, else we fetch but wait, JPA flushes changes in transactional scope automatically.
+        return DoctorMapper.toListDTO(doctor);
+    }
+
+    @Transactional
+    public void deleteDoctorEntity(UUID id) {
+        User callingUser = userRepository.findByFirebaseUid(SecurityContextHolder.getContext().getAuthentication().getName())
+            .orElseThrow(() -> new UnauthorizedException("User not found"));
+        if (!callingUser.getUserType().equals(UserType.ADMIN)) {
+            throw new UnauthorizedException("Only admins can delete doctor profiles");
+        }
+
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        
+        long consultationCount = consultationRepository.countByDoctorId(doctor.getId());
+        if (consultationCount > 0) {
+            throw new RuntimeException("409: Cannot delete doctor with active/existing history");
+        }
+        
+        // We delete the doctor profile but keep the user, or delete the user too. Best to delete the doctor profile to clean up properly.
+        User user = doctor.getUser();
+        doctorRepository.delete(doctor);
+        // For complete admin panel compatibility, if they deleting the doctor, they usually want the user deleted too.
+        // We will just delete the doctor. The user can be PATIENT now.
+        user.setUserType(UserType.PATIENT);
     }
 }

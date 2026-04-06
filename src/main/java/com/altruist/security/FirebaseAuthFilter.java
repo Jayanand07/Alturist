@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,10 +33,28 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(FirebaseAuthFilter.class);
 
-    // Can be null if credentials path is not set yet
+    /** Cache TTL: 5 minutes. After this, token is re-verified against Firebase. */
+    private static final long CACHE_TTL_MS = 5 * 60 * 1000L;
+
     private final FirebaseAuth firebaseAuth;
     private final UserService userService;
-    private final Map<String, User> userCache = new ConcurrentHashMap<>();
+
+    /** Value = [User, expiry epoch ms] */
+    private final Map<String, CacheEntry> userCache = new ConcurrentHashMap<>();
+
+    private static class CacheEntry {
+        final User user;
+        final long expiresAt;
+
+        CacheEntry(User user) {
+            this.user = user;
+            this.expiresAt = Instant.now().toEpochMilli() + CACHE_TTL_MS;
+        }
+
+        boolean isExpired() {
+            return Instant.now().toEpochMilli() > expiresAt;
+        }
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -60,18 +80,24 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
             String uid = decodedToken.getUid();
             String email = decodedToken.getEmail();
-            // Extract phone securely from token claims if present
             String phone = (String) decodedToken.getClaims().get("phone_number");
 
-            // Cache check to prevent N+1 DB lookups
-            User user = userCache.get(uid);
-            if (user == null) {
-                // Get or initialize user inside DB
+            // TTL-based cache: evict expired entries and re-fetch if needed
+            CacheEntry entry = userCache.get(uid);
+            User user;
+            if (entry == null || entry.isExpired()) {
+                // Evict the expired entry
+                userCache.remove(uid);
                 user = userService.findOrCreateUserByFirebaseUid(uid, email, phone);
-                userCache.put(uid, user);
+                userCache.put(uid, new CacheEntry(user));
+                // Periodically clean up stale entries (simple amortized cleanup)
+                if (!userCache.isEmpty()) {
+                    evictExpiredEntries();
+                }
+            } else {
+                user = entry.user;
             }
 
-            // Set Spring Security Context with roles
             SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getUserType().name());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, Collections.singletonList(authority));
@@ -79,7 +105,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         } catch (FirebaseAuthException e) {
             logger.warn("Firebase token verification failed: {}", e.getMessage());
-            sendUnauthorizedError(response, "Invalid Firebase Authorization token");
+            sendUnauthorizedError(response, "Invalid or expired Firebase token");
             return;
         } catch (Exception e) {
             logger.error("Error during authentication process", e);
@@ -90,9 +116,21 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /** Remove all expired entries from cache (called on every cache miss). */
+    private void evictExpiredEntries() {
+        Iterator<Map.Entry<String, CacheEntry>> it = userCache.entrySet().iterator();
+        while (it.hasNext()) {
+            if (it.next().getValue().isExpired()) {
+                it.remove();
+            }
+        }
+    }
+
     private void sendUnauthorizedError(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + message + "\"}");
+        String safeMessage = message.replace("\\", "\\\\").replace("\"", "\\\"");
+        String body = "{\"error\": \"Unauthorized\", \"message\": \"" + safeMessage + "\"}";
+        response.getWriter().write(body);
     }
 }

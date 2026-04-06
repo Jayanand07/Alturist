@@ -14,8 +14,8 @@ import java.util.UUID;
 public interface MedicineRepository extends JpaRepository<Medicine, UUID> {
 
     @Query("SELECT m FROM Medicine m WHERE " +
-           "(:search IS NULL OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(m.manufacturer) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:category IS NULL OR m.category = :category) AND " +
+           "(:search = '' OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(m.manufacturer) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:category = '' OR m.category = :category) AND " +
            "(:prescription IS NULL OR m.requiresPrescription = :prescription) AND " +
            "(:inStock IS NULL OR m.inStock = :inStock)")
     Page<Medicine> searchMedicines(

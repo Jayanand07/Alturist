@@ -39,7 +39,7 @@ public class AdminService {
     public AdminDashboardDTO getDashboardStats() {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX.withHour(23).withMinute(59).withSecond(59).withNano(999999999));
         
         LocalDateTime startOfMonth = today.withDayOfMonth(1).atStartOfDay();
 
@@ -91,7 +91,7 @@ public class AdminService {
     public Map<String, Long> getConsultationStats() {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX.withHour(23).withMinute(59).withSecond(59).withNano(999999999));
         
         LocalDate firstDayOfMonth = today.withDayOfMonth(1);
         LocalDateTime startOfMonth = firstDayOfMonth.atStartOfDay();
@@ -141,12 +141,20 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public Page<DoctorListDTO> getAdminDoctors(String search, String specialization, Boolean available, Pageable pageable) {
-        return doctorRepository.findAdminDoctors(search, specialization, available, pageable)
+        return doctorRepository.findAdminDoctors(
+                search == null || search.trim().isEmpty() ? "" : search.trim(),
+                specialization == null || specialization.trim().isEmpty() ? "" : specialization, 
+                available, 
+                pageable)
                 .map(DoctorMapper::toListDTO);
     }
 
     @Transactional
     public DoctorListDTO createDoctor(AdminDoctorRequestDTO request) {
+        if (request.getFirebaseUid() == null || request.getFirebaseUid().isBlank()) {
+            throw new IllegalArgumentException("Firebase UID is required to create a doctor account");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("User with this email already exists");
         }
@@ -156,8 +164,7 @@ public class AdminService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setUserType(UserType.DOCTOR);
-        // Temporary Firebase UID for manual creation (Admin Panel)
-        user.setFirebaseUid("ADMIN_CREATED_" + UUID.randomUUID().toString());
+        user.setFirebaseUid(request.getFirebaseUid());
         User savedUser = userRepository.save(user);
 
         // 2. Create Doctor

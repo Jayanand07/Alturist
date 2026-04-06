@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class MedicineController {
 
     @PostMapping("/api/admin/medicines")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicineResponseDTO> createMedicine(@RequestBody MedicineDTO dto) {
+    public ResponseEntity<MedicineResponseDTO> createMedicine(@Valid @RequestBody MedicineDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(medicineService.createMedicine(dto));
     }
 
@@ -59,7 +60,7 @@ public class MedicineController {
 
     @PutMapping("/api/admin/medicines/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicineResponseDTO> updateMedicine(@PathVariable UUID id, @RequestBody MedicineDTO dto) {
+    public ResponseEntity<MedicineResponseDTO> updateMedicine(@PathVariable UUID id, @Valid @RequestBody MedicineDTO dto) {
         return ResponseEntity.ok(medicineService.updateMedicine(id, dto));
     }
 
@@ -81,12 +82,13 @@ public class MedicineController {
     // --- PUBLIC ENDPOINTS (Patient Facing) ---
 
     @GetMapping("/api/medicines")
-    public ResponseEntity<Page<MedicineResponseDTO>> getPublicMedicines(
+    public ResponseEntity<?> getPublicMedicines(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Boolean prescription,
             Pageable pageable) {
         // Force inStock = true for public queries
-        return ResponseEntity.ok(medicineService.getMedicines(search, category, prescription, true, pageable));
+        Page<MedicineResponseDTO> result = medicineService.getMedicines(search, category, prescription, true, pageable);
+        return ResponseEntity.ok(result);
     }
 }

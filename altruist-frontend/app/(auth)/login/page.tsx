@@ -47,7 +47,7 @@ type PhoneFormValues = z.infer<typeof phoneSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, userType, loading: authLoading } = useAuth();
+  const { user, userType, loading: authLoading, syncing } = useAuth();
   
   const redirectAfterLogin = (role: string | null) => {
     switch(role) {
@@ -55,7 +55,7 @@ export default function LoginPage() {
         router.push('/admin/dashboard')
         break
       case 'DOCTOR':
-        router.push('/doctor/dashboard')
+        router.push('/doctor')
         break
       case 'PATIENT':
       default:
@@ -70,12 +70,24 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [countdown, setCountdown] = useState(0);
 
-  // Redirect if logged in
+  // Redirect as soon as we have user + userType (instant for returning users)
   useEffect(() => {
     if (!authLoading && user && userType) {
       redirectAfterLogin(userType);
     }
-  }, [user, authLoading, router]);
+  }, [user, userType, authLoading]);
+
+  // Safety net: if user is logged in but sync is taking too long (new user),
+  // redirect to /patient after 3 seconds max
+  useEffect(() => {
+    if (!authLoading && user && !userType && syncing) {
+      const timeout = setTimeout(() => {
+        // Sync still hasn't resolved — default to PATIENT
+        redirectAfterLogin('PATIENT');
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [authLoading, user, userType, syncing]);
 
   // Resend OTP timer
   useEffect(() => {
@@ -102,9 +114,7 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       toast.success("Welcome to Altruist!");
-      setTimeout(() => {
-         setIsLoading(false);
-      }, 1500);
+      // AuthContext handles redirect — keep loading true
     } catch (error: any) {
       toast.error(error.message || "Google sign-in failed");
       setIsLoading(false);
@@ -116,9 +126,7 @@ export default function LoginPage() {
     try {
       await signInWithEmail(data.email, data.password);
       toast.success("Logged in successfully!");
-      setTimeout(() => {
-         setIsLoading(false);
-      }, 1500);
+      // AuthContext handles redirect — keep loading true
     } catch (error: any) {
       toast.error(error.message || "Check your credentials");
       setIsLoading(false);
@@ -154,19 +162,32 @@ export default function LoginPage() {
     try {
       await confirmationResult.confirm(data.otp);
       toast.success("Phone verified!");
-      setTimeout(() => {
-         setIsLoading(false);
-      }, 1500);
+      // AuthContext handles redirect — keep loading true
     } catch (error: any) {
       toast.error("Invalid OTP. Try again.");
       setIsLoading(false);
     }
   };
 
+  // Show loading spinner while Firebase is initializing
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // New user: Firebase auth done but waiting for background sync
+  if (user && !userType && syncing) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-white">
+        <div className="bg-gradient-to-br from-[#0D9488] to-[#3B82F6] p-5 rounded-2xl shadow-lg">
+          <HeartPulse className="w-10 h-10 text-white animate-pulse" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Setting up your account...</h2>
+        <p className="text-gray-500 text-sm">This will only take a moment</p>
+        <Loader2 className="w-6 h-6 animate-spin text-primary mt-2" />
       </div>
     );
   }

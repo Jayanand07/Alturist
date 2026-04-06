@@ -57,6 +57,24 @@ public class PatientController {
         return ResponseEntity.ok(history);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<com.altruist.dto.PatientProfileDTO> getProfile() {
+        User user = getAuthenticatedUser();
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(patientService.getPatientProfile(user));
+    }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/profile")
+    public ResponseEntity<com.altruist.dto.PatientProfileDTO> updateProfile(@org.springframework.web.bind.annotation.RequestBody com.altruist.dto.PatientProfileDTO dto) {
+        User user = getAuthenticatedUser();
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(patientService.updatePatientProfile(user, dto));
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof User)) {

@@ -103,7 +103,7 @@ public class ConsultationService {
         // Only PENDING or ONGOING consultations can be joined
         ConsultationStatus status = consultation.getStatus();
         if (status != ConsultationStatus.PENDING && status != ConsultationStatus.ONGOING) {
-            throw new IllegalStateException("Consultation is " + status + " and cannot be joined");
+            throw new IllegalStateException("This consultation cannot be joined in its current state");
         }
 
         // Generate room name if missing (safety net — booking should have set it)
@@ -219,7 +219,7 @@ public class ConsultationService {
         }
 
         if (consultation.getStatus() == ConsultationStatus.ONGOING) {
-            throw new RuntimeException("Cannot cancel an ONGOING consultation.");
+            throw new IllegalStateException("Cannot cancel a consultation that is currently in progress.");
         }
 
         // Informational: 2 hr check warning handled frontend side. 
@@ -247,7 +247,7 @@ public class ConsultationService {
         }
 
         if (consultation.getStatus() == ConsultationStatus.ONGOING || consultation.getStatus() == ConsultationStatus.COMPLETED) {
-            throw new RuntimeException("Cannot reschedule completed or ongoing consultations.");
+            throw new IllegalStateException("Cannot reschedule a consultation in its current state.");
         }
 
         // Parse local date + time string into LocalDateTime
@@ -262,7 +262,7 @@ public class ConsultationService {
             Consultation saved = consultationRepository.save(consultation);
             return toResponseDTO(saved);
         } catch (Exception e) {
-            throw new RuntimeException("Invalid date/time format for reschedule.");
+            throw new IllegalStateException("Invalid date or time format for reschedule.");
         }
     }
 

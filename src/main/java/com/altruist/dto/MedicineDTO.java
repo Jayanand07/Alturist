@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -12,10 +14,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicineDTO {
+    @NotBlank(message = "Medicine name is required")
     private String name;
     private String genericName;
+    @NotBlank(message = "Manufacturer is required")
     private String manufacturer;
     private String category;
+    @NotNull(message = "Price is required")
     private BigDecimal price;
     private BigDecimal discountedPrice;
     @Builder.Default

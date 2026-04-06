@@ -22,9 +22,11 @@ public class MedicineService {
 
     @Transactional(readOnly = true)
     public Page<MedicineResponseDTO> getMedicines(String search, String category, Boolean prescription, Boolean inStock, Pageable pageable) {
+        // SECURITY: MedicineRepository.searchMedicines MUST use @Query with :search parameter binding
+        // NEVER use string concatenation — SQL injection risk
         return medicineRepository.searchMedicines(
-                search == null || search.trim().isEmpty() ? null : search.trim(),
-                category == null || category.trim().isEmpty() ? null : category,
+                search == null || search.trim().isEmpty() ? "" : search.trim(),
+                category == null || category.trim().isEmpty() ? "" : category,
                 prescription,
                 inStock,
                 pageable
@@ -52,6 +54,11 @@ public class MedicineService {
         medicine.setRequiresPrescription(dto.getRequiresPrescription() != null ? dto.getRequiresPrescription() : false);
         medicine.setInStock(dto.getInStock() != null ? dto.getInStock() : true);
         medicine.setDescription(dto.getDescription());
+
+        // SECURITY: Ensure discounted price never exceeds regular price
+        if (medicine.getDiscountedPrice() != null && medicine.getDiscountedPrice() > medicine.getPrice()) {
+            medicine.setDiscountedPrice(medicine.getPrice());
+        }
         
         Medicine saved = medicineRepository.save(medicine);
         return mapToResponseDTO(saved);
@@ -95,7 +102,7 @@ public class MedicineService {
                 created++;
             } catch (Exception e) {
                 failed++;
-                errors.add("Row " + (i + 1) + ": " + e.getMessage());
+                errors.add("Row " + (i + 1) + " [" + (dto.getName() != null ? dto.getName() : "unknown") + "]: " + e.getMessage());
             }
         }
 

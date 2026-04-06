@@ -53,3 +53,7 @@ out/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+### Debug / Temp ###
+error*.json
+git_status.txt
