@@ -54,9 +54,10 @@ public class MedicineService {
         medicine.setRequiresPrescription(dto.getRequiresPrescription() != null ? dto.getRequiresPrescription() : false);
         medicine.setInStock(dto.getInStock() != null ? dto.getInStock() : true);
         medicine.setDescription(dto.getDescription());
+        medicine.setImageUrl(dto.getImageUrl());
 
         // SECURITY: Ensure discounted price never exceeds regular price
-        if (medicine.getDiscountedPrice() != null && medicine.getDiscountedPrice() > medicine.getPrice()) {
+        if (medicine.getDiscountedPrice() != null && medicine.getDiscountedPrice().compareTo(medicine.getPrice()) > 0) {
             medicine.setDiscountedPrice(medicine.getPrice());
         }
         
@@ -141,6 +142,7 @@ public class MedicineService {
                 .requiresPrescription(dto.getRequiresPrescription() != null ? dto.getRequiresPrescription() : false)
                 .inStock(dto.getInStock() != null ? dto.getInStock() : true)
                 .description(dto.getDescription())
+                .imageUrl(dto.getImageUrl())
                 .build();
     }
 
@@ -156,6 +158,7 @@ public class MedicineService {
                 .requiresPrescription(md.getRequiresPrescription())
                 .inStock(md.getInStock())
                 .description(md.getDescription())
+                .imageUrl(md.getImageUrl())
                 .createdAt(md.getCreatedAt())
                 .updatedAt(md.getUpdatedAt())
                 .build();

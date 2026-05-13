@@ -29,16 +29,21 @@ interface Medicine {
   discountedPrice: number | null
   requiresPrescription: boolean
   inStock: boolean
+  imageUrl?: string
 }
 
 const CATEGORIES = [
   { label: "All", value: "all", emoji: "📦" },
   { label: "Tablets", value: "General", emoji: "💊" },
   { label: "Antibiotics", value: "Antibiotics", emoji: "🧬" },
-  { label: "Pain Relief", value: "Pain Relief", emoji: "🩹" },
+  { label: "Pain Relief", value: "Painkillers", emoji: "🩹" },
+  { label: "Calcium & Bone", value: "Calcium & Bone Care", emoji: "🦴" },
+  { label: "Vitamins", value: "Vitamins", emoji: "🌿" },
+  { label: "Multivitamins", value: "Multivitamins", emoji: "💎" },
+  { label: "Iron", value: "Iron Supplements", emoji: "🔴" },
   { label: "Diabetes", value: "Diabetes", emoji: "📊" },
   { label: "Cardiac", value: "Cardiac", emoji: "❤️" },
-  { label: "Skin Care", value: "Skin Care", emoji: "🧴" },
+  { label: "Skin Care", value: "Dermatology", emoji: "🧴" },
   { label: "Personal Care", value: "Personal Care", emoji: "🪥" },
 ]
 
@@ -163,9 +168,17 @@ export default function MedicinesPage() {
           ) : medicines.length > 0 ? (
             medicines.map((med) => (
               <div key={med.id} className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden card-hover flex flex-col">
-                {/* Image Placeholder */}
-                <div className="h-40 bg-gradient-to-br from-[#E6F7F3] to-[#F0FDF4] flex items-center justify-center relative">
-                  <Pill size={48} className="text-[#00A87E]/30" />
+                {/* Product Image */}
+                <div className="h-40 bg-gradient-to-br from-[#E6F7F3] to-[#F0FDF4] flex items-center justify-center relative overflow-hidden">
+                  {med.imageUrl ? (
+                    <img
+                      src={med.imageUrl}
+                      alt={med.name}
+                      className="h-full w-full object-contain p-4"
+                    />
+                  ) : (
+                    <Pill size={48} className="text-[#00A87E]/30" />
+                  )}
                   {med.requiresPrescription && (
                     <Badge className="absolute top-3 right-3 bg-red-500 text-white border-none text-[10px] font-bold uppercase tracking-wide flex gap-1 items-center">
                       <AlertCircle className="h-3 w-3" /> Rx Required

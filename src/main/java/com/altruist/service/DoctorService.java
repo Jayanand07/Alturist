@@ -5,6 +5,7 @@ import com.altruist.exception.DoctorNotFoundException;
 import com.altruist.model.*;
 import com.altruist.repository.ConsultationRepository;
 import com.altruist.repository.DoctorRepository;
+import com.altruist.repository.PrescriptionRepository;
 import com.altruist.repository.UserRepository;
 import com.altruist.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final ConsultationRepository consultationRepository;
     private final ConsultationRatingRepository ratingRepository;
+    private final PrescriptionRepository prescriptionRepository;
     private final UserRepository userRepository;
 
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -294,17 +296,25 @@ public class DoctorService {
 
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
-        
-        long consultationCount = consultationRepository.countByDoctorId(doctor.getId());
-        if (consultationCount > 0) {
-            throw new RuntimeException("409: Cannot delete doctor with active/existing history");
+
+        // Step 1: Delete prescriptions — they FK on both consultation_id AND doctor_id, so must go first.
+        List<Prescription> doctorPrescriptions = prescriptionRepository.findByDoctorId(doctor.getId());
+        prescriptionRepository.deleteAll(doctorPrescriptions);
+
+        // Step 2: Delete consultation ratings — FK on consultation_id and doctor_id.
+        List<Consultation> doctorConsultations = consultationRepository.findByDoctorId(doctor.getId());
+        for (Consultation consultation : doctorConsultations) {
+            ratingRepository.findByConsultationId(consultation.getId())
+                    .ifPresent(ratingRepository::delete);
         }
-        
-        // We delete the doctor profile but keep the user, or delete the user too. Best to delete the doctor profile to clean up properly.
+
+        // Step 3: Delete consultations — FK on doctor_id.
+        consultationRepository.deleteAll(doctorConsultations);
+
+        // Step 4: Safe to delete the doctor profile now.
+        // Demote the linked user back to PATIENT rather than deleting the account.
         User user = doctor.getUser();
         doctorRepository.delete(doctor);
-        // For complete admin panel compatibility, if they deleting the doctor, they usually want the user deleted too.
-        // We will just delete the doctor. The user can be PATIENT now.
         user.setUserType(UserType.PATIENT);
     }
 }

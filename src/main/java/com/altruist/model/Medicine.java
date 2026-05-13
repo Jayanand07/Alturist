@@ -48,6 +48,8 @@ public class Medicine {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String imageUrl;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

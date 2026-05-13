@@ -22,6 +22,7 @@ import api from "@/lib/axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import { supabase } from '@/lib/supabase'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,8 +63,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const CATEGORIES = [
-  "Antibiotics", "Painkillers", "Vitamins", "Diabetes", 
-  "Blood Pressure", "Cardiac", "Dermatology", "Gastrology", "Other"
+  "Antibiotics", "Painkillers", "Vitamins", "Calcium & Bone Care",
+  "Diabetes", "Blood Pressure", "Cardiac", "Dermatology",
+  "Gastrology", "Multivitamins", "Iron Supplements", "Neurology",
+  "Respiratory", "Eye Care", "Personal Care", "Other"
 ];
 
 // --- Types ---
@@ -78,6 +81,7 @@ interface Medicine {
   requiresPrescription: boolean;
   inStock: boolean;
   description: string;
+  imageUrl?: string;
 }
 
 interface MedicineForm {
@@ -90,6 +94,7 @@ interface MedicineForm {
   requiresPrescription: boolean;
   inStock: boolean;
   description: string;
+  imageUrl: string;
 }
 
 export default function MedicinesCatalogPage() {
@@ -108,7 +113,7 @@ export default function MedicinesCatalogPage() {
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [formData, setFormData] = useState<MedicineForm>({
     name: "", genericName: "", manufacturer: "", category: "",
-    price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: ""
+    price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: "", imageUrl: ""
   });
 
   // Delete State
@@ -117,6 +122,7 @@ export default function MedicinesCatalogPage() {
 
   // Bulk Upload State
   const [previewData, setPreviewData] = useState<any[]>([]);
+  const [imageUploading, setImageUploading] = useState(false);
 
   // --- Queries ---
   const { data: statsData } = useQuery({
@@ -199,7 +205,7 @@ export default function MedicinesCatalogPage() {
   const resetForm = () => {
     setFormData({
       name: "", genericName: "", manufacturer: "", category: "",
-      price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: ""
+      price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: "", imageUrl: ""
     });
     setEditingMedicine(null);
   };
@@ -211,7 +217,8 @@ export default function MedicinesCatalogPage() {
       category: med.category || "", price: med.price?.toString() || "", 
       discountedPrice: med.discountedPrice?.toString() || "",
       requiresPrescription: med.requiresPrescription, inStock: med.inStock,
-      description: med.description || ""
+      description: med.description || "",
+      imageUrl: med.imageUrl || ""
     });
     setIsModalOpen(true);
   };
@@ -267,7 +274,8 @@ export default function MedicinesCatalogPage() {
       discountedPrice: row.discountedPrice ? Number(row.discountedPrice) : null,
       requiresPrescription: Boolean(row.requiresPrescription || row['Requires Prescription'] === 'true' || row['Requires Prescription'] === true),
       inStock: Boolean(row.inStock ?? row['In Stock'] ?? true),
-      description: row.description || row.Description || ""
+      description: row.description || row.Description || "",
+      imageUrl: row.imageUrl || row['Image URL'] || ""
     }));
     bulkUploadMutation.mutate(payload);
   };
@@ -295,6 +303,29 @@ export default function MedicinesCatalogPage() {
 
   const medicines = data?.content || [];
   const totalCount = data?.totalElements || 0;
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageUploading(true)
+    try {
+      const ext = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await supabase.storage
+        .from('medicine')
+        .upload(fileName, file, { upsert: false })
+      if (error) throw error
+      const { data: urlData } = supabase.storage
+        .from('medicine')
+        .getPublicUrl(fileName)
+      setFormData(prev => ({ ...prev, imageUrl: urlData.publicUrl }))
+      toast.success('Image uploaded!')
+    } catch (err) {
+      toast.error('Image upload failed')
+    } finally {
+      setImageUploading(false)
+    }
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -622,6 +653,49 @@ export default function MedicinesCatalogPage() {
                  <Input className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Uses, side effects, etc." />
               </div>
 
+
+               <div className="col-span-2 space-y-2">
+                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">
+                    Product Image
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <label className={cn(
+                      "flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all",
+                      imageUploading
+                        ? "border-teal-300 bg-teal-50 cursor-not-allowed"
+                        : "border-gray-200 hover:border-teal-400 hover:bg-teal-50/30"
+                    )}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={imageUploading}
+                      />
+                      {imageUploading ? (
+                        <Loader2 className="w-4 h-4 text-teal-600 animate-spin" />
+                      ) : (
+                        <Upload className="w-4 h-4 text-gray-400" />
+                      )}
+                      <span className="text-xs font-bold text-gray-500">
+                        {imageUploading ? 'Uploading...' : 'Click to upload image'}
+                      </span>
+                    </label>
+                    {formData.imageUrl && (
+                      <img
+                        src={formData.imageUrl}
+                        alt="Preview"
+                        className="h-16 w-16 object-contain rounded-xl border border-gray-200 bg-white p-1"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                    )}
+                  </div>
+                  {formData.imageUrl && (
+                    <p className="text-[10px] text-teal-600 font-bold truncate px-1">
+                      ✓ {formData.imageUrl.split("/").pop()}
+                    </p>
+                  )}
+               </div>
               <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100 mt-2">
                  <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-bold" onClick={() => setIsModalOpen(false)}>Cancel</Button>
                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="h-12 px-8 rounded-xl bg-teal-600 hover:bg-teal-700 font-bold shadow-lg shadow-teal-500/20">

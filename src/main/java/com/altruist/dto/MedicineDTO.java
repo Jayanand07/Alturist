@@ -28,4 +28,5 @@ public class MedicineDTO {
     @Builder.Default
     private Boolean inStock = true;
     private String description;
+    private String imageUrl;
 }

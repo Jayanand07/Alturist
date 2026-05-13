@@ -24,6 +24,7 @@ public class MedicineResponseDTO {
     private Boolean requiresPrescription;
     private Boolean inStock;
     private String description;
+    private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
