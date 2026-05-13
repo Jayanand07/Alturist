@@ -11,10 +11,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "consultations", indexes = {
-    @Index(name = "idx_patient_scheduled", columnList = "patient_id, scheduledAt"),
-    @Index(name = "idx_doctor_scheduled_status", columnList = "doctor_id, scheduledAt, status")
-})
+@Table(
+    name = "consultations",
+    indexes = {
+        // Existing composite indexes (preserved)
+        @Index(name = "idx_patient_scheduled",      columnList = "patient_id, scheduledAt"),
+        @Index(name = "idx_doctor_scheduled_status", columnList = "doctor_id, scheduledAt, status"),
+        // New single-column indexes for individual filter queries
+        @Index(name = "idx_consultation_patient",    columnList = "patient_id"),
+        @Index(name = "idx_consultation_doctor",     columnList = "doctor_id"),
+        @Index(name = "idx_consultation_status",     columnList = "status"),
+        @Index(name = "idx_consultation_scheduled",  columnList = "scheduledAt")
+    }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,10 +35,12 @@ public class Consultation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private User patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Doctor doctor;
 
     private LocalDateTime scheduledAt;

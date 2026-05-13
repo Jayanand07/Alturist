@@ -80,6 +80,7 @@ interface Medicine {
   discountedPrice: number;
   requiresPrescription: boolean;
   inStock: boolean;
+  stockQuantity: number;
   description: string;
   imageUrl?: string;
 }
@@ -93,6 +94,7 @@ interface MedicineForm {
   discountedPrice: string;
   requiresPrescription: boolean;
   inStock: boolean;
+  stockQuantity: number;
   description: string;
   imageUrl: string;
 }
@@ -113,7 +115,7 @@ export default function MedicinesCatalogPage() {
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [formData, setFormData] = useState<MedicineForm>({
     name: "", genericName: "", manufacturer: "", category: "",
-    price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: "", imageUrl: ""
+    price: "", discountedPrice: "", requiresPrescription: false, inStock: true, stockQuantity: 0, description: "", imageUrl: ""
   });
 
   // Delete State
@@ -205,7 +207,7 @@ export default function MedicinesCatalogPage() {
   const resetForm = () => {
     setFormData({
       name: "", genericName: "", manufacturer: "", category: "",
-      price: "", discountedPrice: "", requiresPrescription: false, inStock: true, description: "", imageUrl: ""
+      price: "", discountedPrice: "", requiresPrescription: false, inStock: true, stockQuantity: 0, description: "", imageUrl: ""
     });
     setEditingMedicine(null);
   };
@@ -217,6 +219,7 @@ export default function MedicinesCatalogPage() {
       category: med.category || "", price: med.price?.toString() || "", 
       discountedPrice: med.discountedPrice?.toString() || "",
       requiresPrescription: med.requiresPrescription, inStock: med.inStock,
+      stockQuantity: med.stockQuantity || 0,
       description: med.description || "",
       imageUrl: med.imageUrl || ""
     });
@@ -274,6 +277,7 @@ export default function MedicinesCatalogPage() {
       discountedPrice: row.discountedPrice ? Number(row.discountedPrice) : null,
       requiresPrescription: Boolean(row.requiresPrescription || row['Requires Prescription'] === 'true' || row['Requires Prescription'] === true),
       inStock: Boolean(row.inStock ?? row['In Stock'] ?? true),
+      stockQuantity: Number(row.stockQuantity || row['Stock'] || 0),
       description: row.description || row.Description || "",
       imageUrl: row.imageUrl || row['Image URL'] || ""
     }));
@@ -486,14 +490,20 @@ export default function MedicinesCatalogPage() {
                                  )}
                               </TableCell>
                               <TableCell>
-                                 <button 
-                                   onClick={() => toggleStockMutation.mutate(med.id)}
-                                   className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all active:scale-95", 
-                                     med.inStock ? "bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" : "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-                                   )}
-                                 >
-                                    {med.inStock ? "In Stock" : "Out of Stock"}
-                                 </button>
+                                 <div className="flex flex-col items-start gap-1">
+                                    <div className="flex items-center gap-1.5">
+                                       <div className={cn("w-2 h-2 rounded-full", med.stockQuantity > 50 ? "bg-green-500" : med.stockQuantity >= 10 ? "bg-amber-500" : "bg-red-500")} />
+                                       <span className="text-xs font-black text-gray-900">{med.stockQuantity} <span className="text-gray-400 font-medium">units</span></span>
+                                    </div>
+                                    <button 
+                                      onClick={() => toggleStockMutation.mutate(med.id)}
+                                      className={cn("px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border transition-all", 
+                                        med.inStock ? "bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" : "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                                      )}
+                                    >
+                                       {med.inStock ? "In Stock" : "Disabled"}
+                                    </button>
+                                 </div>
                               </TableCell>
                               <TableCell className="text-right pr-6">
                                  <div className="flex justify-end gap-1">
@@ -644,7 +654,11 @@ export default function MedicinesCatalogPage() {
                  </div>
                  <div className="flex items-center gap-3">
                     <Checkbox id="inStock" checked={formData.inStock} onCheckedChange={c => setFormData({...formData, inStock: !!c})} />
-                    <label htmlFor="inStock" className="text-xs font-black uppercase tracking-widest text-gray-600 cursor-pointer">In Stock (Available)</label>
+                    <label htmlFor="inStock" className="text-xs font-black uppercase tracking-widest text-gray-600 cursor-pointer">Available Online</label>
+                 </div>
+                 <div className="flex-1 flex items-center justify-end gap-3">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Stock Units</label>
+                    <Input required type="number" className="w-24 border-gray-200 rounded-xl font-bold h-9" value={formData.stockQuantity} onChange={e => setFormData({...formData, stockQuantity: parseInt(e.target.value) || 0})} placeholder="0" />
                  </div>
               </div>
 

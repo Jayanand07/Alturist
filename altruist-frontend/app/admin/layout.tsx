@@ -11,6 +11,8 @@ import {
   Pill, 
   ClipboardList, 
   Settings, 
+  LifeBuoy,
+  CreditCard,
   LogOut,
   Menu,
   X,
@@ -50,6 +52,8 @@ export default function AdminLayout({
     { title: "Patients", href: "/admin/patients", icon: Users },
     { title: "Medicines", href: "/admin/medicines", icon: Pill },
     { title: "Consultations", href: "/admin/consultations", icon: ClipboardList },
+    { title: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
+    { title: "Support", href: "/admin/support", icon: LifeBuoy },
     { title: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

@@ -2,21 +2,9 @@
 
 import React, { useState } from "react";
 import { 
-  UserRound, 
-  Search, 
-  Plus, 
-  Star, 
-  StarHalf, 
-  MoreVertical,
-  Edit2,
-  Trash2,
-  Power,
-  Users,
-  CheckCircle2,
-  XCircle,
-  FilterX,
-  Loader2,
-  AlertCircle
+  UserRound, Search, Plus, Star, StarHalf, MoreVertical,
+  Edit2, Trash2, Power, Users, CheckCircle2, XCircle, FilterX,
+  Loader2, AlertCircle, ShieldCheck, ShieldAlert, Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
@@ -24,53 +12,30 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogFooter,
-  DialogDescription,
+  Dialog, DialogContent, DialogTitle, DialogTrigger,
+  DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// --- Types ---
 interface Doctor {
   id: string;
   name: string;
@@ -82,27 +47,21 @@ interface Doctor {
   profilePictureUrl: string | null;
   totalConsultations: number;
   isAvailable: boolean;
-}
-
-interface DoctorRequest {
-  fullName: string;
-  email: string;
-  specialization: string;
-  medicalLicense: string;
-  experienceYears: number;
-  consultationFee: number;
+  isVerified: boolean;
+  city: string;
+  clinicName: string;
+  bio: string;
+  languages: string;
   qualification: string;
+  medicalLicense: string;
 }
 
-// --- Constants ---
 const SPECIALIZATIONS = [
   "Cardiology", "Dermatology", "Pediatrics", "Orthopedics", "Neurology",
   "General Medicine", "Gynecology", "Psychiatry", "ENT", "Ophthalmology"
 ];
 
 const STAR_TOTAL = 5;
-
-// --- Components ---
 
 const StarRating = ({ rating }: { rating: number }) => {
   const fullStars = Math.floor(rating);
@@ -133,22 +92,26 @@ export default function AdminDoctorsPage() {
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
 
   // Form State
-  const [formData, setFormData] = useState<DoctorRequest>({
+  const [formData, setFormData] = useState<any>({
     fullName: "",
     email: "",
     specialization: "",
     medicalLicense: "",
     experienceYears: 0,
     consultationFee: 0,
-    qualification: ""
+    qualification: "",
+    city: "",
+    clinicName: "",
+    bio: "",
+    languages: "",
+    isVerified: false
   });
 
   const { userType } = useAuth();
-  const canEditOrDelete = userType === "ADMIN" || userType === "DOCTOR";
 
-  // --- Queries ---
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["doctors", search, specialization, status, page],
+  // Queries
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-doctors", search, specialization, status, page],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -157,16 +120,16 @@ export default function AdminDoctorsPage() {
         specialization: specialization === "all" ? "" : specialization,
         available: status === "all" ? "" : (status === "available").toString()
       });
-      const response = await api.get(`/doctors?${params}`);
+      const response = await api.get(`/admin/doctors?${params}`);
       return response.data;
     }
   });
 
-  // --- Mutations ---
+  // Mutations
   const createMutation = useMutation({
-    mutationFn: (newDoctor: DoctorRequest) => api.post("/admin/doctors", newDoctor),
+    mutationFn: (newDoctor: any) => api.post("/admin/doctors", newDoctor),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
       toast.success("Doctor added successfully");
       setIsModalOpen(false);
       resetForm();
@@ -175,9 +138,9 @@ export default function AdminDoctorsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: DoctorRequest }) => api.put(`/doctors/${id}`, data),
+    mutationFn: ({ id, data }: { id: string, data: any }) => api.put(`/admin/doctors/${id}/full`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
       toast.success("Doctor updated successfully");
       setIsModalOpen(false);
       resetForm();
@@ -185,18 +148,18 @@ export default function AdminDoctorsPage() {
     onError: (err: any) => toast.error(err.response?.data?.message || "Failed to update doctor")
   });
 
-  const toggleMutation = useMutation({
-    mutationFn: (id: string) => api.put(`/admin/doctors/${id}/availability`),
+  const toggleVerifyMutation = useMutation({
+    mutationFn: (id: string) => api.patch(`/admin/doctors/${id}/verify`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["doctors"] });
-      toast.success("Availability toggled");
+      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      toast.success("Verification status updated");
     }
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/doctors/${id}`),
+    mutationFn: (id: string) => api.delete(`/admin/doctors/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
       toast.success("Doctor deleted successfully");
       setIsDeleteDialogOpen(false);
     },
@@ -209,29 +172,40 @@ export default function AdminDoctorsPage() {
     }
   });
 
-  // --- Handlers ---
+  // Handlers
   const resetForm = () => {
     setFormData({
       fullName: "", email: "", specialization: "", medicalLicense: "",
-      experienceYears: 0, consultationFee: 0, qualification: ""
+      experienceYears: 0, consultationFee: 0, qualification: "",
+      city: "", clinicName: "", bio: "", languages: "", isVerified: false
     });
     setEditingDoctor(null);
   };
 
-  const handleEdit = (doctor: Doctor) => {
-    // Note: We need full details for editing (license, qualification) which might not be in ListDTO
-    // For now, we'll try to fetch or assume base info if mapped
-    setEditingDoctor(doctor);
-    setFormData({
-      fullName: doctor.name,
-      email: doctor.email,
-      specialization: doctor.specialization,
-      medicalLicense: "", // Fetching detail would be better
-      experienceYears: doctor.experienceYears,
-      consultationFee: doctor.consultationFee,
-      qualification: ""
-    });
-    setIsModalOpen(true);
+  const handleEdit = async (doctor: Doctor) => {
+    // In a real app, you might fetch full details if not all are in list
+    // Here we use what we have or fetch if needed
+    try {
+      const { data: fullProfile } = await api.get(`/admin/doctors/${doctor.id}`);
+      setEditingDoctor(fullProfile);
+      setFormData({
+        fullName: fullProfile.name || "",
+        email: fullProfile.email || "",
+        specialization: fullProfile.specialization || "",
+        medicalLicense: fullProfile.medicalLicense || "",
+        experienceYears: fullProfile.experienceYears || 0,
+        consultationFee: fullProfile.consultationFee || 0,
+        qualification: fullProfile.qualification || "",
+        city: fullProfile.city || "",
+        clinicName: fullProfile.clinicName || "",
+        bio: fullProfile.bio || "",
+        languages: fullProfile.languages || "",
+        isVerified: fullProfile.isVerified || false
+      });
+      setIsModalOpen(true);
+    } catch(e) {
+      toast.error("Failed to fetch full doctor profile for editing");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -243,15 +217,11 @@ export default function AdminDoctorsPage() {
     }
   };
 
-  // --- Stats Calculation ---
   const doctors = data?.content || [];
   const totalCount = data?.totalElements || 0;
-  const availableCount = doctors.filter((d: Doctor) => d.isAvailable).length; // This is approximate for the current page
-  const busyCount = doctors.filter((d: Doctor) => !d.isAvailable).length;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
-      {/* Stats Bar */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-none shadow-sm bg-white overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5 text-teal-600"><Users size={60} /></div>
@@ -261,30 +231,6 @@ export default function AdminDoctorsPage() {
               <div>
                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Total Doctors</p>
                 <h3 className="text-2xl font-black text-gray-900">{totalCount}</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 text-green-600"><CheckCircle2 size={60} /></div>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-green-50 text-green-600"><CheckCircle2 size={20} /></div>
-              <div>
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Available Now</p>
-                <h3 className="text-2xl font-black text-gray-900">{availableCount}</h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 text-orange-600"><XCircle size={60} /></div>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-orange-50 text-orange-600"><XCircle size={20} /></div>
-              <div>
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">On Duty / Busy</p>
-                <h3 className="text-2xl font-black text-gray-900">{busyCount}</h3>
               </div>
             </div>
           </CardContent>
@@ -314,68 +260,75 @@ export default function AdminDoctorsPage() {
               </SelectContent>
             </Select>
 
-            <Select value={status} onValueChange={(val) => setStatus(val ?? "all")}>
-              <SelectTrigger className="w-[150px] h-11 border-gray-100 rounded-xl">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
-                <SelectItem value="busy">Busy</SelectItem>
-              </SelectContent>
-            </Select>
-
             <Dialog open={isModalOpen} onOpenChange={(open) => { setIsModalOpen(open); if(!open) resetForm(); }}>
               <DialogTrigger 
                 render={
                   <Button className="bg-[#0D9488] hover:bg-[#0b7a6e] h-11 px-6 rounded-xl font-bold flex gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-all">
-                    <Plus size={18} />
-                    Add Doctor
+                    <Plus size={18} /> Add Doctor
                   </Button>
                 }
               />
-              <DialogContent className="max-w-xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl">
+              <DialogContent className="sm:max-w-3xl p-0 overflow-y-auto max-h-[90vh] border-none rounded-[32px] shadow-2xl">
                 <div className="bg-[#0D9488] p-8 text-white relative">
                    <div className="absolute top-0 right-0 p-8 opacity-10"><UserRound size={120} /></div>
                    <DialogTitle className="text-2xl font-black">{editingDoctor ? "Edit Doctor Profile" : "Onboard New Doctor"}</DialogTitle>
-                   <DialogDescription className="text-teal-50 mt-1 font-medium italic opacity-90">Please ensure all medical credentials are valid.</DialogDescription>
+                   <DialogDescription className="text-teal-50 mt-1 font-medium italic opacity-90">Manage complete profile details and verification.</DialogDescription>
                 </div>
                 <form onSubmit={handleSubmit} className="p-8 space-y-5 bg-white">
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Full Name</label>
-                       <Input required placeholder="Dr. John Doe" className="h-11 border-gray-100 rounded-xl focus:border-teal-500 transition-all font-semibold" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Full Name</Label>
+                       <Input required placeholder="Dr. John Doe" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Email Address</label>
-                       <Input required type="email" placeholder="john.doe@altruist.com" className="h-11 border-gray-100 rounded-xl focus:border-teal-500 transition-all font-semibold" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Email Address</Label>
+                       <Input required type="email" placeholder="john.doe@altruist.com" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Specialization</label>
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Specialization</Label>
                        <Select required value={formData.specialization} onValueChange={val => setFormData({...formData, specialization: val ?? ""})}>
-                          <SelectTrigger className="h-11 border-gray-100 rounded-xl font-semibold">
-                             <SelectValue placeholder="Select Specialty" />
-                          </SelectTrigger>
-                          <SelectContent>
-                             {SPECIALIZATIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                          </SelectContent>
+                          <SelectTrigger className="h-11 border-gray-200 rounded-xl font-semibold"><SelectValue placeholder="Select Specialty" /></SelectTrigger>
+                          <SelectContent>{SPECIALIZATIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                        </Select>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Medical License</label>
-                       <Input required placeholder="LIC-12345678" className="h-11 border-gray-100 rounded-xl focus:border-teal-500 transition-all font-semibold" value={formData.medicalLicense} onChange={e => setFormData({...formData, medicalLicense: e.target.value})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Medical License</Label>
+                       <Input required placeholder="LIC-12345678" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.medicalLicense} onChange={e => setFormData({...formData, medicalLicense: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Exp (Years)</label>
-                       <Input required type="number" className="h-11 border-gray-100 rounded-xl font-semibold" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Exp (Years)</Label>
+                       <Input required type="number" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Fee (₹)</label>
-                       <Input required type="number" className="h-11 border-gray-100 rounded-xl font-semibold" value={formData.consultationFee} onChange={e => setFormData({...formData, consultationFee: parseInt(e.target.value) || 0})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Fee (₹)</Label>
+                       <Input required type="number" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.consultationFee} onChange={e => setFormData({...formData, consultationFee: parseInt(e.target.value) || 0})} />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">City</Label>
+                       <Input required placeholder="Mumbai" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Clinic Name</Label>
+                       <Input placeholder="Apollo Hospital" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} />
                     </div>
                     <div className="space-y-2 col-span-2">
-                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Qualification</label>
-                       <Input required placeholder="MBBS, MD - Cardiology" className="h-11 border-gray-100 rounded-xl focus:border-teal-500 transition-all font-semibold" value={formData.qualification} onChange={e => setFormData({...formData, qualification: e.target.value})} />
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Qualification</Label>
+                       <Input required placeholder="MBBS, MD - Cardiology" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.qualification} onChange={e => setFormData({...formData, qualification: e.target.value})} />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Languages</Label>
+                       <Input placeholder="English, Hindi" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.languages} onChange={e => setFormData({...formData, languages: e.target.value})} />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Bio</Label>
+                       <Textarea placeholder="Short biography..." className="min-h-[80px] border-gray-200 rounded-xl font-semibold" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
+                    </div>
+                    <div className="col-span-2 flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div>
+                        <Label className="font-bold text-slate-900">Platform Verification</Label>
+                        <p className="text-xs font-medium text-slate-500">Enable this if the doctor's credentials have been manually verified.</p>
+                      </div>
+                      <Switch checked={formData.isVerified} onCheckedChange={c => setFormData({...formData, isVerified: c})} className="data-[state=checked]:bg-[#0D9488]" />
                     </div>
                   </div>
                   <DialogFooter className="pt-4 gap-3">
@@ -395,19 +348,24 @@ export default function AdminDoctorsPage() {
       <Card className="border-none shadow-sm bg-white overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
-            <TableSkeleton />
+            <div className="p-4 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}</div>
           ) : doctors.length === 0 ? (
-            <EmptyState onAdd={() => setIsModalOpen(true)} />
+            <div className="flex flex-col items-center justify-center p-20 text-center space-y-6">
+              <div className="bg-gray-50 p-8 rounded-full text-gray-300"><FilterX size={64} strokeWidth={1.5} /></div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-black text-gray-900 tracking-tight">No doctors found</h3>
+                <p className="text-gray-500 font-medium max-w-xs">Relax your filters or onboard a new doctor.</p>
+              </div>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50/50 hover:bg-transparent border-gray-100">
-                    <TableHead className="px-6 py-5 font-black text-[11px] text-gray-400 uppercase tracking-widest">Doctor Information</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Specialization</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Exp / Fee</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Rating</TableHead>
+                    <TableHead className="px-6 py-5 font-black text-[11px] text-gray-400 uppercase tracking-widest">Doctor</TableHead>
+                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Location</TableHead>
                     <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Status</TableHead>
+                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Verification</TableHead>
                     <TableHead className="text-right pr-8 font-black text-[11px] text-gray-400 uppercase tracking-widest">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -422,58 +380,47 @@ export default function AdminDoctorsPage() {
                           </Avatar>
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-gray-900 truncate group-hover:text-teal-600 transition-colors">{doctor.name}</span>
-                            <span className="text-[11px] text-gray-400 font-medium truncate">{doctor.email}</span>
+                            <span className="text-[11px] text-gray-400 font-medium truncate">{doctor.specialization}</span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                         <Badge variant="outline" className="text-[10px] font-black uppercase tracking-tight py-0.5 px-2 border-teal-100 text-teal-700 bg-teal-50/30">
-                           {doctor.specialization}
-                         </Badge>
-                      </TableCell>
-                      <TableCell>
                          <div className="flex flex-col">
-                            <span className="text-xs font-bold text-gray-700">{doctor.experienceYears} Years Exp.</span>
-                            <span className="text-[11px] text-gray-400 font-bold">₹{doctor.consultationFee} / session</span>
+                            <span className="text-xs font-bold text-gray-700">{doctor.city || "N/A"}</span>
+                            <span className="text-[11px] text-gray-400 font-bold truncate max-w-[120px]">{doctor.clinicName}</span>
                          </div>
-                      </TableCell>
-                      <TableCell>
-                         <StarRating rating={doctor.rating} />
-                         <span className="text-[10px] text-gray-400 font-medium">{doctor.totalConsultations} consultations</span>
                       </TableCell>
                       <TableCell>
                          <div className="flex items-center gap-2">
-                            <div className={cn("w-2 h-2 rounded-full", doctor.isAvailable ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" : "bg-orange-500")} />
-                            <span className={cn("text-[11px] font-black uppercase tracking-widest", doctor.isAvailable ? "text-green-600" : "text-orange-600")}>
-                               {doctor.isAvailable ? "Available" : "On Duty / Busy"}
+                            <div className={cn("w-2 h-2 rounded-full", doctor.isAvailable ? "bg-green-500" : "bg-slate-300")} />
+                            <span className={cn("text-[11px] font-black uppercase tracking-widest", doctor.isAvailable ? "text-green-600" : "text-slate-500")}>
+                               {doctor.isAvailable ? "Available" : "Offline"}
                             </span>
                          </div>
                       </TableCell>
+                      <TableCell>
+                         {doctor.isVerified ? (
+                           <Badge className="bg-emerald-100 text-emerald-800 border-none font-bold gap-1 shadow-none"><ShieldCheck size={12}/> Verified</Badge>
+                         ) : (
+                           <Badge className="bg-amber-100 text-amber-800 border-none font-bold gap-1 shadow-none"><ShieldAlert size={12}/> Unverified</Badge>
+                         )}
+                      </TableCell>
                       <TableCell className="text-right pr-4">
                         <div className="flex items-center justify-end gap-1">
-                          {canEditOrDelete && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg" onClick={() => handleEdit(doctor)}>
-                               <Edit2 size={14} />
-                            </Button>
-                          )}
                           <Button 
                              variant="ghost" 
-                             size="icon" 
-                             className={cn("h-8 w-8 rounded-lg outline-none", doctor.isAvailable ? "text-orange-400 hover:text-orange-600 hover:bg-orange-50" : "text-green-400 hover:text-green-600 hover:bg-green-50")}
-                             onClick={() => toggleMutation.mutate(doctor.id)}
+                             size="sm" 
+                             className="h-8 text-xs font-bold text-gray-500 hover:text-[#00A87E] hover:bg-teal-50 rounded-lg"
+                             onClick={() => toggleVerifyMutation.mutate(doctor.id)}
                           >
-                             <Power size={14} />
+                             {toggleVerifyMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : "Verify"}
                           </Button>
-                          {canEditOrDelete && (
-                            <Button 
-                               variant="ghost" 
-                               size="icon" 
-                               className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                               onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}
-                            >
-                               <Trash2 size={14} />
-                            </Button>
-                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEdit(doctor)}>
+                             <Edit2 size={14} />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}>
+                             <Trash2 size={14} />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -506,37 +453,6 @@ export default function AdminDoctorsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
-}
-
-function TableSkeleton() {
-  return (
-    <div className="p-4 space-y-4">
-      {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full rounded-xl" />
-      ))}
-    </div>
-  );
-}
-
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center p-20 text-center space-y-6">
-      <div className="bg-gray-50 p-8 rounded-full text-gray-300">
-        <FilterX size={64} strokeWidth={1.5} />
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-xl font-black text-gray-900 tracking-tight">No doctors found</h3>
-        <p className="text-gray-500 font-medium max-w-xs">Relax your filters or onboard a new doctor to the platform.</p>
-      </div>
-      <Button 
-        onClick={onAdd}
-        className="bg-[#0D9488] hover:bg-[#0b7a6e] h-11 px-8 rounded-xl font-bold shadow-lg shadow-teal-500/10"
-      >
-        <Plus size={18} className="mr-2" />
-        Add New Doctor
-      </Button>
     </div>
   );
 }

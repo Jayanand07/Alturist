@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -31,30 +32,40 @@ public class ConsultationService {
     private final ConsultationRepository consultationRepository;
     private final DoctorRepository doctorRepository;
 
-    // ── Booking ─────────────────────────────────────────────────────────────
-
     /**
      * Books an instant consultation.
      *
-     * CRITICAL: This method atomically:
-     * 1. Validates the doctor exists and is available
-     * 2. Sets doctor.isAvailable = false (prevents double-booking)
-     * 3. Creates the Consultation entity with a deterministic Jitsi room name
+     * Race-condition safe: uses an atomic UPDATE-WHERE to acquire the doctor's
+     * availability slot. The database serialises concurrent UPDATE attempts on
+     * the same row, so only one transaction can succeed.
+     *
+     * Flow:
+     *  1. Verify the doctor exists (DoctorNotFoundException if not).
+     *  2. atomicSetUnavailable() → single UPDATE ... WHERE isAvailable = true.
+     *     - Returns 1  → this transaction won the slot; proceed.
+     *     - Returns 0  → another request already set isAvailable = false;
+     *                    throw DoctorNotAvailableException immediately.
+     *  3. Create + persist the Consultation entity.
+     *
+     * Isolation.READ_COMMITTED ensures the WHERE clause in step 2 reads the
+     * most recently committed value from other transactions, preventing phantom
+     * reads of stale availability data.
      */
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ConsultationResponseDTO bookInstantConsultation(User patient, InstantBookingRequestDTO request) {
+        // Step 1: Verify doctor exists (do NOT load isAvailable here — we check it atomically below)
         Doctor doctor = doctorRepository.findByIdWithUser(request.getDoctorId())
                 .orElseThrow(() -> new DoctorNotFoundException(request.getDoctorId()));
 
-        if (!Boolean.TRUE.equals(doctor.getIsAvailable())) {
-            throw new DoctorNotAvailableException(doctor.getUser().getFullName());
+        // Step 2: Atomic test-and-set — wins the booking slot or fails immediately
+        int rowsUpdated = doctorRepository.atomicSetUnavailable(request.getDoctorId());
+        if (rowsUpdated == 0) {
+            // Doctor was unavailable at the moment the UPDATE executed — concurrent booking won
+            throw new DoctorNotAvailableException(
+                    "Doctor is currently unavailable. They may have just been booked by another patient.");
         }
 
-        // Mark doctor unavailable BEFORE creating consultation
-        doctor.setIsAvailable(false);
-        doctorRepository.save(doctor);
-
-        // Create consultation
+        // Step 3: Create consultation (doctor slot is now locked)
         Consultation consultation = new Consultation();
         consultation.setPatient(patient);
         consultation.setDoctor(doctor);
@@ -70,7 +81,7 @@ public class ConsultationService {
         saved.setVideoRoomId(generateVideoRoomName(saved.getId()));
         saved = consultationRepository.save(saved);
 
-        logger.info("Consultation booked: {} | Patient: {} → Doctor: {}",
+        logger.info("Consultation booked: {} | Patient: {} \u2192 Doctor: {}",
                 saved.getId(), patient.getFullName(), doctor.getUser().getFullName());
 
         return toResponseDTO(saved);

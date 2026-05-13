@@ -24,4 +24,14 @@ public class AdminDoctorRequestDTO {
     private Integer experienceYears;
     private BigDecimal consultationFee;
     private String qualification;
+    private String city;
+    private String clinicName;
+    private String clinicAddress;
+    private String clinicPhone;
+    private Double latitude;
+    private Double longitude;
+    private Boolean isVerified;
+    private String bio;
+    private String languages;
+    private String profilePictureUrl;
 }

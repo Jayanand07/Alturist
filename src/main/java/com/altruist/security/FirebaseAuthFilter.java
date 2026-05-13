@@ -70,8 +70,8 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         if (firebaseAuth == null) {
-            logger.error("FirebaseAuth is missing. Check FIREBASE_CREDENTIALS_PATH.");
-            sendUnauthorizedError(response, "Firebase Auth is not properly configured on the server");
+            logger.warn("FirebaseAuth bean is null — server misconfiguration");
+            sendUnauthorizedError(response);
             return;
         }
 
@@ -104,12 +104,15 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (FirebaseAuthException e) {
-            logger.warn("Firebase token verification failed: {}", e.getMessage());
-            sendUnauthorizedError(response, "Invalid or expired Firebase token");
+            // SECURITY: Log at WARN (not ERROR) — expected for expired/invalid tokens.
+            //           Never expose Firebase error codes or token details in the response.
+            logger.warn("Firebase token verification failed for request {} {}", request.getMethod(), request.getRequestURI());
+            sendUnauthorizedError(response);
             return;
         } catch (Exception e) {
-            logger.error("Error during authentication process", e);
-            sendUnauthorizedError(response, "Internal Authentication Error");
+            // SECURITY: Unexpected errors during auth — log full stack server-side only.
+            logger.warn("Authentication processing error for request {} {}: {}", request.getMethod(), request.getRequestURI(), e.getClass().getSimpleName());
+            sendUnauthorizedError(response);
             return;
         }
 
@@ -126,11 +129,13 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private void sendUnauthorizedError(HttpServletResponse response, String message) throws IOException {
+    /**
+     * SECURITY: Always return the same generic 401 body.
+     * Never include token details, Firebase error codes, or stack traces.
+     */
+    private void sendUnauthorizedError(HttpServletResponse response) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        String safeMessage = message.replace("\\", "\\\\").replace("\"", "\\\"");
-        String body = "{\"error\": \"Unauthorized\", \"message\": \"" + safeMessage + "\"}";
-        response.getWriter().write(body);
+        response.getWriter().write("{\"error\": \"Unauthorized\"}");
     }
 }

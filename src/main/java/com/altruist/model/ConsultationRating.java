@@ -21,10 +21,12 @@ public class ConsultationRating {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultation_id", nullable = false)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Consultation consultation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Doctor doctor;
 
     @Column(nullable = false)

@@ -33,14 +33,18 @@ public class DoctorController {
      * Public endpoint — returns paginated list of available doctors.
      */
     @GetMapping("/available")
-    public ResponseEntity<Page<DoctorListDTO>> getAvailableDoctors(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+    public ResponseEntity<?> getAvailableDoctors(
+            @RequestParam(required = false) String city,
             @RequestParam(required = false) String specialization,
-            @RequestParam(required = false) Double minFee,
-            @RequestParam(required = false) Double maxFee
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) Boolean available
     ) {
-        return ResponseEntity.ok(doctorService.findAvailableDoctors(page, size, specialization, minFee, maxFee));
+        return ResponseEntity.ok(doctorService.getDoctors(city, specialization, sortBy, available));
+    }
+
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getCities() {
+        return ResponseEntity.ok(doctorService.getAvailableCities());
     }
 
     /**
@@ -56,6 +60,20 @@ public class DoctorController {
     public ResponseEntity<DoctorDashboardDTO> getDashboard() {
         User user = getAuthenticatedUser();
         return ResponseEntity.ok(doctorService.getDashboardData(user.getId()));
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<DoctorDetailDTO> getOwnProfile() {
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(doctorService.getOwnProfile(user.getId()));
+    }
+
+    @PatchMapping("/profile")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<DoctorDetailDTO> updateOwnProfile(@RequestBody DoctorDetailDTO dto) {
+        User user = getAuthenticatedUser();
+        return ResponseEntity.ok(doctorService.updateOwnProfile(user.getId(), dto));
     }
 
     @GetMapping

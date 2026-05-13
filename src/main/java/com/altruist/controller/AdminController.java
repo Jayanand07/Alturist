@@ -12,11 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -62,10 +64,8 @@ public class AdminController {
             adminService.deleteDoctor(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            if (e.getMessage().startsWith("409")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            throw e;
+            log.warn("Failed to delete doctor {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
@@ -87,10 +87,8 @@ public class AdminController {
             adminService.deletePatient(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            if (e.getMessage().startsWith("409")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            throw e;
+            log.warn("Failed to delete patient {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
 
@@ -117,5 +115,89 @@ public class AdminController {
     public ResponseEntity<Page<OrderResponseDTO>> getAdminOrders(Pageable pageable) {
         return ResponseEntity.ok(orderService.getAllOrders(pageable));
     }
-}
 
+    // --- SUPER ADMIN ENDPOINTS ---
+
+    @GetMapping("/doctors/{doctorId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<DoctorDetailDTO> adminGetDoctorDetail(@PathVariable UUID doctorId) {
+        return ResponseEntity.ok(adminService.adminGetDoctorDetail(doctorId));
+    }
+
+    @PutMapping("/doctors/{doctorId}/full")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<DoctorDetailDTO> adminUpdateDoctor(@PathVariable UUID doctorId, @Valid @RequestBody AdminDoctorRequestDTO dto) {
+        return ResponseEntity.ok(adminService.adminUpdateDoctor(doctorId, dto));
+    }
+
+    @DeleteMapping("/doctors/{doctorId}/force")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> adminDeleteDoctorForce(@PathVariable UUID doctorId) {
+        adminService.adminDeleteDoctor(doctorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/doctors/{doctorId}/verify")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> adminVerifyDoctor(@PathVariable UUID doctorId) {
+        adminService.adminToggleDoctorVerification(doctorId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/patients/{patientId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<PatientDetailDTO> adminGetPatientDetail(@PathVariable UUID patientId) {
+        return ResponseEntity.ok(adminService.adminGetPatientDetail(patientId));
+    }
+
+    @PutMapping("/patients/{patientId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<PatientDetailDTO> adminUpdatePatient(@PathVariable UUID patientId, @RequestBody PatientProfileDTO dto) {
+        return ResponseEntity.ok(adminService.adminUpdatePatient(patientId, dto));
+    }
+
+    @DeleteMapping("/patients/{patientId}/force")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> adminDeletePatientForce(@PathVariable UUID patientId) {
+        adminService.adminDeletePatient(patientId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/medicines")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<com.altruist.dto.MedicineDTO> adminCreateMedicine(@RequestBody com.altruist.dto.MedicineDTO dto) {
+        return ResponseEntity.ok(adminService.adminCreateMedicine(dto));
+    }
+
+    @PutMapping("/medicines/{medicineId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<com.altruist.dto.MedicineDTO> adminUpdateMedicine(@PathVariable UUID medicineId, @RequestBody com.altruist.dto.MedicineDTO dto) {
+        return ResponseEntity.ok(adminService.adminUpdateMedicine(medicineId, dto));
+    }
+
+    @DeleteMapping("/medicines/{medicineId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> adminDeleteMedicine(@PathVariable UUID medicineId) {
+        adminService.adminDeleteMedicine(medicineId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/promote")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Map<String, Object>> adminPromoteUser(@RequestBody PromoteRequest req) {
+        return ResponseEntity.ok(adminService.adminPromoteUser(req.getUserId(), req.getNewRole()));
+    }
+
+    @PutMapping("/admins/{adminId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<Void> adminUpdateSuperAdmin(@PathVariable UUID adminId, @RequestBody Map<String, Object> changes) {
+        adminService.adminUpdateSuperAdmin(adminId, changes);
+        return ResponseEntity.ok().build();
+    }
+
+    @lombok.Data
+    public static class PromoteRequest {
+        private UUID userId;
+        private String newRole;
+    }
+}

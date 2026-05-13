@@ -11,6 +11,8 @@ interface AuthContextType {
   syncing: boolean;
   getToken: () => Promise<string | null>;
   signOut: () => Promise<void>;
+  /** Returns true when the current user's role exactly matches the given role string. */
+  hasRole: (role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
   syncing: false,
   getToken: async () => null,
   signOut: async () => {},
+  hasRole: () => false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -137,8 +140,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     document.cookie = `userType=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure`;
   };
 
+  /** Returns true when the currently authenticated user has exactly the given role. */
+  const hasRole = (role: string): boolean => userType === role;
+
   return (
-    <AuthContext.Provider value={{ user, userType, loading, syncing, getToken, signOut }}>
+    <AuthContext.Provider value={{ user, userType, loading, syncing, getToken, signOut, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

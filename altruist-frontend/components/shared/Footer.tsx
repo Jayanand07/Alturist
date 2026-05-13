@@ -2,39 +2,42 @@
 
 import React from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Twitter, Instagram, Facebook, Linkedin, ShieldCheck, HeartPulse, Phone, Mail, MapPin } from "lucide-react"
+import {
+  Twitter, Instagram, Facebook, Linkedin,
+  ShieldCheck, HeartPulse, Phone, Mail, MapPin,
+} from "lucide-react"
 
 export default function Footer() {
   const footerSections = [
     {
       title: "Our Services",
       links: [
-        { label: "Consult Doctors", href: "/consult" },
-        { label: "Diagnostic Tests", href: "/labs" },
-        { label: "Order Medicines", href: "/medicines" },
-        { label: "Health Plans", href: "/plans" },
-        { label: "For Corporates", href: "/about" },
+        { label: "Consult Doctors",  href: "/consult"   },
+        { label: "Find a Clinic",    href: "/clinics"   },
+        { label: "Diagnostic Tests", href: "/labs"      },
+        { label: "Order Medicines",  href: "/medicines" },
+        { label: "Health Plans",     href: "/plans"     },
+        { label: "Doctor Vlogs",     href: "/vlogs"     },
       ],
     },
     {
       title: "Company",
       links: [
-        { label: "About Us", href: "/about" },
-        { label: "Careers", href: "/about" },
-        { label: "Press", href: "/about" },
-        { label: "Blog", href: "/about" },
-        { label: "Contact Us", href: "/about" },
+        { label: "About Us",   href: "/about"                             },
+        { label: "Careers",    href: "/about"                             },
+        { label: "Press",      href: "/about"                             },
+        { label: "Blog",       href: "/vlogs"                             },
+        { label: "Contact Us", href: "mailto:support@altruistwellness.com" },
       ],
     },
     {
-      title: "Support",
+      title: "Support & Legal",
       links: [
-        { label: "Help Center", href: "/about" },
-        { label: "Privacy Policy", href: "/about" },
-        { label: "Terms of Service", href: "/about" },
-        { label: "Refund Policy", href: "/about" },
-        { label: "Cookie Policy", href: "/about" },
+        { label: "Help & Support",     href: "/support"       },
+        { label: "Terms & Conditions", href: "/terms"         },
+        { label: "Privacy Policy",     href: "/privacy"       },
+        { label: "Refund Policy",      href: "/refund-policy" },
+        { label: "Cookie Policy",      href: "/about"         },
       ],
     },
   ]
@@ -43,46 +46,52 @@ export default function Footer() {
     <footer className="bg-[#0F172A] text-white pt-16 pb-8 px-6 md:px-12 font-sans">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 sm:gap-10">
-          {/* Column 1 - Brand */}
+
+          {/* Column 1 — Brand */}
           <div className="lg:col-span-2 flex flex-col space-y-6">
             <Link href="/" className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90">
               <HeartPulse className="w-8 h-8 text-[#00A87E]" />
               <span className="font-heading text-2xl font-extrabold text-white tracking-tight">ALTRUIST</span>
             </Link>
             <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[300px]">
-              Instant Healthcare. Anytime. Anywhere. Making quality healthcare affordable and accessible for every Indian family.
+              Instant Healthcare. Anytime. Anywhere. Making quality healthcare
+              affordable and accessible for every Indian family.
             </p>
+
+            {/* Social links */}
             <div className="flex items-center gap-4 pt-2">
               {[
-                { icon: Twitter, href: "#" },
-                { icon: Instagram, href: "#" },
-                { icon: Facebook, href: "#" },
-                { icon: Linkedin, href: "#" },
-              ].map((social, idx) => (
-                <Link key={idx} href={social.href} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00A87E] hover:bg-[#00A87E]/10 hover:border-[#00A87E]/30 transition-all">
-                  <social.icon size={18} strokeWidth={1.5} />
+                { icon: Twitter,   href: "#", label: "Twitter"   },
+                { icon: Instagram, href: "#", label: "Instagram" },
+                { icon: Facebook,  href: "#", label: "Facebook"  },
+                { icon: Linkedin,  href: "#", label: "LinkedIn"  },
+              ].map((s) => (
+                <Link key={s.label} href={s.href} aria-label={s.label}
+                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-[#00A87E] hover:bg-[#00A87E]/10 hover:border-[#00A87E]/30 transition-all">
+                  <s.icon size={18} strokeWidth={1.5} />
                 </Link>
               ))}
             </div>
 
-            {/* Contact Info */}
-            <div className="space-y-3 pt-4">
+            {/* Contact info */}
+            <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Phone size={14} className="text-[#00A87E]" />
+                <Phone size={14} className="text-[#00A87E] flex-shrink-0" />
                 <span>+91 800 123 4567</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Mail size={14} className="text-[#00A87E]" />
-                <span>support@altruist.health</span>
+                <Mail size={14} className="text-[#00A87E] flex-shrink-0" />
+                <a href="mailto:support@altruistwellness.com"
+                  className="hover:text-[#00A87E] transition-colors">support@altruistwellness.com</a>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-400">
-                <MapPin size={14} className="text-[#00A87E]" />
+                <MapPin size={14} className="text-[#00A87E] flex-shrink-0" />
                 <span>Amritsar, Punjab, India</span>
               </div>
             </div>
           </div>
 
-          {/* Other Columns */}
+          {/* Link columns */}
           {footerSections.map((section) => (
             <div key={section.title} className="flex flex-col space-y-5">
               <h3 className="font-heading text-sm font-extrabold text-white tracking-wider uppercase">
@@ -91,8 +100,8 @@ export default function Footer() {
               <ul className="flex flex-col space-y-3">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <Link 
-                      href={link.href} 
+                    <Link
+                      href={link.href}
                       className="text-slate-400 hover:text-[#00A87E] transition-colors text-sm font-medium"
                     >
                       {link.label}
@@ -108,7 +117,7 @@ export default function Footer() {
         <div className="mt-14 pt-8 border-t border-white/5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3 text-slate-500 text-sm font-medium">
-              <ShieldCheck className="text-[#00A87E]/60" size={18} />
+              <ShieldCheck className="text-[#00A87E]/60 flex-shrink-0" size={18} />
               <span>Licensed healthcare platform. Not a substitute for professional medical advice.</span>
             </div>
             <div className="flex items-center gap-6">
@@ -119,16 +128,29 @@ export default function Footer() {
                   </div>
                 ))}
               </div>
-              <p className="text-slate-600 text-[10px] font-bold tracking-widest uppercase">© 2026 Altruist</p>
+              <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">© 2025 Altruist Wellness. All rights reserved.</p>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-6 text-xs text-slate-500 font-medium">
-            <Link href="/about" className="hover:text-[#00A87E] transition-colors">Privacy Policy</Link>
-            <span className="text-white/10">|</span>
-            <Link href="/about" className="hover:text-[#00A87E] transition-colors">Terms of Service</Link>
-            <span className="text-white/10">|</span>
-            <Link href="/about" className="hover:text-[#00A87E] transition-colors">Cookies</Link>
+
+          {/* Legal links row */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-6 text-xs text-slate-500 font-medium">
+            <Link href="/privacy"       className="hover:text-[#00A87E] transition-colors">Privacy Policy</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/terms"         className="hover:text-[#00A87E] transition-colors">Terms &amp; Conditions</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/refund-policy" className="hover:text-[#00A87E] transition-colors">Refund Policy</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/plans"         className="hover:text-[#00A87E] transition-colors">Health Plans</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/clinics"       className="hover:text-[#00A87E] transition-colors">Find a Clinic</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/vlogs"         className="hover:text-[#00A87E] transition-colors">Doctor Vlogs</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/support"       className="hover:text-[#00A87E] transition-colors">Support</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/about"         className="hover:text-[#00A87E] transition-colors">Cookies</Link>
           </div>
+
         </div>
       </div>
     </footer>

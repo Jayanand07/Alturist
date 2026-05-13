@@ -21,9 +21,14 @@ public final class DoctorMapper {
                 .experienceYears(doctor.getExperienceYears())
                 .consultationFee(doctor.getConsultationFee())
                 .rating(doctor.getRating())
-                .profilePictureUrl(user != null ? user.getProfilePictureUrl() : null)
+                .profilePictureUrl(doctor.getProfilePictureUrl() != null ? doctor.getProfilePictureUrl() : (user != null ? user.getProfilePictureUrl() : null))
                 .totalConsultations(doctor.getTotalConsultations())
                 .isAvailable(doctor.getIsAvailable()) // Added isAvailable
+                .city(doctor.getCity())
+                .clinicName(doctor.getClinicName())
+                .isVerified(doctor.getIsVerified())
+                .bio(doctor.getBio())
+                .languages(doctor.getLanguages())
                 .build();
     }
 
@@ -41,7 +46,36 @@ public final class DoctorMapper {
                 .isAvailable(doctor.getIsAvailable())
                 .rating(doctor.getRating())
                 .totalConsultations(doctor.getTotalConsultations())
-                .profilePictureUrl(user != null ? user.getProfilePictureUrl() : null)
+                .profilePictureUrl(doctor.getProfilePictureUrl() != null ? doctor.getProfilePictureUrl() : (user != null ? user.getProfilePictureUrl() : null))
+                .city(doctor.getCity())
+                .clinicName(doctor.getClinicName())
+                .clinicAddress(doctor.getClinicAddress())
+                .clinicPhone(doctor.getClinicPhone())
+                .latitude(doctor.getLatitude())
+                .longitude(doctor.getLongitude())
+                .isVerified(doctor.getIsVerified())
+                .bio(doctor.getBio())
+                .languages(doctor.getLanguages())
                 .build();
+    }
+
+    public static void updateDoctorFromRequest(Doctor doctor, AdminDoctorRequestDTO dto) {
+        if (doctor == null || dto == null) return;
+        
+        if (dto.getSpecialization() != null) doctor.setSpecialization(dto.getSpecialization());
+        if (dto.getMedicalLicense() != null) doctor.setMedicalLicense(dto.getMedicalLicense());
+        if (dto.getQualification() != null) doctor.setQualification(dto.getQualification());
+        if (dto.getExperienceYears() != null) doctor.setExperienceYears(dto.getExperienceYears());
+        if (dto.getConsultationFee() != null) doctor.setConsultationFee(dto.getConsultationFee());
+        if (dto.getCity() != null) doctor.setCity(dto.getCity());
+        if (dto.getClinicName() != null) doctor.setClinicName(dto.getClinicName());
+        if (dto.getClinicAddress() != null) doctor.setClinicAddress(dto.getClinicAddress());
+        if (dto.getClinicPhone() != null) doctor.setClinicPhone(dto.getClinicPhone());
+        if (dto.getLatitude() != null) doctor.setLatitude(dto.getLatitude());
+        if (dto.getLongitude() != null) doctor.setLongitude(dto.getLongitude());
+        if (dto.getIsVerified() != null) doctor.setIsVerified(dto.getIsVerified());
+        if (dto.getBio() != null) doctor.setBio(dto.getBio());
+        if (dto.getLanguages() != null) doctor.setLanguages(dto.getLanguages());
+        if (dto.getProfilePictureUrl() != null) doctor.setProfilePictureUrl(dto.getProfilePictureUrl());
     }
 }

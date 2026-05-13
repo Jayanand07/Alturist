@@ -233,6 +233,69 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
+/* ── Page Transition ──────────────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Status Badge Colours ─────────────────────────────────────────────────── */
+.badge-active    { background: #E6F7F3; color: #00A87E;  }
+.badge-pending   { background: #FEF3C7; color: #D97706;  }
+.badge-cancelled { background: #FEE2E2; color: #DC2626;  }
+.badge-resolved  { background: #EDE9FE; color: #7C3AED;  }
+.badge-info      { background: #DBEAFE; color: #2563EB;  }
+
+/* ── Form Focus Ring ──────────────────────────────────────────────────────── */
+/* Teal ring for all standard form controls */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #00A87E40;
+  outline-offset: 0;
+  border-color: #00A87E !important;
+  box-shadow: 0 0 0 3px #00A87E1A;
+}
+
+/* Override Tailwind ring colour globally */
+* {
+  --tw-ring-color: #00A87E40;
+}
+
+/* ── Skeleton Pulse (branded) ─────────────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { background-color: #E6F7F3; }
+  50%       { background-color: #C5EDE3; }
+}
+.skeleton {
+  border-radius: 0.5rem;
+  animation: skeleton-pulse 1.8s ease-in-out infinite;
+}
+.skeleton-sm  { height: 0.75rem; }
+.skeleton-md  { height: 1.25rem; }
+.skeleton-lg  { height: 2rem;    }
+.skeleton-xl  { height: 3.5rem;  }
+.skeleton-circle { border-radius: 9999px; }
+
+/* ── Glassmorphism Card ───────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ── Teal Glow (for CTAs) ─────────────────────────────────────────────────── */
+.teal-glow {
+  box-shadow: 0 0 24px rgba(0, 168, 126, 0.35);
+}
+.teal-glow:hover {
+  box-shadow: 0 0 36px rgba(0, 168, 126, 0.5);
+}
+
 .dark {
   --background:   oklch(0.145 0 0);
   --foreground:   oklch(0.985 0 0);

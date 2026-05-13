@@ -3,7 +3,11 @@ server:
 
 firebase:
   credentials:
+    # REQUIRED — no default fallback. App will refuse to start (IllegalStateException)
+    # if FIREBASE_CREDENTIALS_PATH is unset or points to a non-existent file.
+    # See FirebaseConfig.java @PostConstruct for validation logic.
     path: ${FIREBASE_CREDENTIALS_PATH}
+
 
 spring:
   datasource:
@@ -11,6 +15,20 @@ spring:
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+    # ── HikariCP connection pool ────────────────────────────────────────────
+    # Sized for a mid-scale production instance (2–4 vCPUs).
+    # Rule of thumb: max-pool-size ≈ (cores × 2) + effective_spindle_count.
+    # connection-timeout: max ms a thread will wait before throwing an exception.
+    # idle-timeout: how long an idle connection may stay in the pool before eviction.
+    # max-lifetime: hard ceiling on connection lifetime — prevents stale/broken sockets.
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000       # 30 s
+      idle-timeout: 600000            # 10 min
+      max-lifetime: 1800000           # 30 min
+      pool-name: AltruistHikariPool
 
   jpa:
     hibernate:
@@ -23,7 +41,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   cache:
-    type: simple
+    # Caffeine is on the classpath (added in pom.xml) — use it instead of the
+    # in-memory simple provider so per-cache TTLs from CacheConfig are honoured.
+    type: caffeine
 
   # CORS configuration (also handled via WebConfig.java)
   # Allowed origin: http://localhost:3000

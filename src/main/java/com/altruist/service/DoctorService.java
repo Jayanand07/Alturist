@@ -9,6 +9,7 @@ import com.altruist.repository.PrescriptionRepository;
 import com.altruist.repository.UserRepository;
 import com.altruist.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -177,6 +178,51 @@ public class DoctorService {
                 .map(DoctorMapper::toListDTO);
     }
 
+    @Transactional(readOnly = true)
+    public List<DoctorListDTO> getDoctors(String city, String specialization, String sortBy, Boolean available) {
+        List<Doctor> doctors;
+        if (city != null && !city.trim().isEmpty() && specialization != null && !specialization.trim().isEmpty()) {
+            doctors = doctorRepository.findByCityIgnoreCaseAndSpecializationAndIsVerifiedTrue(city, specialization);
+        } else if (city != null && !city.trim().isEmpty()) {
+            doctors = doctorRepository.findByCityIgnoreCaseAndIsVerifiedTrue(city);
+        } else if (specialization != null && !specialization.trim().isEmpty()) {
+            doctors = doctorRepository.findBySpecializationAndIsVerifiedTrue(specialization);
+        } else {
+            doctors = doctorRepository.findByIsVerifiedTrue();
+        }
+
+        if (Boolean.TRUE.equals(available)) {
+            doctors = doctors.stream().filter(Doctor::getIsAvailable).collect(Collectors.toList());
+        } else if (Boolean.FALSE.equals(available)) {
+            doctors = doctors.stream().filter(d -> !d.getIsAvailable()).collect(Collectors.toList());
+        }
+
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "rating":
+                    doctors.sort((d1, d2) -> Double.compare(d2.getRating(), d1.getRating()));
+                    break;
+                case "fee_asc":
+                    doctors.sort((d1, d2) -> d1.getConsultationFee().compareTo(d2.getConsultationFee()));
+                    break;
+                case "fee_desc":
+                    doctors.sort((d1, d2) -> d2.getConsultationFee().compareTo(d1.getConsultationFee()));
+                    break;
+                case "experience":
+                    doctors.sort((d1, d2) -> Integer.compare(d2.getExperienceYears() != null ? d2.getExperienceYears() : 0, 
+                                                             d1.getExperienceYears() != null ? d1.getExperienceYears() : 0));
+                    break;
+            }
+        }
+
+        return doctors.stream().map(DoctorMapper::toListDTO).collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "doctorCities")
+    public List<String> getAvailableCities() {
+        return doctorRepository.findDistinctCities();
+    }
+
     /**
      * Fetches a single doctor with full detail.
      */
@@ -184,7 +230,60 @@ public class DoctorService {
     public DoctorDetailDTO findDoctorById(UUID id) {
         Doctor doctor = doctorRepository.findByIdWithUser(id)
                 .orElseThrow(() -> new DoctorNotFoundException(id));
+        DoctorDetailDTO dto = DoctorMapper.toDetailDTO(doctor);
+
+        try {
+            org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof User) {
+                User user = (User) auth.getPrincipal();
+                if (user.getUserType() == UserType.PATIENT) {
+                    dto.setLatitude(null);
+                    dto.setLongitude(null);
+                    dto.setClinicPhone(null);
+                    dto.setMedicalLicense(null);
+                }
+            } else {
+                dto.setLatitude(null);
+                dto.setLongitude(null);
+                dto.setClinicPhone(null);
+                dto.setMedicalLicense(null);
+            }
+        } catch (Exception e) {
+            dto.setLatitude(null);
+            dto.setLongitude(null);
+            dto.setClinicPhone(null);
+            dto.setMedicalLicense(null);
+        }
+
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public DoctorDetailDTO getOwnProfile(UUID userId) {
+        Doctor doctor = doctorRepository.findByUserId(userId)
+                .orElseThrow(() -> new DoctorNotFoundException("No doctor profile found for this user"));
         return DoctorMapper.toDetailDTO(doctor);
+    }
+
+    @Transactional
+    public DoctorDetailDTO updateOwnProfile(UUID userId, DoctorDetailDTO dto) {
+        Doctor doctor = doctorRepository.findByUserId(userId)
+                .orElseThrow(() -> new DoctorNotFoundException("No doctor profile found for this user"));
+        
+        doctor.setSpecialization(dto.getSpecialization());
+        doctor.setQualification(dto.getQualification());
+        doctor.setExperienceYears(dto.getExperienceYears());
+        doctor.setBio(dto.getBio());
+        doctor.setLanguages(dto.getLanguages());
+        doctor.setCity(dto.getCity());
+        doctor.setProfilePictureUrl(dto.getProfilePictureUrl());
+        doctor.setConsultationFee(dto.getConsultationFee());
+        doctor.setClinicName(dto.getClinicName());
+        doctor.setClinicAddress(dto.getClinicAddress());
+        doctor.setClinicPhone(dto.getClinicPhone());
+        
+        Doctor saved = doctorRepository.save(doctor);
+        return DoctorMapper.toDetailDTO(saved);
     }
 
     /**

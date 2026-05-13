@@ -26,4 +26,13 @@ public class DoctorDetailDTO {
     private Double rating;
     private Integer totalConsultations;
     private String profilePictureUrl;
+    private String city;
+    private String clinicName;
+    private String clinicAddress;
+    private String clinicPhone;
+    private Double latitude;
+    private Double longitude;
+    private Boolean isVerified;
+    private String bio;
+    private String languages;
 }

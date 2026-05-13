@@ -23,4 +23,9 @@ public class DoctorListDTO {
     private String profilePictureUrl;
     private Integer totalConsultations;
     private Boolean isAvailable;
+    private String city;
+    private String clinicName;
+    private Boolean isVerified;
+    private String bio;
+    private String languages;
 }

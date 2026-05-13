@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicineDTO {
+    private java.util.UUID id;
     @NotBlank(message = "Medicine name is required")
     private String name;
     private String genericName;
@@ -27,6 +28,8 @@ public class MedicineDTO {
     private Boolean requiresPrescription = false;
     @Builder.Default
     private Boolean inStock = true;
+    @Builder.Default
+    private Integer stockQuantity = 0;
     private String description;
     private String imageUrl;
 }

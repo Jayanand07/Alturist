@@ -34,6 +34,7 @@ public class AdminService {
     private final DoctorRepository doctorRepository;
     private final ConsultationRepository consultationRepository;
     private final PrescriptionRepository prescriptionRepository;
+    private final com.altruist.repository.MedicineRepository medicineRepository;
 
     @Transactional(readOnly = true)
     public AdminDashboardDTO getDashboardStats() {
@@ -284,5 +285,141 @@ public class AdminService {
         }
 
         userRepository.delete(user);
+    }
+    @Transactional(readOnly = true)
+    public DoctorDetailDTO adminGetDoctorDetail(UUID doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        return DoctorMapper.toDetailDTO(doctor);
+    }
+
+    @Transactional
+    public DoctorDetailDTO adminUpdateDoctor(UUID doctorId, AdminDoctorRequestDTO dto) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        User user = doctor.getUser();
+
+        if (dto.getFullName() != null) user.setFullName(dto.getFullName());
+        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
+        userRepository.save(user);
+
+        DoctorMapper.updateDoctorFromRequest(doctor, dto);
+        doctor = doctorRepository.save(doctor);
+
+        return DoctorMapper.toDetailDTO(doctor);
+    }
+
+    @Transactional
+    public void adminDeleteDoctor(UUID doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        User user = doctor.getUser();
+        
+        prescriptionRepository.deleteAll(prescriptionRepository.findByDoctorId(doctor.getId()));
+        consultationRepository.deleteAll(consultationRepository.findByDoctorId(doctor.getId()));
+        
+        doctorRepository.delete(doctor);
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public void adminToggleDoctorVerification(UUID doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        doctor.setIsVerified(!Boolean.TRUE.equals(doctor.getIsVerified()));
+        doctorRepository.save(doctor);
+    }
+
+    @Transactional(readOnly = true)
+    public PatientDetailDTO adminGetPatientDetail(UUID userId) {
+        return getPatientDetails(userId);
+    }
+
+    @Transactional
+    public PatientDetailDTO adminUpdatePatient(UUID userId, PatientProfileDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        
+        if (dto.getFullName() != null) user.setFullName(dto.getFullName());
+        if (dto.getPhone() != null) user.setPhone(dto.getPhone());
+        if (dto.getGender() != null) user.setGender(dto.getGender());
+        if (dto.getDateOfBirth() != null && !dto.getDateOfBirth().isBlank()) user.setDateOfBirth(java.time.LocalDate.parse(dto.getDateOfBirth()));
+        if (dto.getBloodGroup() != null) user.setBloodGroup(dto.getBloodGroup());
+        
+        userRepository.save(user);
+        return getPatientDetails(userId);
+    }
+
+    @Transactional
+    public void adminDeletePatient(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        prescriptionRepository.deleteAll(prescriptionRepository.findByPatientId(user.getId()));
+        consultationRepository.deleteAll(consultationRepository.findByPatientId(user.getId()));
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public com.altruist.dto.MedicineDTO adminCreateMedicine(com.altruist.dto.MedicineDTO dto) {
+        com.altruist.model.Medicine medicine = new com.altruist.model.Medicine();
+        medicine.setName(dto.getName());
+        medicine.setGenericName(dto.getGenericName());
+        medicine.setManufacturer(dto.getManufacturer());
+        medicine.setCategory(dto.getCategory());
+        medicine.setPrice(dto.getPrice());
+        medicine.setDiscountedPrice(dto.getDiscountedPrice());
+        medicine.setStockQuantity(dto.getStockQuantity());
+        if (dto.getRequiresPrescription() != null) medicine.setRequiresPrescription(dto.getRequiresPrescription());
+        if (dto.getInStock() != null) medicine.setInStock(dto.getInStock());
+        medicine.setDescription(dto.getDescription());
+        medicine.setImageUrl(dto.getImageUrl());
+        medicine = medicineRepository.save(medicine);
+        dto.setId(medicine.getId());
+        return dto;
+    }
+
+    @Transactional
+    public com.altruist.dto.MedicineDTO adminUpdateMedicine(UUID medicineId, com.altruist.dto.MedicineDTO dto) {
+        com.altruist.model.Medicine medicine = medicineRepository.findById(medicineId)
+                .orElseThrow(() -> new RuntimeException("Medicine not found"));
+        if (dto.getName() != null) medicine.setName(dto.getName());
+        if (dto.getGenericName() != null) medicine.setGenericName(dto.getGenericName());
+        if (dto.getManufacturer() != null) medicine.setManufacturer(dto.getManufacturer());
+        if (dto.getCategory() != null) medicine.setCategory(dto.getCategory());
+        if (dto.getPrice() != null) medicine.setPrice(dto.getPrice());
+        medicine.setDiscountedPrice(dto.getDiscountedPrice()); // Can be null
+        if (dto.getStockQuantity() != null) medicine.setStockQuantity(dto.getStockQuantity());
+        if (dto.getRequiresPrescription() != null) medicine.setRequiresPrescription(dto.getRequiresPrescription());
+        if (dto.getInStock() != null) medicine.setInStock(dto.getInStock());
+        if (dto.getDescription() != null) medicine.setDescription(dto.getDescription());
+        if (dto.getImageUrl() != null) medicine.setImageUrl(dto.getImageUrl());
+        medicine = medicineRepository.save(medicine);
+        dto.setId(medicine.getId());
+        return dto;
+    }
+
+    @Transactional
+    public void adminDeleteMedicine(UUID medicineId) {
+        medicineRepository.deleteById(medicineId);
+    }
+
+    @Transactional
+    public Map<String, Object> adminPromoteUser(UUID userId, String newRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setUserType(UserType.valueOf(newRole));
+        userRepository.save(user);
+        return Map.of("id", user.getId(), "role", user.getUserType().name());
+    }
+
+    @Transactional
+    public void adminUpdateSuperAdmin(UUID userId, Map<String,Object> changes) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+        if (changes.containsKey("fullName")) user.setFullName((String) changes.get("fullName"));
+        if (changes.containsKey("userType")) {
+            user.setUserType(UserType.valueOf((String) changes.get("userType")));
+        }
+        userRepository.save(user);
     }
 }
