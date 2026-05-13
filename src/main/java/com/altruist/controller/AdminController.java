@@ -163,25 +163,6 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/medicines")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<com.altruist.dto.MedicineDTO> adminCreateMedicine(@RequestBody com.altruist.dto.MedicineDTO dto) {
-        return ResponseEntity.ok(adminService.adminCreateMedicine(dto));
-    }
-
-    @PutMapping("/medicines/{medicineId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<com.altruist.dto.MedicineDTO> adminUpdateMedicine(@PathVariable UUID medicineId, @RequestBody com.altruist.dto.MedicineDTO dto) {
-        return ResponseEntity.ok(adminService.adminUpdateMedicine(medicineId, dto));
-    }
-
-    @DeleteMapping("/medicines/{medicineId}")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Void> adminDeleteMedicine(@PathVariable UUID medicineId) {
-        adminService.adminDeleteMedicine(medicineId);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/promote")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Map<String, Object>> adminPromoteUser(@RequestBody PromoteRequest req) {

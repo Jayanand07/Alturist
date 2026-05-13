@@ -19,6 +19,16 @@ export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pincode: "",
+  })
 
   // Auth Guard: Redirect if not authenticated
   React.useEffect(() => {
@@ -27,17 +37,11 @@ export default function CheckoutPage() {
     }
   }, [user, authLoading, router])
 
-  if (authLoading || !user) return null
-
-  const [formData, setFormData] = useState({
-    fullName: user?.displayName || "",
-    phone: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    pincode: "",
-  })
+  React.useEffect(() => {
+    if (user?.displayName) {
+      setFormData((prev) => prev.fullName ? prev : { ...prev, fullName: user.displayName || "" })
+    }
+  }, [user])
 
   const subtotal = getTotalPrice()
   const deliveryFee = subtotal > 500 ? 0 : 49
@@ -51,6 +55,13 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFormError(null)
+
+    if (hasPrescriptionItems) {
+      setFormError("Prescription medicine checkout needs secure prescription upload before the order can be placed.")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -68,7 +79,7 @@ export default function CheckoutPage() {
         })),
         totalAmount: total,
         deliveryAddress: deliveryAddress,
-        prescriptionUrl: hasPrescriptionItems ? "https://example.com/mock-prescription.pdf" : null
+        prescriptionUrl: null
       }
 
       await api.post("/orders", orderData)
@@ -79,18 +90,21 @@ export default function CheckoutPage() {
       setTimeout(() => {
         router.push("/patient")
       }, 3000)
-    } catch (error) {
-      console.error("Error placing order:", error)
-      alert("Failed to place order. Please try again.")
+    } catch (error: unknown) {
+      console.error("Error placing order:", error instanceof Error ? error.message : "Unknown order error")
+      setFormError("Failed to place order. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
-  if (items.length === 0 && !orderPlaced) {
-     router.push("/medicines")
-     return null
-  }
+  React.useEffect(() => {
+    if (!authLoading && user && items.length === 0 && !orderPlaced) {
+      router.push("/medicines")
+    }
+  }, [authLoading, user, items.length, orderPlaced, router])
+
+  if (authLoading || !user || (items.length === 0 && !orderPlaced)) return null
 
   if (orderPlaced) {
     return (
@@ -122,6 +136,12 @@ export default function CheckoutPage() {
             </Link>
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Checkout</h1>
           </div>
+
+          {formError && (
+            <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {formError}
+            </div>
+          )}
 
           {/* Delivery Address */}
           <Card className="border-slate-100 shadow-xl shadow-slate-50">

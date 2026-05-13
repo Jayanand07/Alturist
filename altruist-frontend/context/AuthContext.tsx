@@ -36,6 +36,16 @@ function getCookie(name: string): string | null {
   return match ? match.split("=")[1] : null;
 }
 
+function cookieOptions(maxAgeSeconds: number): string {
+  const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
+  return `path=/; max-age=${maxAgeSeconds}; SameSite=Strict${secure}`;
+}
+
+function clearCookie(name: string): void {
+  const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict${secure}`;
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
@@ -57,8 +67,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
           if (!isMounted) return;
 
-          // Write token cookie for server-side middleware
-          document.cookie = `token=${token}; path=/; max-age=3600; SameSite=Strict; Secure`;
+          // The route guard only needs an auth marker. Never place bearer tokens
+          // in document.cookie, where injected scripts could read them.
+          document.cookie = `token=authenticated; ${cookieOptions(3600)}`;
 
           // ── FAST PATH: Use cached cookie userType immediately ──
           const storedUserType = getCookie("userType");
@@ -88,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               if (!isMounted) return;
               const type = data.userType || "PATIENT";
               setUserType(type);
-              document.cookie = `userType=${type}; path=/; max-age=3600; SameSite=Strict; Secure`;
+              document.cookie = `userType=${type}; ${cookieOptions(3600)}`;
             })
             .catch((err) => {
               if (!isMounted) return;
@@ -96,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               // If no stored type existed, default to PATIENT so user isn't stuck
               if (!storedUserType) {
                 setUserType("PATIENT");
-                document.cookie = `userType=PATIENT; path=/; max-age=3600; SameSite=Strict; Secure`;
+                document.cookie = `userType=PATIENT; ${cookieOptions(3600)}`;
               }
             })
             .finally(() => {
@@ -107,17 +118,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setLoading(false);
               }
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (isMounted) {
-            console.error("Auth token error:", error);
+            console.error("Auth token error:", error instanceof Error ? error.message : "Unknown auth error");
             setLoading(false);
           }
         }
       } else {
         // Logged out — clear everything
         setUserType(null);
-        document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure`;
-        document.cookie = `userType=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure`;
+        clearCookie("token");
+        clearCookie("userType");
         if (isMounted) setLoading(false);
       }
     });
@@ -129,15 +140,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const getToken = async (): Promise<string | null> => {
-    if (!auth.currentUser) return null;
-    return await auth.currentUser.getIdToken();
+    try {
+      if (!auth.currentUser) return null;
+      return await auth.currentUser.getIdToken();
+    } catch (error: unknown) {
+      console.error("Unable to read Firebase ID token:", error instanceof Error ? error.message : "Unknown auth error");
+      return null;
+    }
   };
 
   const signOut = async () => {
-    await firebaseSignOut(auth);
-    setUserType(null);
-    document.cookie = `token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure`;
-    document.cookie = `userType=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict; Secure`;
+    try {
+      await firebaseSignOut(auth);
+    } finally {
+      setUserType(null);
+      clearCookie("token");
+      clearCookie("userType");
+    }
   };
 
   /** Returns true when the currently authenticated user has exactly the given role. */

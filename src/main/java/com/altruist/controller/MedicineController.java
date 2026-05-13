@@ -26,7 +26,7 @@ public class MedicineController {
     // --- ADMIN ENDPOINTS ---
 
     @GetMapping("/api/admin/medicines")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Page<MedicineResponseDTO>> getAdminMedicines(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
@@ -37,7 +37,7 @@ public class MedicineController {
     }
 
     @GetMapping("/api/admin/medicines/stats")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Map<String, Long>> getMedicineStats() {
         return ResponseEntity.ok(Map.of(
                 "totalCount", medicineService.getTotalMedicines(),
@@ -47,32 +47,32 @@ public class MedicineController {
     }
 
     @PostMapping("/api/admin/medicines")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MedicineResponseDTO> createMedicine(@Valid @RequestBody MedicineDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(medicineService.createMedicine(dto));
     }
 
     @PostMapping("/api/admin/medicines/bulk")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MedicineBulkResultDTO> bulkCreateMedicines(@RequestBody List<MedicineDTO> dtoList) {
         return ResponseEntity.status(HttpStatus.CREATED).body(medicineService.bulkCreate(dtoList));
     }
 
     @PutMapping("/api/admin/medicines/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MedicineResponseDTO> updateMedicine(@PathVariable UUID id, @Valid @RequestBody MedicineDTO dto) {
         return ResponseEntity.ok(medicineService.updateMedicine(id, dto));
     }
 
     @PatchMapping("/api/admin/medicines/{id}/toggle-stock")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> toggleStock(@PathVariable UUID id) {
         medicineService.toggleStock(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/api/admin/medicines/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> deleteMedicine(@PathVariable UUID id) {
         medicineService.deleteMedicine(id);
         return ResponseEntity.noContent().build();

@@ -3,6 +3,10 @@ package com.altruist.controller;
 import com.altruist.dto.SupportTicketRequestDTO;
 import com.altruist.model.User;
 import com.altruist.service.SupportService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +31,7 @@ public class SupportController {
 
     @PostMapping("/support/tickets")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<?> createTicket(@AuthenticationPrincipal User user, @RequestBody SupportTicketRequestDTO dto) {
+    public ResponseEntity<?> createTicket(@AuthenticationPrincipal User user, @Valid @RequestBody SupportTicketRequestDTO dto) {
         try {
             return ResponseEntity.ok(supportService.createTicket(user, dto));
         } catch (Exception e) {
@@ -75,7 +79,7 @@ public class SupportController {
 
     @PostMapping("/support/tickets/{ticketId}/messages")
     @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> sendMessage(@AuthenticationPrincipal User user, @PathVariable UUID ticketId, @RequestBody SendMessageRequest req) {
+    public ResponseEntity<?> sendMessage(@AuthenticationPrincipal User user, @PathVariable UUID ticketId, @Valid @RequestBody SendMessageRequest req) {
         try {
             return ResponseEntity.ok(supportService.sendMessage(ticketId, user, req.getMessage()));
         } catch (Exception e) {
@@ -101,7 +105,7 @@ public class SupportController {
 
     @PatchMapping("/admin/support/tickets/{ticketId}/status")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> updateTicketStatus(@AuthenticationPrincipal User admin, @PathVariable UUID ticketId, @RequestBody UpdateStatusRequest req) {
+    public ResponseEntity<?> updateTicketStatus(@AuthenticationPrincipal User admin, @PathVariable UUID ticketId, @Valid @RequestBody UpdateStatusRequest req) {
         try {
             supportService.updateTicketStatus(ticketId, req.getStatus(), admin);
             return ResponseEntity.ok(Map.of("message", "Ticket status updated"));
@@ -114,11 +118,15 @@ public class SupportController {
 
     @Data
     public static class SendMessageRequest {
+        @NotBlank(message = "Message is required")
+        @Size(max = 4000, message = "Message is too long")
         private String message;
     }
 
     @Data
     public static class UpdateStatusRequest {
+        @NotBlank(message = "Status is required")
+        @Pattern(regexp = "OPEN|IN_PROGRESS|RESOLVED|CLOSED", message = "Status is invalid")
         private String status;
     }
 }

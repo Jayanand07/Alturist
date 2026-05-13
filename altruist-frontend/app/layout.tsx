@@ -1,28 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
-import { cn } from "@/lib/utils";
 import AppShell from "@/components/shared/AppShell";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -46,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("h-full", inter.variable, plusJakarta.variable, dmSans.variable)} data-scroll-behavior="smooth">
+    <html lang="en" className="h-full" data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col antialiased">
         <Providers>
           <AppShell>

@@ -1,0 +1,22 @@
+firebase:
+  credentials:
+    path: src/test/resources/firebase-test-service-account.json
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:altruist_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+supabase:
+  url: http://localhost
+  service-key: test-service-key
+  bucket: prescriptions

@@ -95,6 +95,32 @@ const services = [
   },
 ];
 
+function StatCounter({
+  end,
+  label,
+  icon: Icon,
+  suffix,
+}: {
+  end: number;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+  suffix: string;
+}) {
+  const { count, ref } = useCountUp(end);
+
+  return (
+    <div ref={ref} className="text-center space-y-3">
+      <div className="w-14 h-14 rounded-2xl bg-[#00A87E]/10 flex items-center justify-center mx-auto text-[#00A87E]">
+        <Icon size={28} />
+      </div>
+      <h3 className="font-display text-5xl font-bold text-[#00A87E]">
+        {count.toLocaleString()}{suffix}
+      </h3>
+      <p className="text-slate-400 font-semibold text-sm">{label}</p>
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
@@ -291,20 +317,9 @@ export default function HomePage() {
             { end: 500, label: "Verified Doctors", icon: Stethoscope, suffix: "+" },
             { end: 99, label: "Patient Satisfaction", icon: Smile, suffix: "%" },
             { end: 24, label: "Hours Service", icon: Clock, suffix: "/7" },
-          ].map((stat, i) => {
-            const { count, ref } = useCountUp(stat.end);
-            return (
-              <div key={i} ref={ref} className="text-center space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-[#00A87E]/10 flex items-center justify-center mx-auto text-[#00A87E]">
-                  <stat.icon size={28} />
-                </div>
-                <h3 className="font-display text-5xl font-bold text-[#00A87E]">
-                  {count.toLocaleString()}{stat.suffix}
-                </h3>
-                <p className="text-slate-400 font-semibold text-sm">{stat.label}</p>
-              </div>
-            );
-          })}
+          ].map((stat) => (
+            <StatCounter key={stat.label} {...stat} />
+          ))}
         </div>
       </section>
 

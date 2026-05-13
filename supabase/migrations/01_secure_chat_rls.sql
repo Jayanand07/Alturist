@@ -24,11 +24,15 @@ ON public.chat_messages
 FOR SELECT
 TO authenticated
 USING (
-  auth.uid()::text = sender_id 
+  sender_id = current_setting('request.jwt.claim.firebase_uid', true)
   OR consultation_id IN (
-    SELECT id FROM consultations 
-    WHERE patient_id = auth.uid()::text 
-    OR doctor_id = auth.uid()::text
+    SELECT c.id
+    FROM consultations c
+    JOIN users patient_user ON patient_user.id = c.patient_id
+    JOIN doctors doctor ON doctor.id = c.doctor_id
+    JOIN users doctor_user ON doctor_user.id = doctor.user_id
+    WHERE patient_user.firebase_uid = current_setting('request.jwt.claim.firebase_uid', true)
+       OR doctor_user.firebase_uid = current_setting('request.jwt.claim.firebase_uid', true)
   )
 );
 
