@@ -6,6 +6,7 @@ import com.altruist.model.Doctor;
 import com.altruist.model.User;
 import com.altruist.repository.DoctorRepository;
 import com.altruist.service.DoctorVlogService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -84,7 +85,7 @@ public class DoctorVlogController {
 
     @PostMapping("/doctors/my/vlogs")
     @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> createVlog(@AuthenticationPrincipal User user, @RequestBody DoctorVlogRequestDTO dto) {
+    public ResponseEntity<?> createVlog(@AuthenticationPrincipal User user, @Valid @RequestBody DoctorVlogRequestDTO dto) {
         try {
             UUID doctorId = getDoctorIdForUser(user);
             return ResponseEntity.ok(vlogService.createVlog(doctorId, dto));
@@ -97,7 +98,7 @@ public class DoctorVlogController {
 
     @PutMapping("/doctors/my/vlogs/{vlogId}")
     @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> updateVlog(@AuthenticationPrincipal User user, @PathVariable UUID vlogId, @RequestBody DoctorVlogRequestDTO dto) {
+    public ResponseEntity<?> updateVlog(@AuthenticationPrincipal User user, @PathVariable UUID vlogId, @Valid @RequestBody DoctorVlogRequestDTO dto) {
         try {
             UUID doctorId = getDoctorIdForUser(user);
             return ResponseEntity.ok(vlogService.updateVlog(vlogId, doctorId, dto));

@@ -57,3 +57,7 @@ Thumbs.db
 ### Debug / Temp ###
 error*.json
 git_status.txt
+
+### Local agent / workspace metadata ###
+.claude/
+AGENTS.md

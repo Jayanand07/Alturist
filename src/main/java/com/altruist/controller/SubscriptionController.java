@@ -2,6 +2,10 @@ package com.altruist.controller;
 
 import com.altruist.dto.SubscriptionPlanDTO;
 import com.altruist.dto.UserSubscriptionDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import com.altruist.model.User;
 import com.altruist.service.SubscriptionService;
 import lombok.Data;
@@ -54,7 +58,7 @@ public class SubscriptionController {
 
     @PostMapping("/subscriptions/subscribe")
     @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> subscribe(@AuthenticationPrincipal User user, @RequestBody SubscribeRequest req) {
+    public ResponseEntity<?> subscribe(@AuthenticationPrincipal User user, @Valid @RequestBody SubscribeRequest req) {
         try {
             UserSubscriptionDTO dto = subscriptionService.subscribePatient(user, req.getPlanId(), req.getBillingCycle());
             return ResponseEntity.ok(dto);
@@ -80,7 +84,7 @@ public class SubscriptionController {
 
     @PostMapping("/subscriptions/renew")
     @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> renewSubscription(@AuthenticationPrincipal User user, @RequestBody RenewRequest req) {
+    public ResponseEntity<?> renewSubscription(@AuthenticationPrincipal User user, @Valid @RequestBody RenewRequest req) {
         try {
             UserSubscriptionDTO dto = subscriptionService.renewSubscription(user, req.getBillingCycle());
             return ResponseEntity.ok(dto);
@@ -131,7 +135,7 @@ public class SubscriptionController {
 
     @PostMapping("/admin/subscriptions/plans")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> createPlan(@RequestBody SubscriptionPlanDTO dto) {
+    public ResponseEntity<?> createPlan(@Valid @RequestBody SubscriptionPlanDTO dto) {
         try {
             return ResponseEntity.ok(subscriptionService.createPlan(dto));
         } catch (Exception e) {
@@ -143,7 +147,7 @@ public class SubscriptionController {
 
     @PutMapping("/admin/subscriptions/plans/{planId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> updatePlan(@PathVariable UUID planId, @RequestBody SubscriptionPlanDTO dto) {
+    public ResponseEntity<?> updatePlan(@PathVariable UUID planId, @Valid @RequestBody SubscriptionPlanDTO dto) {
         try {
             return ResponseEntity.ok(subscriptionService.updatePlan(planId, dto));
         } catch (Exception e) {
@@ -168,7 +172,7 @@ public class SubscriptionController {
 
     @PostMapping("/admin/subscriptions/assign")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<?> adminAssignSubscription(@RequestBody AdminAssignRequest req) {
+    public ResponseEntity<?> adminAssignSubscription(@Valid @RequestBody AdminAssignRequest req) {
         try {
             UserSubscriptionDTO dto = subscriptionService.adminAssignSubscription(req.getUserId(), req.getPlanId(), req.getBillingCycle());
             return ResponseEntity.ok(dto);
@@ -196,19 +200,31 @@ public class SubscriptionController {
 
     @Data
     public static class SubscribeRequest {
+        @NotNull(message = "Plan ID is required")
         private UUID planId;
+
+        @NotBlank(message = "Billing cycle is required")
+        @Pattern(regexp = "MONTHLY|YEARLY", message = "Billing cycle is invalid")
         private String billingCycle;
     }
 
     @Data
     public static class RenewRequest {
+        @NotBlank(message = "Billing cycle is required")
+        @Pattern(regexp = "MONTHLY|YEARLY", message = "Billing cycle is invalid")
         private String billingCycle;
     }
 
     @Data
     public static class AdminAssignRequest {
+        @NotNull(message = "User ID is required")
         private UUID userId;
+
+        @NotNull(message = "Plan ID is required")
         private UUID planId;
+
+        @NotBlank(message = "Billing cycle is required")
+        @Pattern(regexp = "MONTHLY|YEARLY", message = "Billing cycle is invalid")
         private String billingCycle;
     }
 }
