@@ -4,17 +4,22 @@ import com.altruist.dto.ConsultationHistoryDTO;
 import com.altruist.dto.PatientDashboardDTO;
 import com.altruist.model.User;
 import com.altruist.service.PatientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,13 +71,28 @@ public class PatientController {
         return ResponseEntity.ok(patientService.getPatientProfile(user));
     }
 
-    @org.springframework.web.bind.annotation.PatchMapping("/profile")
-    public ResponseEntity<com.altruist.dto.PatientProfileDTO> updateProfile(@org.springframework.web.bind.annotation.RequestBody com.altruist.dto.PatientProfileDTO dto) {
+    @PatchMapping("/profile")
+    public ResponseEntity<com.altruist.dto.PatientProfileDTO> updateProfile(@Valid @RequestBody com.altruist.dto.PatientProfileDTO dto) {
         User user = getAuthenticatedUser();
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(patientService.updatePatientProfile(user, dto));
+    }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteProfile() {
+        User user = getAuthenticatedUser();
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            patientService.deletePatientAccount(user);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 
     private User getAuthenticatedUser() {

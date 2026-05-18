@@ -232,4 +232,38 @@ public class PatientService {
         userRepository.save(user);
         return getPatientProfile(user);
     }
+
+    @Transactional
+    public void deletePatientAccount(User authUser) {
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean hasActiveConsultation = consultationRepository.findByPatientId(user.getId()).stream()
+                .anyMatch(c -> c.getStatus() == ConsultationStatus.PENDING || c.getStatus() == ConsultationStatus.ONGOING);
+        if (hasActiveConsultation) {
+            throw new IllegalStateException("Account has active consultations");
+        }
+
+        String deletedMarker = "deleted-" + user.getId() + "-" + System.currentTimeMillis();
+        user.setFirebaseUid(deletedMarker);
+        user.setEmail(null);
+        user.setPhone(null);
+        user.setFullName("Deleted Patient");
+        user.setDateOfBirth(null);
+        user.setGender(null);
+        user.setProfilePictureUrl(null);
+        user.setBloodGroup(null);
+        user.setStreet(null);
+        user.setCity(null);
+        user.setState(null);
+        user.setPincode(null);
+        user.setAllergies(null);
+        user.setChronicConditions(null);
+        user.setCurrentMedications(null);
+        user.setEmailAlerts(false);
+        user.setSmsAlerts(false);
+        user.setAppointmentReminders(false);
+
+        userRepository.save(user);
+    }
 }

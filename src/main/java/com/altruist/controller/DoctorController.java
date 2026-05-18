@@ -146,7 +146,7 @@ public class DoctorController {
     /**
      * Toggle availability for the logged-in doctor.
      */
-    @PutMapping("/availability")
+    @RequestMapping(value = "/availability", method = {RequestMethod.PUT, RequestMethod.PATCH})
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<?> updateAvailability(@RequestBody Map<String, Boolean> request) {
         User user = getAuthenticatedUser();
