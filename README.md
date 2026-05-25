@@ -1,113 +1,159 @@
-# 🩺 Altruist — Modern Medical Consultation Platform
+# 🩺 Altruist Wellness — Premium Medical Telemedicine Platform
 
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-blueviolet.svg)](https://supabase.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth-yellow.svg)](https://firebase.google.com/)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-brightgreen.svg?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-blueviolet.svg?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-Auth-yellow.svg?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com/)
 
-Altruist is a high-performance, **HIPAA-compliant** medical consultation platform designed to bridge the gap between patients and healthcare professionals. Built with a focus on security, scalability, and premium user experience.
-
----
-
-## 🚀 Key Features
-
-- **🔒 Advanced Security**: HIPAA-compliant architecture with Supabase Row Level Security (RLS) and custom JWT authentication.
-- **👨‍⚕️ Specialist Dashboards**: Dedicated interfaces for Doctors (consultation management, digital prescriptions) and Patients (booking, medical history).
-- **📝 Smart Prescriptions**: Automated PDF generation for medical prescriptions using iText 7.
-- **💊 Medicine Directory**: Robust search and management for a comprehensive medicine database.
-- **💳 Integrated Orders**: Seamless order placement for medical services and prescriptions with real-time status tracking.
-- **🔐 Multi-Role Access**: Fine-grained role-based access control (RBAC) for Admin, Doctor, and Patient roles.
+Altruist Wellness is a premium, high-performance, **HIPAA-compliant** medical telemedicine platform. It bridges the gap between patient care and verified medical experts by offering instant online consultations, genuine medicine delivery, diagnostic lab tests, and secure electronic prescriptions. 
 
 ---
 
-## 🛠 Tech Stack
+## 🌟 Key Features
 
-### Frontend
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Components**: [Radix UI](https://www.radix-ui.com/) / [Shadcn UI](https://ui.shadcn.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Language**: TypeScript
+*   **🔒 Strict HIPAA-Compliant Security**: Secure data structures utilizing Supabase Row-Level Security (RLS) and custom HMAC-SHA256 JWT tokens.
+*   **🩺 Comprehensive Telemedicine Portal**: Digital-first online doctor consulting, matching clients with top specialists across multiple branches (Cardiology, Pediatrics, Dermatology, etc.).
+*   **🧪 Diagnostic Lab packages**: Direct-to-home hygienic blood/urine sample collection packages with automated report access.
+*   **💊 express Medicine delivery**: Genuine medicine inventory and express prescription preparation with a fast, modern digital checkout cart.
+*   **📊 Specialist Dashboards**:
+    *   **Patient Cockpit**: consultation bookings, active prescription downloads, health plan status, and secure ticketing.
+    *   **Doctor Panel**: instant consultation queues, detailed patient history mapping, earnings visualization, and virtual consultation rooms.
+    *   **System Control Center (Admin)**: total doctors/patients stats, live system billing tracking, clinic listings, and complete account management.
+*   **💬 Real-Time Consultations**: Fully secured real-time chat consultation rooms syncing Firebase UID credentials to custom backend permissions.
 
-### Backend
-- **Framework**: [Spring Boot 3.2](https://spring.io/projects/spring-boot)
-- **Security**: Spring Security + Firebase Admin SDK
-- **Data**: Spring Data JPA + PostgreSQL
-- **PDF Engine**: iText 7
-- **Language**: Java 17
+---
 
-### Infrastructure
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Firebase Auth
-- **Environment**: Dotenv for secure configuration
+## 🏗️ Architecture & Tech Stack
+
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │                  NEXT.JS 14 FRONTEND                   │
+               │         (React, Tailwind CSS, TanStack Query)          │
+               └───────────┬────────────────────────────────┬───────────┘
+                           │                                │
+                 Firebase Auth Token                 Secure API Calls
+                           │                                │
+                           ▼                                ▼
+               ┌───────────────────────┐        ┌───────────────────────┐
+               │    FIREBASE AUTH      │        │  SPRING BOOT BACKEND  │
+               │ (Client Verification) │        │   (Java 17 REST API)  │
+               └───────────────────────┘        └───────────┬───────────┘
+                                                            │
+                                                     JDBC Connection
+                                                            │
+                                                            ▼
+                                                ┌───────────────────────┐
+                                                │   SUPABASE DATABASE   │
+                                                │ (PostgreSQL + RLS)    │
+                                                └───────────────────────┘
+```
+
+### Frontend Component
+*   **Framework**: Next.js 14 (App Router)
+*   **Styling**: Vanilla CSS + Tailwind CSS (elegant typography, glassmorphism, tailored HSL color palettes)
+*   **State Management**: Zustand (Cart), TanStack Query (Server State)
+*   **Language**: TypeScript
+
+### Backend Component
+*   **Framework**: Spring Boot 3.2.5
+*   **Security**: Spring Security 6 + Firebase Admin SDK Filter
+*   **Data Access**: Spring Data JPA + Hibernate ORM
+*   **Database Pool**: HikariCP (Connection Pool optimized for high-concurrency production instances)
+*   **Language**: Java 17 (OpenJDK)
+
+### Database & Auth Providers
+*   **Database**: Supabase PostgreSQL (secured via migrations revoking direct anonymous table and GraphQL schemas accesses)
+*   **Authentication**: Firebase Admin OIDC token validation
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-.
-├── altruist-frontend/     # Next.js 14 Frontend application
-│   ├── app/               # App Router pages and layouts
-│   ├── components/        # Reusable UI components
-│   └── lib/               # Utility functions and shared logic
-├── src/main/java/         # Spring Boot Backend source code
-│   ├── controller/        # REST Endpoints
-│   ├── model/             # JPA Entities & Domain Models
-│   ├── repository/        # Data Access Layer
-│   └── service/           # Business Logic
-├── supabase/              # Database migrations and RLS policies
-├── pom.xml                # Backend dependencies (Maven)
-└── package.json           # Root package configuration
+├── altruist-frontend/        # Next.js 14 Frontend Application
+│   ├── app/                  # Next.js App Router (dashboard, checkout, consult routes)
+│   ├── components/           # Reusable UI component library (headers, footers, carts)
+│   ├── context/              # Auth, Language (5-language support) Context Providers
+│   ├── lib/                  # Shared utility methods, Axios client, and translations
+│   └── store/                # Client state stores (Cart, Location selectors)
+├── src/main/java/            # Spring Boot Backend Engine
+│   └── com/altruist/
+│       ├── config/           # Security, Firebase, CORS configurations
+│       ├── controller/       # REST Endpoints (Consultations, Support, Doctors)
+│       ├── dto/              # Strongly typed Data Transfer Objects
+│       ├── model/            # JPA Domain Entities
+│       ├── repository/       # Hibernate Database Access
+│       └── service/          # Core Business Logic implementation
+├── supabase/                 # Database migrations and SQL security scripts
+├── pom.xml                   # Maven Backend Dependency Management
+└── README.md                 # Project Documentation
 ```
 
 ---
 
-## 🚦 Getting Started
+## 🚦 Local Setup & Installation
 
 ### Prerequisites
-- **Java 17** and **Maven**
-- **Node.js 18+** and **npm**
-- **Supabase Account**
-- **Firebase Project**
+*   **Java Development Kit (JDK 17)** installed
+*   **Node.js 18+** & **npm** installed
+*   **Maven 3.8+** installed
+*   A running **Supabase** instance and a **Firebase** project
 
-### 1. Backend Setup
-1. Clone the repository.
-2. Create a `.env` file in the root directory (refer to `.env.example`).
-3. Add your Firebase Service Account JSON to the root.
-4. Run the backend:
+### 1. Database Setup
+1. Execute the tables schema in your Supabase SQL Editor.
+2. Open the file [supabase_rls_migration.sql](file:///c:/Users/anand/Desktop/medical%20pr/supabase_rls_migration.sql) from the project root.
+3. Run the commands in your SQL Editor to enforce Row Level Security (RLS) across all public tables, securing them from direct PostgREST or anonymous GraphQL discovery.
+
+### 2. Backend Config
+1. Create a `.env` file in the root workspace (see `.env.example`).
+2. Add your environment variables:
+   ```env
+   DATABASE_URL=jdbc:postgresql://<host>:<port>/postgres
+   DATABASE_USERNAME=postgres.<project-id>
+   DATABASE_PASSWORD=<your-db-password>
+   FIREBASE_CREDENTIALS_PATH=C:/path/to/firebase-service-account.json
+   SUPABASE_JWT_SECRET=<your-supabase-jwt-secret>
+   ```
+3. Run compilation and start:
    ```bash
+   mvn clean package -DskipTests
    mvn spring-boot:run
    ```
 
-### 2. Frontend Setup
+### 3. Frontend Config
 1. Navigate to the frontend directory:
    ```bash
    cd altruist-frontend
    ```
-2. Install dependencies:
+2. Install the production dependencies:
    ```bash
    npm install
    ```
-3. Create a `.env.local` file with your API and Auth keys.
-4. Start the development server:
+3. Add a `.env.local` containing:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8080/api
+   NEXT_PUBLIC_SUPABASE_URL=https://<id>.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<key>
+   NEXT_PUBLIC_FIREBASE_API_KEY=<key>
+   ```
+4. Run the Next.js development server:
    ```bash
    npm run dev
    ```
 
 ---
 
-## 🛡 Security & Compliance
+## 🚀 Production Deployment Guide
 
-This platform implements industry-standard security measures:
-- **HIPAA Compliance**: No raw PII exposure in logs; encrypted data storage.
-- **RLS Policies**: Data access is strictly controlled at the database level via Supabase.
-- **Input Validation**: Strict sanitization and parameterized queries to prevent SQL injection and XSS.
-- **Audit Logs**: All sensitive operations are tracked and verified.
+For complete, highly detailed production configurations on **Vercel** (Frontend), **Render** (Backend), **Firebase OAuth**, and **Custom Domains**, refer to the comprehensive walkthrough guide:
+
+👉 **[Production Walkthrough & Deployment Guide](file:///C:/Users/anand/.gemini/antigravity-ide/brain/22486c73-4303-401a-989b-60deafcb0997/walkthrough.md)**
 
 ---
 
-## 📄 License
+## 🛡️ Security & HIPAA Policy
 
-Internal Project - All Rights Reserved.
+*   **No Sensitive Logs**: Zero stack traces or PII data (e.g., patient names, phone numbers) are logged server-side.
+*   **Input Sanitization**: Strong validation bounds using `jakarta.validation` to prevent parameter injection.
+*   **Role Protection**: Secured role routing ensuring patient, doctor, and admin spaces are fully segregated and authenticated.
