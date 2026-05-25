@@ -218,7 +218,7 @@ export default function ConsultationChat({
       {/* ── Chat Header ────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 shadow-sm">
         {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0D9488] to-[#059669] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0D9488] to-primary/80 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
           {doctorName.charAt(0).toUpperCase()}
         </div>
 

@@ -33,13 +33,16 @@ public class DoctorController {
      * Public endpoint — returns paginated list of available doctors.
      */
     @GetMapping("/available")
-    public ResponseEntity<?> getAvailableDoctors(
+    public ResponseEntity<Page<com.altruist.dto.DoctorListDTO>> getAvailableDoctors(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String specialization,
+            @RequestParam(required = false) String language,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) Boolean available
+            @RequestParam(required = false) Boolean available,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        return ResponseEntity.ok(doctorService.getDoctors(city, specialization, sortBy, available));
+        return ResponseEntity.ok(doctorService.getDoctorsPaginated(city, specialization, language, sortBy, available, page, size));
     }
 
     @GetMapping("/cities")
@@ -77,7 +80,7 @@ public class DoctorController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'SUPER_ADMIN')")
     public ResponseEntity<Page<com.altruist.dto.DoctorListDTO>> getAllDoctors(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String specialization,
@@ -94,7 +97,7 @@ public class DoctorController {
      * DOCTOR can only update their own record.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'SUPER_ADMIN')")
     public ResponseEntity<com.altruist.dto.DoctorListDTO> updateDoctor(
             @PathVariable UUID id,
             @Valid @RequestBody com.altruist.dto.AdminDoctorRequestDTO request) {
@@ -111,7 +114,7 @@ public class DoctorController {
      * Only ADMIN can delete — DOCTOR role cannot delete any doctor account.
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> deleteDoctor(@PathVariable UUID id) {
         doctorService.deleteDoctorEntity(id);
         return ResponseEntity.noContent().build();

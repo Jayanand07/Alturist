@@ -158,32 +158,32 @@ export default function DoctorVlogManagement() {
   };
 
   if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50/50"><Loader2 className="w-10 h-10 animate-spin text-[#00A87E]" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-surface-muted/50"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-slate-50/50 min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-surface-muted/50 min-h-screen">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-surface p-6 md:p-8 rounded-3xl border border-border shadow-sm">
         <div>
-          <h1 className="font-heading text-3xl font-extrabold text-slate-900 tracking-tight">Vlog Studio</h1>
-          <p className="text-slate-500 font-medium mt-1">Manage your health videos and insights.</p>
+          <h1 className="font-heading text-3xl font-extrabold text-foreground tracking-tight">Vlog Studio</h1>
+          <p className="text-muted-foreground font-medium mt-1">Manage your health videos and insights.</p>
         </div>
         <Button 
           onClick={() => { resetForm(); setIsSheetOpen(true); }}
-          className="bg-[#00A87E] hover:bg-[#007A5C] text-white font-bold h-12 px-6 rounded-xl shadow-md active:scale-95 transition-all"
+          className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-6 rounded-2xl shadow-md active:scale-95 transition-all"
         >
           <Plus className="mr-2 h-5 w-5" /> Create New Vlog
         </Button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-3xl border border-border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider font-bold">
+              <tr className="bg-surface-muted border-b border-border text-muted-foreground text-xs uppercase tracking-wider font-bold">
                 <th className="p-5 font-bold">Vlog Content</th>
                 <th className="p-5 font-bold">Category</th>
                 <th className="p-5 font-bold">Visibility</th>
@@ -199,35 +199,35 @@ export default function DoctorVlogManagement() {
               ) : !vlogs || vlogs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-16 text-center">
-                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300 mb-4">
+                    <div className="w-16 h-16 bg-surface-muted rounded-full flex items-center justify-center mx-auto text-slate-300 mb-4">
                       <Video size={32} />
                     </div>
-                    <p className="text-lg font-bold text-slate-900 mb-1">No vlogs found</p>
-                    <p className="text-slate-500 font-medium">Create your first vlog to share your medical expertise.</p>
+                    <p className="text-lg font-bold text-foreground mb-1">No vlogs found</p>
+                    <p className="text-muted-foreground font-medium">Create your first vlog to share your medical expertise.</p>
                   </td>
                 </tr>
               ) : (
                 vlogs.map((vlog: any) => (
-                  <tr key={vlog.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <tr key={vlog.id} className="hover:bg-surface-muted/50 transition-colors group">
                     <td className="p-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-14 bg-slate-900 rounded-lg overflow-hidden shrink-0 relative flex items-center justify-center">
+                        <div className="w-20 h-14 bg-slate-900 rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
                           {vlog.thumbnailUrl ? (
                             <img src={vlog.thumbnailUrl} alt="thumbnail" className="w-full h-full object-cover opacity-80" />
                           ) : (
-                            <PlaySquare className="text-slate-500" size={20} />
+                            <PlaySquare className="text-muted-foreground" size={20} />
                           )}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 line-clamp-1">{vlog.title}</p>
-                          <p className="text-xs font-medium text-slate-500 mt-1 flex items-center gap-1">
+                          <p className="font-bold text-foreground line-clamp-1">{vlog.title}</p>
+                          <p className="text-xs font-medium text-muted-foreground mt-1 flex items-center gap-1">
                             <Calendar size={12} /> {new Date(vlog.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="p-5">
-                      <Badge variant="outline" className="font-bold border-slate-200 text-slate-600 bg-white">
+                      <Badge variant="outline" className="font-bold border-border text-muted-foreground bg-surface">
                         {vlog.category || "General"}
                       </Badge>
                     </td>
@@ -237,24 +237,24 @@ export default function DoctorVlogManagement() {
                           checked={vlog.isPublished}
                           disabled={togglePublishMutation.isPending}
                           onCheckedChange={() => togglePublishMutation.mutate({ id: vlog.id, isPublished: vlog.isPublished })}
-                          className="data-[state=checked]:bg-[#00A87E]"
+                          className="data-[state=checked]:bg-primary"
                         />
                         <span className="text-xs font-bold flex items-center gap-1 w-20">
-                          {vlog.isPublished ? <><Globe size={12} className="text-[#00A87E]" /> <span className="text-[#00A87E]">Public</span></> : <><Lock size={12} className="text-slate-400" /> <span className="text-slate-500">Draft</span></>}
+                          {vlog.isPublished ? <><Globe size={12} className="text-primary" /> <span className="text-primary">Public</span></> : <><Lock size={12} className="text-slate-400" /> <span className="text-muted-foreground">Draft</span></>}
                         </span>
                       </div>
                     </td>
                     <td className="p-5">
-                      <div className="flex items-center gap-1.5 text-slate-600 font-bold text-sm">
+                      <div className="flex items-center gap-1.5 text-muted-foreground font-bold text-sm">
                         <Eye size={16} className="text-slate-400" /> {vlog.viewsCount || 0}
                       </div>
                     </td>
                     <td className="p-5 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(vlog)} className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(vlog)} className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-xl">
                           <Edit size={16} />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(vlog.id)} className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(vlog.id)} className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl">
                           <Trash2 size={16} />
                         </Button>
                       </div>
@@ -270,7 +270,7 @@ export default function DoctorVlogManagement() {
       {/* Sheet Form */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto sm:max-w-md border-l-0 rounded-l-3xl shadow-2xl p-0 flex flex-col">
-          <div className="p-6 border-b border-slate-100 bg-slate-50">
+          <div className="p-6 border-b border-border bg-surface-muted">
             <SheetHeader>
               <SheetTitle className="font-heading text-2xl font-bold">{editingVlog ? "Edit Vlog" : "Create New Vlog"}</SheetTitle>
               <SheetDescription>Upload your health insights to educate patients.</SheetDescription>
@@ -279,48 +279,48 @@ export default function DoctorVlogManagement() {
           
           <form onSubmit={handleSubmit} className="p-6 flex-1 flex flex-col gap-6">
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Vlog Title *</Label>
+              <Label className="font-bold text-foreground">Vlog Title *</Label>
               <Input 
                 value={formData.title} 
                 onChange={e => setFormData({...formData, title: e.target.value})} 
                 placeholder="e.g. Top 5 ways to reduce anxiety"
-                className="h-11 focus-visible:ring-[#00A87E] rounded-xl"
+                className="h-11 focus-visible:ring-primary rounded-2xl"
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Category</Label>
+              <Label className="font-bold text-foreground">Category</Label>
               <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v || "Health Tips"})}>
-                <SelectTrigger className="h-11 focus:ring-[#00A87E] rounded-xl">
+                <SelectTrigger className="h-11 focus:ring-primary rounded-2xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectContent className="rounded-2xl">
                   {CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Video URL (YouTube) *</Label>
+              <Label className="font-bold text-foreground">Video URL (YouTube) *</Label>
               <Input 
                 value={formData.videoUrl} 
                 onChange={e => setFormData({...formData, videoUrl: e.target.value})} 
                 placeholder="https://youtube.com/watch?v=..."
-                className="h-11 focus-visible:ring-[#00A87E] rounded-xl"
+                className="h-11 focus-visible:ring-primary rounded-2xl"
                 required
               />
               <p className="text-[10px] text-slate-400 font-medium">Standard YouTube links will automatically be embedded in the public directory.</p>
             </div>
 
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Thumbnail Image (Optional)</Label>
+              <Label className="font-bold text-foreground">Thumbnail Image (Optional)</Label>
               <div className="flex gap-2 items-center">
                 <Input 
                   value={formData.thumbnailUrl} 
                   onChange={e => setFormData({...formData, thumbnailUrl: e.target.value})} 
                   placeholder="https://example.com/image.jpg"
-                  className="h-11 focus-visible:ring-[#00A87E] rounded-xl flex-1"
+                  className="h-11 focus-visible:ring-primary rounded-2xl flex-1"
                 />
                 <div className="relative shrink-0">
                   <input 
@@ -334,7 +334,7 @@ export default function DoctorVlogManagement() {
                   <Button 
                     type="button"
                     variant="outline" 
-                    className="h-11 font-bold rounded-xl border-slate-300"
+                    className="h-11 font-bold rounded-2xl border-border/80"
                     onClick={() => document.getElementById('thumbnail-upload')?.click()}
                     disabled={uploadingImage}
                   >
@@ -345,20 +345,20 @@ export default function DoctorVlogManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Description</Label>
+              <Label className="font-bold text-foreground">Description</Label>
               <Textarea 
                 value={formData.description} 
                 onChange={e => setFormData({...formData, description: e.target.value})} 
                 placeholder="Write a brief summary of the video content..."
-                className="min-h-[120px] focus-visible:ring-[#00A87E] rounded-xl"
+                className="min-h-[120px] focus-visible:ring-primary rounded-2xl"
               />
             </div>
 
-            <div className="mt-auto pt-6 border-t border-slate-100 flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)} className="rounded-xl font-bold h-11 px-6 border-slate-200">
+            <div className="mt-auto pt-6 border-t border-border flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setIsSheetOpen(false)} className="rounded-2xl font-bold h-11 px-6 border-border">
                 Cancel
               </Button>
-              <Button type="submit" disabled={saveMutation.isPending} className="rounded-xl font-bold h-11 px-6 bg-[#00A87E] hover:bg-[#007A5C]">
+              <Button type="submit" disabled={saveMutation.isPending} className="rounded-2xl font-bold h-11 px-6 bg-primary hover:bg-primary/90">
                 {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editingVlog ? "Update Vlog" : "Create Vlog"}
               </Button>
@@ -377,11 +377,11 @@ export default function DoctorVlogManagement() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="rounded-xl font-bold border-slate-200">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-2xl font-bold border-border">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => deleteId && deleteMutation.mutate(deleteId)}
               disabled={deleteMutation.isPending}
-              className="rounded-xl font-bold bg-red-600 hover:bg-red-700"
+              className="rounded-2xl font-bold bg-red-600 hover:bg-red-700"
             >
               {deleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Yes, Delete

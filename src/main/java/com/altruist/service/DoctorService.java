@@ -179,7 +179,15 @@ public class DoctorService {
     }
 
     @Transactional(readOnly = true)
-    public List<DoctorListDTO> getDoctors(String city, String specialization, String sortBy, Boolean available) {
+    public Page<DoctorListDTO> getDoctorsPaginated(String city, String specialization, String language, String sortBy, Boolean available, int page, int size) {
+        List<DoctorListDTO> allList = getDoctors(city, specialization, language, sortBy, available);
+        int start = Math.min((int) PageRequest.of(page, size).getOffset(), allList.size());
+        int end = Math.min((start + size), allList.size());
+        return new org.springframework.data.domain.PageImpl<>(allList.subList(start, end), PageRequest.of(page, size), allList.size());
+    }
+
+    @Transactional(readOnly = true)
+    public List<DoctorListDTO> getDoctors(String city, String specialization, String language, String sortBy, Boolean available) {
         List<Doctor> doctors;
         if (city != null && !city.trim().isEmpty() && specialization != null && !specialization.trim().isEmpty()) {
             doctors = doctorRepository.findByCityIgnoreCaseAndSpecializationAndIsVerifiedTrue(city, specialization);
@@ -189,6 +197,12 @@ public class DoctorService {
             doctors = doctorRepository.findBySpecializationAndIsVerifiedTrue(specialization);
         } else {
             doctors = doctorRepository.findByIsVerifiedTrue();
+        }
+
+        if (language != null && !language.trim().isEmpty()) {
+            doctors = doctors.stream()
+                .filter(d -> d.getLanguages() != null && d.getLanguages().toLowerCase().contains(language.toLowerCase()))
+                .collect(Collectors.toList());
         }
 
         if (Boolean.TRUE.equals(available)) {
@@ -371,17 +385,12 @@ public class DoctorService {
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
         User user = doctor.getUser();
 
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
+        if (request.getFullName() != null) user.setFullName(request.getFullName());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
 
-        doctor.setSpecialization(request.getSpecialization());
-        doctor.setMedicalLicense(request.getMedicalLicense());
-        doctor.setExperienceYears(request.getExperienceYears());
-        doctor.setConsultationFee(request.getConsultationFee());
-        doctor.setQualification(request.getQualification());
+        DoctorMapper.updateDoctorFromRequest(doctor, request);
 
         doctorRepository.save(doctor);
-        // userRepository.save(user) is usually cascaded if properly mapped, else we fetch but wait, JPA flushes changes in transactional scope automatically.
         return DoctorMapper.toListDTO(doctor);
     }
 

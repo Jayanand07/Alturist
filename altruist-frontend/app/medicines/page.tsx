@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import {
   Search, ShoppingCart, Plus, Minus, AlertCircle, Pill, Package,
-  SlidersHorizontal, X, ChevronDown, ArrowUpDown,
+  SlidersHorizontal, X, ChevronDown, ArrowUpDown, FileText,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import { useCartStore } from "@/store/cartStore"
 import api from "@/lib/axios"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface Medicine {
   id: string
@@ -69,7 +70,21 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced
 }
 
+const CONDITIONS = [
+  { label: "Diabetes Care", emoji: "🩸" },
+  { label: "Cardiac Care", emoji: "❤️" },
+  { label: "Stomach Care", emoji: "🦠" },
+  { label: "Pain Relief", emoji: "🦵" },
+  { label: "Liver Care", emoji: "💊" },
+  { label: "Oral Care", emoji: "🦷" },
+  { label: "Respiratory", emoji: "🫁" },
+  { label: "Sexual Health", emoji: "🩺" },
+  { label: "Elderly Care", emoji: "👵" },
+  { label: "Cold & Immunity", emoji: "🤧" },
+]
+
 export default function MedicinesPage() {
+  const { t } = useLanguage()
   const [medicines,  setMedicines]  = useState<Medicine[]>([])
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState("")
@@ -95,10 +110,10 @@ export default function MedicinesPage() {
       if (debouncedSearch) params.search = debouncedSearch
       if (category !== "all") params.category = category
       if (rxOnly) params.prescription = true
-      if (sortBy === "price_asc")  { params.sortBy = "price"; params.sortDir = "asc"  }
-      if (sortBy === "price_desc") { params.sortBy = "price"; params.sortDir = "desc" }
-      if (sortBy === "name_asc")   { params.sortBy = "name";  params.sortDir = "asc"  }
-      if (sortBy === "name_desc")  { params.sortBy = "name";  params.sortDir = "desc" }
+      if (sortBy === "price_asc")  { params.sort = "price,asc" }
+      if (sortBy === "price_desc") { params.sort = "price,desc" }
+      if (sortBy === "name_asc")   { params.sort = "name,asc" }
+      if (sortBy === "name_desc")  { params.sort = "name,desc" }
 
       const res = await api.get("/medicines", { params })
       let data: Medicine[] = res.data?.content ?? res.data ?? []
@@ -140,294 +155,356 @@ export default function MedicinesPage() {
   ].filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* ── Hero ── */}
-      <section className="relative py-14 md:py-20 overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #064E3B 0%, #065F46 60%, #047857 100%)" }}>
-        <div className="absolute inset-0 hero-grid-pattern opacity-40" />
-        {/* Decorative circles */}
-        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-64 h-64 rounded-full bg-[#00A87E]/20 blur-2xl" />
+    <div className="min-h-screen bg-surface-muted/30 pb-20">
+      {/* ── Sub Navigation ── */}
+      <div className="bg-[#0b5e39] text-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex gap-6 overflow-x-auto whitespace-nowrap hide-scrollbar font-medium text-sm">
+          <span className="cursor-pointer hover:font-bold">Apollo Products</span>
+          <span className="cursor-pointer hover:font-bold">Baby Care</span>
+          <span className="cursor-pointer hover:font-bold">Nutritional Drinks</span>
+          <span className="cursor-pointer hover:font-bold">Women Care</span>
+          <span className="cursor-pointer hover:font-bold">Personal Care</span>
+          <span className="cursor-pointer hover:font-bold">Ayurveda</span>
+          <span className="cursor-pointer hover:font-bold">Health Devices</span>
+          <span className="cursor-pointer hover:font-bold">Home Essentials</span>
+        </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 text-center space-y-6">
-          <Badge className="bg-white/10 text-emerald-200 border-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
-            100% Authentic Medicines
-          </Badge>
-          <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-            Order Medicines Online
+      {/* ── Hero ── */}
+      <section className="relative py-14 overflow-hidden"
+        style={{ background: "linear-gradient(90deg, #094F30 0%, #0d5c3a 50%, #094F30 100%)" }}>
+        
+        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 text-center flex flex-col items-center space-y-6">
+          <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-[#fcEAD4] tracking-tight">
+            {t('medicines.title')}
           </h1>
-          <p className="text-lg text-emerald-200 font-medium max-w-lg mx-auto">
-            Genuine medicines delivered to your doorstep in 24 hours.
-          </p>
 
           {/* Search */}
-          <div className="max-w-2xl mx-auto relative">
+          <div className="max-w-2xl mx-auto relative w-full mt-4">
             <Input
               type="text"
-              placeholder="Search by medicine name, generic name..."
-              className="pl-14 pr-5 h-14 text-[#0F172A] rounded-2xl w-full border-0 focus-visible:ring-2 focus-visible:ring-[#00A87E] bg-white shadow-2xl text-base font-medium"
+              placeholder={t('medicines.searchPlaceholder')}
+              className="pl-12 pr-5 h-14 text-[#0F172A] rounded-md w-full border-0 focus-visible:ring-2 focus-visible:ring-[#E8593C] bg-white shadow-xl text-base font-medium"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#475569] h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-6 w-6" />
             {search && (
               <button onClick={() => setSearch("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#0F172A] transition-colors">
-                <X className="h-4 w-4" />
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0F172A] transition-colors">
+                <X className="h-5 w-5" />
               </button>
             )}
           </div>
-
-          {/* Trust strip */}
-          <div className="flex items-center justify-center gap-6 flex-wrap pt-2">
-            {["🚚 Free delivery ₹500+", "✅ 100% Genuine", "⚡ 24h delivery", "🔒 Secure checkout"].map(t => (
-              <span key={t} className="text-xs text-emerald-200/80 font-semibold">{t}</span>
-            ))}
-          </div>
         </div>
+
+        <div className="hidden lg:block absolute left-10 bottom-0 pointer-events-none opacity-80 h-[250px] w-[250px]">
+           <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[120%] h-[120%] object-contain -scale-x-100 opacity-60" style={{ filter: "brightness(0.9) contrast(1.1) saturate(1.2)"}}>
+             <circle cx="100" cy="100" r="80" fill="#E7F4F1" />
+             <path d="M60 140V80C60 68.9543 68.9543 60 80 60H120C131.046 60 140 68.9543 140 80V140" stroke="#0D9373" strokeWidth="6" strokeLinecap="round" />
+             <path d="M50 140H150" stroke="#0D9373" strokeWidth="8" strokeLinecap="round" />
+             <rect x="85" y="85" width="30" height="30" rx="6" fill="#E8593C" />
+             <path d="M100 92V108M92 100H108" stroke="white" strokeWidth="4" strokeLinecap="round" />
+             <circle cx="150" cy="70" r="15" fill="#FCEBE7" />
+             <path d="M145 70H155" stroke="#E8593C" strokeWidth="3" strokeLinecap="round" />
+             <circle cx="50" cy="70" r="12" fill="#E7F4F1" />
+           </svg>
+        </div>
+        <div className="hidden lg:block absolute right-10 bottom-0 pointer-events-none opacity-80 h-[250px] w-[250px]">
+           <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[120%] h-[120%] object-contain opacity-60" style={{ filter: "brightness(0.9) contrast(1.1) saturate(1.2)"}}>
+             <circle cx="100" cy="100" r="80" fill="#FCEBE7" />
+             <path d="M100 50C70 50 60 80 60 110C60 140 80 150 100 150C120 150 140 140 140 110C140 80 130 50 100 50Z" fill="#E7F4F1" />
+             <path d="M100 40V160M60 100H140" stroke="#0D9373" strokeWidth="2" strokeDasharray="4 4" />
+             <path d="M70 110C80 90 90 85 100 110C110 135 120 130 130 110" stroke="#E8593C" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+             <circle cx="100" cy="110" r="8" fill="#0D9373" />
+             <path d="M125 65C135 65 145 75 145 85" stroke="#0D9373" strokeWidth="4" strokeLinecap="round" />
+           </svg>
+        </div>
+
       </section>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* ── Category chips ── */}
-        <div className="flex gap-2.5 overflow-x-auto pb-3 mb-6 scrollbar-hide">
-          {CATEGORIES.map(cat => (
-            <button key={cat.value}
-              onClick={() => setCategory(cat.value)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border shrink-0",
-                category === cat.value
-                  ? "bg-[#00A87E] text-white border-[#00A87E] shadow-lg shadow-[#00A87E]/20"
-                  : "bg-white text-[#475569] border-[#E2E8F0] hover:border-[#00A87E] hover:text-[#00A87E]"
-              )}>
-              <span>{cat.emoji}</span> {cat.label}
-            </button>
-          ))}
-        </div>
 
-        {/* ── Filter bar ── */}
-        <div className="flex flex-wrap gap-3 mb-6 items-center justify-between bg-white p-4 rounded-2xl border border-[#E2E8F0] shadow-sm">
-          <div className="flex items-center gap-4 flex-wrap">
-            {/* Mobile filter toggle */}
-            <button onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all md:hidden",
-                sidebarOpen ? "bg-[#00A87E] text-white border-[#00A87E]" : "border-[#E2E8F0] text-[#475569]"
-              )}>
-              <SlidersHorizontal size={14} />
-              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
-            </button>
-
-            {/* Sort */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown size={15} className="text-[#475569]" />
-              <Select value={sortBy} onValueChange={v => setSortBy(v || "relevance")}>
-                <SelectTrigger className="h-9 rounded-xl border-[#E2E8F0] bg-[#F8FAFC] font-semibold text-sm w-[180px] focus:ring-[#00A87E]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  {SORT_OPTIONS.map(o => (
-                    <SelectItem key={o.value} value={o.value} className="font-medium">{o.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Rx toggle (desktop) */}
-            <div className="hidden md:flex items-center gap-2">
-              <Switch checked={rxOnly} onCheckedChange={setRxOnly} />
-              <Label className="text-sm font-semibold text-[#475569] cursor-pointer">Rx Required</Label>
-            </div>
-
-            {/* Price slider (desktop) */}
-            <div className="hidden md:flex items-center gap-3">
-              <Label className="text-xs font-bold text-[#475569] whitespace-nowrap">Max ₹{maxPrice}</Label>
-              <input type="range" min={50} max={2000} step={50} value={maxPrice}
-                onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-32 accent-[#00A87E]" />
-            </div>
-
-            {activeFilterCount > 0 && (
-              <button onClick={clearFilters}
-                className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-600 transition-colors">
-                <X size={12} /> Clear
-              </button>
-            )}
-          </div>
-
-          <p className="text-sm font-bold text-[#475569]">
-            <span className="text-[#00A87E] font-extrabold">{total}</span> medicines
-          </p>
-        </div>
-
-        {/* Mobile filter panel */}
-        {sidebarOpen && (
-          <div className="md:hidden bg-white rounded-2xl border border-[#E2E8F0] p-5 mb-6 space-y-5 shadow-lg">
-            <div className="flex items-center justify-between">
-              <Switch checked={rxOnly} onCheckedChange={setRxOnly} />
-              <Label className="text-sm font-semibold text-[#475569]">Prescription Required Only</Label>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label className="text-xs font-bold text-[#475569]">Max Price</Label>
-                <span className="text-xs font-extrabold text-[#00A87E]">₹{maxPrice}</span>
+        {/* ── Apollo Quick Action Cards ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {[
+              { title: t("medicines.uploadPresc"), sub: t("medicines.get20Off"), img: "📝" },
+              { title: t("medicines.docAppt"), sub: t("medicines.startingPrice"), img: "👨‍⚕️" },
+              { title: t("medicines.healthIns"), sub: t("medicines.protectFamily"), img: "🛡️" },
+              { title: t("medicines.labTests"), sub: t("medicines.freeHomeSample"), img: "💉" }
+            ].map((p, i) => (
+              <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-[#E8593C] transition-colors group">
+                 <div>
+                    <p className="font-bold text-slate-900 group-hover:text-[#E8593C] transition-colors line-clamp-1">{p.title}</p>
+                    <p className="text-xs text-slate-500 font-medium">{p.sub}</p>
+                 </div>
+                 <div className="text-3xl bg-slate-50 p-2 rounded-full shrink-0 group-hover:bg-[#FCEBE7] transition-colors">{p.img}</div>
               </div>
-              <input type="range" min={50} max={2000} step={50} value={maxPrice}
-                onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-[#00A87E]" />
-              <div className="flex justify-between text-[10px] text-[#94A3B8] font-medium">
-                <span>₹50</span><span>₹2,000</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {loading ? (
-            Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
-                <div className="h-40 skeleton" />
-                <div className="p-5 space-y-3">
-                  <div className="skeleton skeleton-sm w-16" />
-                  <div className="skeleton skeleton-md w-3/4" />
-                  <div className="skeleton skeleton-sm w-1/2" />
-                  <div className="skeleton skeleton-xl rounded-xl mt-2" />
-                </div>
-              </div>
-            ))
-          ) : medicines.length > 0 ? (
-            medicines.map(med => {
-              const qty = getQty(med.id)
-              const displayPrice = med.discountedPrice ?? med.price
-              const discount = med.discountedPrice
-                ? Math.round((1 - med.discountedPrice / med.price) * 100) : 0
-
-              return (
-                <div key={med.id}
-                  className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden card-hover flex flex-col group">
-                  {/* Image */}
-                  <div className="h-44 bg-gradient-to-br from-[#E6F7F3] to-[#F0FDF4] flex items-center justify-center relative">
-                    {med.imageUrl ? (
-                      <img src={med.imageUrl} alt={med.name} className="h-full w-full object-contain p-4" />
-                    ) : (
-                      <Pill size={52} className="text-[#00A87E]/25" />
-                    )}
-                    {med.requiresPrescription && (
-                      <span className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <AlertCircle className="h-2.5 w-2.5" /> Rx
-                      </span>
-                    )}
-                    {discount > 0 && (
-                      <span className="absolute top-3 right-3 bg-[#10B981] text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                        {discount}% OFF
-                      </span>
-                    )}
-                    {!med.inStock && (
-                      <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                        <span className="text-xs font-bold text-[#475569] bg-white px-3 py-1 rounded-full border border-[#E2E8F0]">Out of Stock</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-4 flex flex-col flex-1">
-                    <Badge className="bg-[#E6F7F3] text-[#00A87E] border-[#00A87E]/20 hover:bg-[#E6F7F3] w-fit mb-2 text-[10px] font-bold uppercase tracking-wide">
-                      {med.category}
-                    </Badge>
-                    <h3 className="font-heading text-sm font-bold text-[#0F172A] mb-0.5 line-clamp-2 group-hover:text-[#00A87E] transition-colors leading-snug">
-                      {med.name}
-                    </h3>
-                    {med.genericName && (
-                      <p className="text-[11px] text-[#94A3B8] mb-0.5 italic">{med.genericName}</p>
-                    )}
-                    <p className="text-[11px] text-[#475569] font-medium mb-3">By {med.manufacturer}</p>
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-2 mt-auto mb-3">
-                      <span className="font-display text-xl font-extrabold text-[#0F172A]">₹{displayPrice}</span>
-                      {med.discountedPrice && (
-                        <span className="text-sm text-[#94A3B8] line-through">₹{med.price}</span>
-                      )}
-                    </div>
-
-                    {/* Cart control */}
-                    {!med.inStock ? (
-                      <Button variant="outline" disabled
-                        className="w-full h-10 rounded-xl font-bold text-[#94A3B8] border-[#E2E8F0] text-sm">
-                        Out of Stock
-                      </Button>
-                    ) : qty > 0 ? (
-                      <div className="flex items-center justify-between bg-[#E6F7F3] rounded-xl p-0.5 border border-[#00A87E]/20">
-                        <Button variant="ghost" size="icon"
-                          className="h-9 w-9 text-[#00A87E] hover:bg-white rounded-lg"
-                          onClick={() => updateQuantity(med.id, qty - 1)}>
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="font-bold text-[#0F172A] text-base min-w-[24px] text-center">{qty}</span>
-                        <Button variant="ghost" size="icon"
-                          className="h-9 w-9 text-[#00A87E] hover:bg-white rounded-lg"
-                          onClick={() => updateQuantity(med.id, qty + 1)}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        className="w-full h-10 bg-white text-[#00A87E] border-2 border-[#00A87E] hover:bg-[#00A87E] hover:text-white rounded-xl font-bold transition-all active:scale-95 text-sm"
-                        onClick={() => handleAdd(med)}>
-                        <ShoppingCart className="h-4 w-4 mr-1.5" /> Add to Cart
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )
-            })
-          ) : (
-            <div className="col-span-full py-24 text-center space-y-5">
-              <div className="w-24 h-24 bg-[#F8FAFC] rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-[#E2E8F0]">
-                <Package className="h-12 w-12 text-gray-300" />
-              </div>
-              <div>
-                <h3 className="font-heading text-2xl font-bold text-[#0F172A] mb-2">No Medicines Found</h3>
-                <p className="text-[#475569] mb-6 max-w-md mx-auto">
-                  No results match your current filters. Try adjusting your search or criteria.
-                </p>
-                <Button onClick={clearFilters}
-                  className="bg-[#00A87E] hover:bg-[#007A5C] text-white font-bold px-8 rounded-xl">
-                  Clear Filters
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-12 gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-              className="rounded-xl font-bold border-[#E2E8F0]">← Prev</Button>
-            {Array.from({ length: Math.min(totalPages, 7) }).map((_, i) => (
-              <Button key={i} onClick={() => setPage(i)}
-                className={cn("rounded-xl font-bold w-10", page === i
-                  ? "bg-[#00A87E] hover:bg-[#007A5C] text-white"
-                  : "bg-white border border-[#E2E8F0] text-[#475569] hover:border-[#00A87E] hover:text-[#00A87E]")}>
-                {i + 1}
-              </Button>
             ))}
-            <Button variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1}
-              className="rounded-xl font-bold border-[#E2E8F0]">Next →</Button>
-          </div>
-        )}
-      </div>
+        </div>
 
-      {/* Floating cart badge */}
-      {cartCount > 0 && (
+        {/* ── Browse by Conditions ── */}
+        <h2 className="font-heading text-xl font-bold text-slate-900 mb-6">{t("medicines.browseConditions")}</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+           {CONDITIONS.map(c => (
+              <div key={c.label} onClick={() => setCategory(c.label)} className="bg-white px-2 py-3 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 cursor-pointer hover:shadow-md hover:border-slate-300 transition-all group">
+                <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-2xl group-hover:bg-slate-100 transition-colors shrink-0">
+                  {c.emoji}
+                </div>
+                <span className="font-bold text-sm text-slate-800 group-hover:text-[#E8593C] line-clamp-2">{c.label}</span>
+              </div>
+           ))}
+        </div>
+        {/* ── Main Layout ── */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Filters Sidebar */}
+          <div className="hidden lg:block w-64 shrink-0 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h2 className="font-heading text-lg font-bold text-slate-900">{t('medicines.filterBy')}</h2>
+              {activeFilterCount > 0 && <button onClick={clearFilters} className="text-sm font-bold text-rose-500 hover:text-rose-600 transition-colors">{t('medicines.clearAll')}</button>}
+            </div>
+            
+            <div>
+              <Label className="text-sm font-semibold text-slate-700 mb-3 block">{t('medicines.category')}</Label>
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                 <button
+                    onClick={() => setCategory("all")}
+                    className={`w-full text-left text-sm py-1.5 px-3 rounded-md transition-colors ${category === "all" ? "bg-[#FCEBE7] text-[#E8593C] font-semibold" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    {t('medicines.allCategories')}
+                 </button>
+                 {CATEGORIES.filter(c => c.value !== "all").map(cat => (
+                   <button
+                     key={cat.value}
+                     onClick={() => setCategory(cat.value)}
+                     className={`w-full text-left text-sm py-1.5 px-3 rounded-md transition-colors ${category === cat.value ? "bg-[#FCEBE7] text-[#E8593C] font-semibold" : "text-slate-600 hover:bg-slate-50"}`}
+                   >
+                     {cat.label}
+                   </button>
+                 ))}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-semibold text-slate-700 mb-3 block">{t('medicines.prescRequired')}</Label>
+              <div className="flex flex-col gap-2 text-sm text-slate-600">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="rx" checked={!rxOnly} onChange={() => setRxOnly(false)} className="text-[#0d5c3a] focus:ring-[#0d5c3a]" /> {t('medicines.all')}
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="rx" checked={rxOnly} onChange={() => setRxOnly(true)} className="text-[#0d5c3a] focus:ring-[#0d5c3a]" /> {t('medicines.yes')}
+                </label>
+              </div>
+            </div>
+
+            <div>
+               <Label className="text-sm font-semibold text-slate-700 mb-2 block flex justify-between">
+                 <span>{t('medicines.priceRange')}</span>
+                 <span className="text-slate-500 font-normal">₹{maxPrice.toFixed(0)}</span>
+               </Label>
+               <input 
+                 type="range" 
+                 min={50} max={2000} step={50}
+                 value={maxPrice} 
+                 onChange={e => setMaxPrice(Number(e.target.value))}
+                 className="w-full accent-[#0d5c3a] bg-slate-200 rounded-lg appearance-none h-1"
+               />
+               <div className="flex justify-between text-[11px] text-slate-400 mt-2 font-medium">
+                 <span>₹50</span>
+                 <span>₹2,000+</span>
+               </div>
+            </div>
+          </div>
+
+          <div className="flex-1">
+             {/* ── Sort / Mobile Filter Bar ── */}
+             <div className="flex flex-wrap gap-3 mb-6 items-center justify-between pb-4 border-b border-border">
+                <h2 className="font-heading text-2xl font-bold text-slate-900 hidden lg:block">
+                  {category === "all" ? t('medicines.allCategories') : CATEGORIES.find(c => c.value === category)?.label || category}
+                  <span className="text-sm font-normal text-slate-500 ml-2">({total} {t('medicines.items')})</span>
+                </h2>
+
+                <div className="flex items-center gap-4 flex-wrap w-full lg:w-auto">
+                  {/* Mobile filter toggle */}
+                  <button onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all lg:hidden",
+                      sidebarOpen ? "bg-[#0d5c3a] text-white border-[#0d5c3a]" : "bg-white border-border text-slate-700"
+                    )}>
+                    <SlidersHorizontal size={14} />
+                    Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                  </button>
+
+                  <div className="flex items-center gap-2 ml-auto lg:ml-0">
+                    <span className="text-sm text-slate-500 font-medium hidden sm:inline">{t('medicines.sortBy')}</span>
+                    <select className="bg-white border border-slate-300 rounded-md text-sm font-semibold px-3 py-2 outline-none focus:ring-2 focus:ring-[#0d5c3a]/20 focus:border-[#0d5c3a] w-[160px] sm:w-[180px]" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                      <option value="relevance">{t('medicines.relevance')}</option>
+                      <option value="price_asc">{t('medicines.priceLowHigh')}</option>
+                      <option value="price_desc">{t('medicines.priceHighLow')}</option>
+                    </select>
+                  </div>
+                </div>
+             </div>
+
+             {/* Mobile filter panel */}
+             {sidebarOpen && (
+                <div className="lg:hidden bg-white rounded-xl border border-slate-200 p-5 mb-6 space-y-5 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-700">{t('medicines.prescRequired')}</span>
+                    <Switch checked={rxOnly} onCheckedChange={setRxOnly} />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label className="text-xs font-bold text-slate-700">Max Price</Label>
+                      <span className="text-xs font-bold text-[#0d5c3a]">₹{maxPrice}</span>
+                    </div>
+                    <input type="range" min={50} max={2000} step={50} value={maxPrice} onChange={e => setMaxPrice(Number(e.target.value))} className="w-full accent-[#0d5c3a] bg-slate-200 h-1 rounded-lg appearance-none" />
+                  </div>
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearFilters} className="text-sm font-bold text-rose-500 w-full text-center py-2">{t('medicines.clearAll')}</button>
+                  )}
+                </div>
+             )}
+
+             {/* ── Grid ── */}
+             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+               {loading ? (
+                 Array.from({ length: 8 }).map((_, i) => (
+                   <div key={i} className="bg-white rounded-xl border border-slate-200 p-4 h-[320px] flex flex-col animate-pulse">
+                     <div className="h-32 bg-slate-100 rounded-lg mb-4" />
+                     <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
+                     <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                     <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
+                   </div>
+                 ))
+               ) : medicines.length > 0 ? (
+                 medicines.map(med => {
+                   const qty = getQty(med.id)
+                   const displayPrice = med.discountedPrice ?? med.price
+                   const discount = med.discountedPrice
+                     ? Math.round((1 - med.discountedPrice / med.price) * 100) : 0
+
+                   return (
+                     <div key={med.id} className="group bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-lg hover:border-[#E8593C]/40 transition-all duration-300 flex flex-col relative overflow-hidden">
+                       
+                       {/* Tags */}
+                       <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 items-start">
+                         {med.requiresPrescription && (
+                           <div className="bg-rose-50 text-rose-600 text-[10px] font-bold px-2 py-1 rounded border border-rose-100 uppercase flex items-center gap-1">
+                             <FileText size={10} /> Rx
+                           </div>
+                         )}
+                       </div>
+                       
+                       {/* Image Area */}
+                       <div className="relative h-32 w-full mb-4 flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-500">
+                         {med.imageUrl ? (
+                           <img src={med.imageUrl} alt={med.name} className="h-full w-full object-contain" loading="lazy" />
+                         ) : (
+                           <div className="text-4xl">💊</div>
+                         )}
+                       </div>
+                       
+                       {/* Info */}
+                       <div className="flex-1 flex flex-col text-left">
+                         <h3 className="font-bold text-sm text-slate-900 leading-tight mb-1 group-hover:text-[#E8593C] transition-colors line-clamp-2" title={med.name}>
+                           {med.name}
+                         </h3>
+                         {med.genericName && (
+                           <p className="text-[11px] text-slate-500 line-clamp-1 mb-1 italic" title={med.genericName}>
+                             {med.genericName}
+                           </p>
+                         )}
+                         <p className="text-[10px] text-slate-400 font-medium uppercase mb-2 line-clamp-1">{med.manufacturer}</p>
+                         
+                         <div className="mt-auto pt-3 border-t border-slate-100 flex flex-col gap-2">
+                           <div className="flex items-end gap-2 flex-wrap w-full">
+                             <span className="text-lg font-black text-slate-900">₹{displayPrice.toFixed(2)}</span>
+                             {discount > 0 && (
+                               <>
+                                 <span className="text-xs text-slate-400 line-through">₹{med.price.toFixed(2)}</span>
+                                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">
+                                   {discount}% OFF
+                                 </span>
+                               </>
+                             )}
+                           </div>
+                           
+                           {!med.inStock ? (
+                             <Button variant="outline" disabled className="w-full h-9 rounded-md font-bold text-slate-400 border-slate-200 text-xs">
+                                {t('medicines.outOfStock')}
+                             </Button>
+                           ) : qty > 0 ? (
+                             <div className="flex items-center justify-between bg-[#FCEBE7] rounded-md p-0.5 border border-[#E8593C]/20">
+                               <Button variant="ghost" size="icon"
+                                 className="h-8 w-8 text-[#E8593C] hover:bg-white rounded-md"
+                                 onClick={() => updateQuantity(med.id, qty - 1)}>
+                                 <Minus className="h-3 w-3" />
+                               </Button>
+                               <span className="font-bold text-[#E8593C] text-sm min-w-[24px] text-center">{qty}</span>
+                               <Button variant="ghost" size="icon"
+                                 className="h-8 w-8 text-[#E8593C] hover:bg-white rounded-md"
+                                 onClick={() => updateQuantity(med.id, qty + 1)}>
+                                 <Plus className="h-3 w-3" />
+                               </Button>
+                             </div>
+                           ) : (
+                             <Button 
+                               onClick={() => handleAdd(med)}
+                               className="w-full rounded-md bg-[#0d5c3a] text-white hover:bg-[#0b5e39] font-bold text-sm h-9 transition-transform"
+                             >
+                               {t('medicines.addToCart')}
+                             </Button>
+                           )}
+                         </div>
+                       </div>
+                     </div>
+                   )
+                 })
+               ) : (
+                 <div className="col-span-full py-16 text-center space-y-4 bg-white rounded-xl border border-dashed border-slate-300">
+                   <div className="text-5xl mx-auto">📦</div>
+                   <h3 className="font-heading text-xl font-bold text-slate-900">{t('medicines.noMedicinesTitle')}</h3>
+                   <p className="text-slate-500 max-w-sm mx-auto text-sm">
+                     {t('medicines.noMedicinesDesc')}
+                   </p>
+                   <Button onClick={clearFilters} className="bg-[#0d5c3a] hover:bg-[#0b5e39] text-white font-bold px-6">
+                     {t('medicines.clearAll')}
+                   </Button>
+                 </div>
+               )}
+             </div>
+
+             {/* Pagination */}
+             {totalPages > 1 && (
+               <div className="flex justify-center mt-10 gap-2 flex-wrap">
+                 <Button variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
+                   className="rounded-md font-bold border-slate-300">Prev</Button>
+                 {Array.from({ length: Math.min(totalPages, 7) }).map((_, i) => (
+                   <Button key={i} onClick={() => setPage(i)}
+                     className={cn("rounded-md font-bold w-10", page === i
+                       ? "bg-[#0d5c3a] text-white"
+                       : "bg-white border-slate-300 text-slate-600 hover:border-[#0d5c3a] hover:text-[#0d5c3a]")}>
+                     {i + 1}
+                   </Button>
+                 ))}
+                 <Button variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1}
+                   className="rounded-md font-bold border-slate-300">Next</Button>
+               </div>
+             )}
+          </div>
+        </div>
+      </div>
+{cartCount > 0 && (
         <Link href="/cart"
-          className="fixed bottom-6 right-6 z-50 bg-[#00A87E] text-white rounded-2xl px-5 py-3.5 shadow-xl shadow-[#00A87E]/30 flex items-center gap-3 font-bold hover:bg-[#007A5C] transition-all active:scale-95 teal-glow">
+          className="fixed bottom-6 right-6 z-50 bg-[#E8593C] text-white rounded-xl px-5 py-3 shadow-xl hover:bg-[#c94a30] transition-all active:scale-95 flex items-center gap-3 font-bold">
           <ShoppingCart className="h-5 w-5" />
-          <span>{cartCount} item{cartCount > 1 ? "s" : ""} in cart</span>
-          <span className="bg-white text-[#00A87E] rounded-xl px-2 py-0.5 text-xs font-extrabold">View</span>
+          <span>{cartCount} {cartCount > 1 ? t('medicines.cartItems') : t('medicines.item')}</span>
+          <span className="bg-white text-[#E8593C] rounded px-2 py-0.5 text-xs">{t('medicines.view')}</span>
         </Link>
       )}
+
     </div>
   )
 }

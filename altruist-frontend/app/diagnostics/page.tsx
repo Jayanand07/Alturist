@@ -3,12 +3,14 @@
 import React from "react";
 import PlaceholderPage from "@/components/shared/PlaceholderPage";
 import { Activity } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function DiagnosticsPage() {
+  const { t } = useLanguage();
   return (
     <PlaceholderPage 
-      title="Diagnostics" 
-      description="Access your diagnostic reports, book home collection, and manage your health records all in one place."
+      title={t('diagnostics.title')} 
+      description={t('diagnostics.desc')}
       icon={Activity}
     />
   );

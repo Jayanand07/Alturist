@@ -1,8 +1,21 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "./providers";
 import AppShell from "@/components/shared/AppShell";
+import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -10,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | Altruist",
   },
   description:
-    "Connect with 500+ verified doctors online. Book instant video consultations, order genuine medicines, and manage your health — anytime, anywhere.",
+    "Connect with 500+ verified doctors online. Book instant chat consultations, order genuine medicines, and manage your health — anytime, anywhere.",
   keywords: ["telemedicine", "online doctor", "medical consultation", "healthcare", "medicine delivery", "lab tests"],
   authors: [{ name: "Altruist Healthcare" }],
   openGraph: {
@@ -22,11 +35,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full" data-scroll-behavior="smooth">
+    <html 
+      lang="en" 
+      className={`${plusJakartaSans.variable} ${outfit.variable} h-full`} 
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className="min-h-full flex flex-col antialiased">
         <Providers>
           <AppShell>

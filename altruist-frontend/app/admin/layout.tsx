@@ -37,12 +37,12 @@ export default function AdminLayout({
 
   // Role Protection
   useEffect(() => {
-    if (!loading && userType !== "ADMIN") {
+    if (!loading && userType && userType !== "ADMIN" && userType !== "SUPER_ADMIN") {
       router.push("/login");
     }
   }, [userType, loading, router]);
 
-  if (loading || userType !== "ADMIN") {
+  if (loading || !userType || (userType !== "ADMIN" && userType !== "SUPER_ADMIN")) {
     return null; // Handle in AuthContext loader
   }
 
@@ -63,7 +63,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
+    <div className="min-h-screen bg-surface-muted/30 flex font-sans">
       {/* Sidebar - Desktop */}
       <aside 
         className={cn(
@@ -73,12 +73,10 @@ export default function AdminLayout({
       >
         {/* Logo Section */}
         <div className="h-20 flex items-center px-6 border-b border-gray-100">
-          <Link href="/admin/dashboard" className="flex items-center gap-3">
-            <div className="bg-[#0D9488] p-2 rounded-xl">
-              <ShieldCheck className="w-6 h-6 text-white" />
-            </div>
+          <Link href="/admin/dashboard" className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="Altruist Wellness" className={cn("h-8 w-auto object-contain transition-all", !isSidebarOpen && "mx-auto")} />
             {isSidebarOpen && (
-               <span className="text-xl font-bold text-gray-900 tracking-tight">Altruist <span className="text-[#0D9488]">Admin</span></span>
+               <span className="text-[10px] font-black bg-teal-50 text-[#0D9488] border border-teal-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">Admin</span>
             )}
           </Link>
         </div>
@@ -178,7 +176,7 @@ export default function AdminLayout({
            </div>
            
            <div className="flex items-center gap-3">
-              <div className="bg-teal-600/10 text-teal-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-teal-200">
+              <div className="bg-primary/10 text-teal-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-teal-200">
                 Admin Panel
               </div>
            </div>

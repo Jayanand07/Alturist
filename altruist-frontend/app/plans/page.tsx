@@ -1,485 +1,380 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Link from "next/link"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  CheckCircle2, Loader2, Tag, ShieldCheck, Truck,
-  TestTube, Activity, HeartPulse, Building2, Star,
-} from "lucide-react"
-import { useAuth } from "@/context/AuthContext"
-import api from "@/lib/axios"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import React from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { 
+  CheckCircle2, Stethoscope, FlaskConical, Pill, 
+  Mail, ShieldCheck, Sparkles, Star, ChevronRight, 
+  ArrowRight, Award, GraduationCap, Briefcase
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/context/LanguageContext";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-interface SubscriptionPlan {
-  id: string; name: string; description: string
-  monthlyPrice: number; yearlyPrice: number
-  consultationsPerMonth: number
-  labDiscountEnabled: boolean; labDiscountPercent: number
-  medicineDiscountEnabled: boolean; medicineDiscountPercent: number
-  prioritySupport: boolean; isActive: boolean
-}
-interface UserSubscription {
-  id: string; planName: string; billingCycle: string; status: string
-  startDate: string; endDate: string; nextBillingDate: string
-  consultationsUsed: number; consultationsRemaining: number
-}
+// ── DATA STRUCTURES ──────────────────────────────────────────────────────
 
-// ── Hardcoded client plan content ─────────────────────────────────────────────
-const CLIENT_PLANS = [
+const ANCESTOR_PLANS = [
   {
-    key: "student",
-    tag: "For Students",
     name: "Student Plan",
-    price: 849,
-    popular: false,
-    benefits: [
+    price: "₹849",
+    period: "/ year",
+    type: "STUDENT",
+    icon: GraduationCap,
+    description: "Affordable premium care tailored for coaching and college students.",
+    features: [
       "Unlimited tele and video consultations",
       "One clinic visit or hospital OPD consultation",
       "Up to 20% off on lab tests",
-      "Priority customer support",
+      "Priority customer support"
     ],
+    buttonText: "Get Student Plan",
+    isPopular: false,
+    color: "from-emerald-500 to-teal-600",
+    bgLight: "bg-emerald-50/50",
+    borderTheme: "border-emerald-100",
+    iconBg: "bg-emerald-100",
+    iconColor: "text-emerald-600"
   },
   {
-    key: "standard",
-    tag: "For Working Adults",
-    name: "Standard Plan",
-    price: 999,
-    popular: true,
-    benefits: [
+    name: "Working & Adult Plan",
+    price: "₹999",
+    period: "/ year",
+    type: "INDIVIDUAL",
+    icon: Briefcase,
+    description: "Complete individual healthcare plan for working professionals.",
+    features: [
       "Unlimited tele and video consultations",
       "One clinic visit or hospital OPD consultation",
       "Up to 20% off on lab tests",
-      "Priority customer support",
+      "Priority customer support"
     ],
-  },
-]
-
-const LAB_PACKAGES = [
-  {
-    Icon: TestTube,
-    title: "Basic Health Checkup",
-    tests: "Blood Sugar, CBC, Basic screening tests",
-    price: "₹499 – ₹699",
-    badge: null,
-    badgeColor: "",
-    gradient: "from-blue-50 to-[#E6F7F3]",
-  },
-  {
-    Icon: Activity,
-    title: "Advanced Health Package",
-    tests: "Full body checkup, Liver, Kidney, Thyroid tests, Detailed health report",
-    price: "₹1199 – ₹1499",
-    badge: "Comprehensive",
-    badgeColor: "bg-[#E6F7F3] text-[#00A87E]",
-    gradient: "from-[#E6F7F3] to-emerald-50",
-  },
-  {
-    Icon: HeartPulse,
-    title: "Doctor Consultation + Basic Tests",
-    tests: "Best for quick diagnosis & treatment",
-    price: "Starting at ₹1199",
-    badge: "Best Value",
-    badgeColor: "bg-[#FF6B35]/10 text-[#FF6B35]",
-    gradient: "from-orange-50 to-amber-50",
-    accent: true,
-  },
-]
-
-const MEDICINE_FEATURES = [
-  { Icon: Tag,         label: "Up to 20% discount on medicines"              },
-  { Icon: ShieldCheck, label: "Genuine & verified products"                  },
-  { Icon: Truck,       label: "Fast delivery (same/next day in select areas)" },
-]
-
-const EASE = "easeOut" as const
-
-const cardAnim = (i: number) => ({
-  initial:     { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0  },
-  viewport:    { once: true } as const,
-  transition:  { delay: i * 0.1, duration: 0.45, ease: EASE },
-})
-
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function PlansPage() {
-  const { user } = useAuth()
-  const queryClient = useQueryClient()
-  const [showCancelModal, setShowCancelModal] = useState(false)
-
-  const { data: plans } = useQuery({
-    queryKey: ["subscription-plans"],
-    queryFn: async () => {
-      const res = await api.get<SubscriptionPlan[]>("/subscriptions/plans")
-      return res.data.sort((a, b) => a.yearlyPrice - b.yearlyPrice)
-    },
-  })
-
-  const { data: activeSub } = useQuery({
-    queryKey: ["my-subscription"],
-    queryFn: async () => {
-      if (!user) return null
-      try { const r = await api.get<UserSubscription>("/subscriptions/my"); return r.data || null }
-      catch { return null }
-    },
-    enabled: !!user,
-  })
-
-  const subscribeMutation = useMutation({
-    mutationFn: async ({ planId, planName }: { planId: string; planName: string }) => {
-      const r = await api.post("/subscriptions/subscribe", { planId, billingCycle: "YEARLY" })
-      return { data: r.data, planName }
-    },
-    onSuccess: ({ planName }) => {
-      toast.success(`Welcome to ${planName}! 🎉`)
-      queryClient.invalidateQueries({ queryKey: ["my-subscription"] })
-    },
-    onError: (e: any) => toast.error(e.response?.data?.error || "Failed to subscribe."),
-  })
-
-  const renewMutation = useMutation({
-    mutationFn: async () => { const r = await api.post("/subscriptions/renew", { billingCycle: "YEARLY" }); return r.data },
-    onSuccess: () => { toast.success("Subscription renewed!"); queryClient.invalidateQueries({ queryKey: ["my-subscription"] }) },
-    onError: (e: any) => toast.error(e.response?.data?.error || "Failed to renew."),
-  })
-
-  const cancelMutation = useMutation({
-    mutationFn: async () => { const r = await api.post("/subscriptions/cancel"); return r.data },
-    onSuccess: () => {
-      toast.success("Subscription cancelled.")
-      setShowCancelModal(false)
-      queryClient.invalidateQueries({ queryKey: ["my-subscription"] })
-    },
-    onError: (e: any) => { toast.error(e.response?.data?.error || "Failed to cancel."); setShowCancelModal(false) },
-  })
-
-  const handleSubscribe = (clientPlanName: string) => {
-    if (!user) { toast.error("Please log in to subscribe."); return }
-    const matched = plans?.find(p => p.name.toLowerCase().includes(clientPlanName.toLowerCase()))
-    if (!matched) { toast.error("Plan not found. Please try again."); return }
-    subscribeMutation.mutate({ planId: matched.id, planName: matched.name })
+    buttonText: "Get Active Plan",
+    isPopular: true,
+    color: "from-[#E8593C] to-[#D14A30]",
+    bgLight: "bg-[#FFF5F2]",
+    borderTheme: "border-red-100",
+    iconBg: "bg-[#FCEBE7]",
+    iconColor: "text-[#E8593C]"
   }
+];
 
-  const isCurrentPlan = (name: string) =>
-    activeSub?.status === "ACTIVE" && activeSub.planName.toLowerCase().includes(name.toLowerCase())
+const LAB_TEST_PACKAGES = [
+  {
+    title: "Basic Health Checkup",
+    price: "₹499 – ₹699",
+    img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=300&h=200&fit=crop&q=80",
+    icon: FlaskConical,
+    desc: "Essential parameters to monitor your metabolic baseline.",
+    parameters: ["Blood Sugar Profile", "Complete Blood Count (CBC)", "Basic Screening Urine Analysis"]
+  },
+  {
+    title: "Advanced Health Package",
+    price: "₹1199 – ₹1499",
+    img: "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=300&h=200&fit=crop&q=80",
+    icon: Award,
+    desc: "Complete head-to-toe screening for full system assessment.",
+    parameters: ["Full Body Checkup (84 tests)", "Comprehensive Liver Tests", "Kidney Function Analysis", "Thyroid Profile (T3, T4, TSH)", "Detailed Clinical Health Report"]
+  },
+  {
+    title: "Combo Offer 🎯",
+    price: "Starting at ₹1199",
+    img: "https://images.unsplash.com/photo-1579684385101-f3d34f634312?w=300&h=200&fit=crop&q=80",
+    icon: Sparkles,
+    desc: "Best for quick diagnosis & treatment. Combined Doctor + Lab checks.",
+    parameters: ["Annual Doctor Consultation Subscription", "Basic Health Screening Tests Included", "2Hr Pharmacy Priority Shipping"],
+    highlight: "MOST RECOMMENDED"
+  }
+];
 
-  const isSubscribed = activeSub?.status === "ACTIVE"
+export default function RedesignedPlansPage() {
+  const router = useRouter();
+  const { t } = useLanguage();
+
+  const handleSubscribe = (planName: string) => {
+    router.push(`/checkout?plan=${planName.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`);
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-900 pb-20">
+      
+      {/* 1. HERO BANNER */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-[#0D9373] to-[#0A7A5F] py-20 lg:py-24 text-white text-center">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+        <div className="absolute top-[-50px] right-[-100px] w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
 
-      {/* ── Hero ── */}
-      <div className="relative overflow-hidden pb-32 pt-20 px-6"
-        style={{ background: "linear-gradient(135deg, #0F172A 0%, #0D1F2D 100%)" }}>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#00A87E]/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[#00A87E] text-xs font-bold uppercase tracking-widest mb-6">
-            <Star className="h-3.5 w-3.5" /> Annual Subscription Plans
-          </div>
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-5 leading-tight">
-            Simple. Affordable.{" "}
-            <span className="text-[#00A87E]">Trusted Healthcare.</span>
+        <div className="max-w-4xl mx-auto px-6 relative z-10 space-y-6">
+          <Badge className="bg-white/15 text-white border-none py-1.5 px-4 font-extrabold text-xs tracking-wider rounded-full backdrop-blur-md uppercase">
+            {t('plans.badge')}
+          </Badge>
+          
+          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+            💙 {t('plans.heroTitle')} <br className="hidden md:block" />
+            <span className="text-emerald-300">{t('plans.heroTitleHighlight')}</span>
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            At Altruist Wellness, we make healthcare accessible with transparent pricing, expert doctors,
-            and reliable services—all in one place.
+          
+          <p className="text-slate-100 text-base md:text-lg max-w-2xl mx-auto font-semibold leading-relaxed opacity-90">
+            {t('plans.heroDesc')}
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 -mt-20 relative z-10 pb-24 space-y-24">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 space-y-24">
 
-        {/* ── Current plan banner ── */}
-        {user && activeSub && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-            className={cn("rounded-2xl border p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-sm",
-              activeSub.status === "ACTIVE"    ? "bg-[#E6F7F3] border-[#00A87E]/30" :
-              activeSub.status === "CANCELLED" ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200")}>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <CheckCircle2 className="h-5 w-5 text-[#00A87E]" />
-                <h2 className="font-heading font-bold text-[#0F172A] text-lg">
-                  You&apos;re on the <span className="text-[#00A87E]">{activeSub.planName}</span>
-                </h2>
-                <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                  activeSub.status === "ACTIVE" ? "bg-[#00A87E]/15 text-[#00A87E]" :
-                  activeSub.status === "CANCELLED" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700")}>
-                  {activeSub.status}
-                </span>
-              </div>
-              <p className="text-sm text-[#475569] font-medium">
-                {activeSub.status === "ACTIVE" && `Renews: ${new Date(activeSub.nextBillingDate).toLocaleDateString()}`}
-                {activeSub.status === "CANCELLED" && `Expires: ${new Date(activeSub.endDate).toLocaleDateString()}`}
-                {activeSub.status === "EXPIRED" && `Expired: ${new Date(activeSub.endDate).toLocaleDateString()}`}
-              </p>
-            </div>
-            <div className="flex gap-3 flex-shrink-0">
-              {(activeSub.status === "CANCELLED" || activeSub.status === "EXPIRED") && (
-                <Button onClick={() => renewMutation.mutate()} disabled={renewMutation.isPending}
-                  className="bg-[#00A87E] hover:bg-[#007A5C] text-white font-bold h-10 px-5 rounded-xl gap-2">
-                  {renewMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Renew
-                </Button>
-              )}
-              {activeSub.status === "ACTIVE" && (
-                <Button variant="outline" onClick={() => setShowCancelModal(true)}
-                  className="border-red-200 text-red-600 hover:bg-red-50 font-bold h-10 px-5 rounded-xl">
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── SECTION 1: Doctor Consultation Plans ── */}
-        <section>
-          <div className="text-center mb-12">
-            <p className="text-[#00A87E] font-bold text-xs uppercase tracking-widest mb-2">Annual Subscription</p>
-            <h2 className="font-heading text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-1">
-              Doctor Consultation Plans
+        {/* 2. DOCTOR CONSULTATION ANNUAL PLANS */}
+        <section className="space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <Badge className="bg-[#E7F4F1] text-[#0D9373] hover:bg-[#E7F4F1] border-none font-bold text-xs px-3 py-1 rounded-md uppercase">
+              {t('plans.doctorBadge')}
+            </Badge>
+            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {t('plans.doctorTitle')}
             </h2>
-            <div className="h-1 w-16 bg-[#00A87E] rounded-full mx-auto mt-3" />
+            <p className="text-slate-500 text-sm font-semibold">
+              {t('plans.doctorDesc')}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            {/* Student Plan */}
-            {CLIENT_PLANS.map((plan, i) => {
-              const current = isCurrentPlan(plan.key)
-              const loading = subscribeMutation.isPending &&
-                subscribeMutation.variables?.planName?.toLowerCase().includes(plan.key)
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {ANCESTOR_PLANS.map((plan, i) => {
+              const IconComp = plan.icon;
               return (
-                <motion.div key={plan.key} {...cardAnim(i)}
-                  className={cn(
-                    "relative bg-white rounded-2xl border flex flex-col h-full transition-all card-hover",
-                    plan.popular
-                      ? "border-[#00A87E] shadow-xl shadow-[#00A87E]/10 md:-translate-y-3 scale-[1.02]"
-                      : "border-[#E2E8F0] shadow-sm",
-                    current && "ring-2 ring-[#00A87E] ring-offset-2"
-                  )}>
-                  {/* Popular ribbon */}
-                  {plan.popular && !current && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#00A87E] to-[#059669] text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-md whitespace-nowrap">
-                      Most Popular
-                    </div>
-                  )}
-                  {current && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#00A87E] text-white text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-full shadow-md flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3 w-3" /> Current Plan
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -6 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className={`bg-white rounded-3xl p-8 flex flex-col justify-between border shadow-lg hover:shadow-2xl transition-all relative overflow-hidden ${
+                    plan.isPopular ? "border-[#E8593C]" : "border-slate-100"
+                  }`}
+                >
+                  {plan.isPopular && (
+                    <div className="absolute top-0 right-0 bg-[#E8593C] text-white px-4 py-1.5 font-black text-[10px] tracking-widest rounded-bl-2xl uppercase">
+                      {t('plans.bestChoice')}
                     </div>
                   )}
 
-                  <div className="p-7 flex flex-col flex-1">
-                    {/* Tag */}
-                    <span className="inline-block px-3 py-1 rounded-full bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] text-xs font-bold mb-4">
-                      {plan.tag}
-                    </span>
-                    <h3 className="font-heading text-2xl font-extrabold text-[#0F172A] mb-1">{plan.name}</h3>
-
-                    {/* Price */}
-                    <div className="flex items-baseline gap-1 mt-3 mb-6">
-                      <span className="text-[#00A87E] font-extrabold text-3xl">₹</span>
-                      <span className="font-display text-5xl font-extrabold text-[#0F172A]">{plan.price}</span>
-                      <span className="text-[#475569] font-medium ml-1">/ year</span>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl ${plan.iconBg} ${plan.iconColor} flex items-center justify-center`}>
+                        <IconComp className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-xl text-slate-900">{plan.type === 'STUDENT' ? t('plans.studentName') : t('plans.adultName')}</h3>
+                        <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">{t('plans.annualPrivilege')}</span>
+                      </div>
                     </div>
 
-                    {/* Benefits */}
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {plan.benefits.map(b => (
-                        <li key={b} className="flex items-start gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-[#00A87E] flex-shrink-0 mt-0.5" />
-                          <span className="text-[#475569] font-medium text-sm leading-relaxed">{b}</span>
-                        </li>
+                    <p className="text-sm font-semibold text-slate-500 leading-relaxed min-h-[40px]">
+                      {plan.type === 'STUDENT' ? t('plans.studentDesc') : t('plans.adultDesc')}
+                    </p>
+
+                    <div className="flex items-baseline gap-1.5 border-y border-slate-50 py-4">
+                      <span className="text-4xl font-black text-slate-900">{plan.price}</span>
+                      <span className="text-sm font-bold text-slate-400 uppercase">{plan.period}</span>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('plans.includedBenefits')}</span>
+                      {plan.features.map((feat, fIdx) => (
+                        <div key={fIdx} className="flex items-start gap-3">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                          <span className="text-sm font-bold text-slate-600 leading-tight">{feat}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+                  </div>
 
-                    {/* CTA */}
-                    <Button
-                      disabled={current || (isSubscribed && !current) || subscribeMutation.isPending}
-                      onClick={() => handleSubscribe(plan.key)}
-                      className={cn(
-                        "w-full h-12 font-bold rounded-xl text-base transition-all active:scale-[0.98]",
-                        current
-                          ? "bg-[#E6F7F3] text-[#00A87E] cursor-default hover:bg-[#E6F7F3]"
-                          : plan.popular
-                            ? "bg-[#00A87E] hover:bg-[#007A5C] text-white shadow-lg shadow-[#00A87E]/25"
-                            : "bg-[#0F172A] hover:bg-[#1E293B] text-white"
-                      )}>
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" />
-                        : current ? <><CheckCircle2 className="h-4 w-4 mr-2 inline" />Current Plan</>
-                        : isSubscribed ? "Switch (Cancel First)"
-                        : "Subscribe Now — ₹" + plan.price + "/yr"}
+                  <div className="pt-8">
+                    <Button 
+                      onClick={() => handleSubscribe(plan.name)}
+                      className={`w-full h-12 rounded-2xl font-black text-base transition-all border-none ${
+                        plan.isPopular
+                          ? "bg-[#E8593C] hover:bg-[#D14A30] text-white shadow-md shadow-orange-500/20"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                      }`}
+                    >
+                      {plan.type === 'STUDENT' ? t('plans.studentButton') : t('plans.adultButton')} <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </motion.div>
-              )
+              );
             })}
+          </div>
 
-            {/* Enterprise Card */}
-            <motion.div {...cardAnim(2)}
-              className="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col justify-between p-7 card-hover">
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-bold mb-4">
-                  <Building2 className="h-3.5 w-3.5" /> Enterprise Plan
-                </span>
-                <h3 className="font-heading text-2xl font-extrabold text-[#0F172A] mb-3">Enterprise</h3>
-                <p className="text-[#475569] font-medium text-sm leading-relaxed mb-8">
-                  Separate pricing for coaching institutes, colleges, universities and corporate clients.
+          {/* Enterprise custom plan card */}
+          <div className="max-w-4xl mx-auto bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 text-white relative overflow-hidden border border-slate-800 shadow-xl">
+            <div className="absolute right-[-40px] bottom-[-40px] w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 max-w-xl text-left">
+                <Badge className="bg-emerald-500 text-white border-none px-2.5 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
+                  {t('plans.enterpriseBadge')}
+                </Badge>
+                <h3 className="font-extrabold text-xl">{t('plans.enterpriseTitle')}</h3>
+                <p className="text-sm font-semibold text-slate-400 leading-relaxed">
+                  {t('plans.enterpriseDesc')}
                 </p>
               </div>
-              <a href="mailto:support@altruistwellness.com">
-                <Button variant="outline"
-                  className="w-full h-12 font-bold rounded-xl border-2 border-slate-300 text-slate-600 hover:border-[#00A87E] hover:text-[#00A87E] transition-all">
-                  Contact Us
+              <a href="mailto:support@altruistwellness.com" className="w-full md:w-auto shrink-0">
+                <Button className="w-full md:w-auto h-12 px-8 rounded-2xl bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-black text-sm border-none shadow-md flex items-center justify-center gap-2">
+                  <Mail size={16} /> {t('plans.enterpriseButton')}
                 </Button>
               </a>
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* ── SECTION 2: Lab Test Packages ── */}
-        <section>
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-1">
-              Lab Test Packages
+        {/* 3. LAB TEST PACKAGES GRID */}
+        <section className="space-y-12 bg-white border border-slate-100 p-8 sm:p-12 rounded-3xl shadow-sm">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <Badge className="bg-[#FEF3C7] text-[#D97706] hover:bg-[#FEF3C7] border-none font-bold text-xs px-3 py-1 rounded-md uppercase">
+              {t('plans.labsBadge')}
+            </Badge>
+            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {t('plans.labsTitle')}
             </h2>
-            <div className="h-1 w-16 bg-[#00A87E] rounded-full mx-auto mt-3" />
+            <p className="text-slate-500 text-sm font-semibold">
+              {t('plans.labsDesc')}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {LAB_PACKAGES.map((pkg, i) => (
-              <motion.div key={pkg.title} {...cardAnim(i)}
-                className={cn(
-                  "rounded-2xl p-7 flex flex-col border card-hover bg-gradient-to-br",
-                  pkg.gradient,
-                  pkg.accent ? "border-[#FF6B35]/20 shadow-lg shadow-orange-50" : "border-[#E2E8F0] shadow-sm"
-                )}>
-                {/* Icon */}
-                <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center mb-5",
-                  pkg.accent ? "bg-[#FF6B35]/10" : "bg-[#00A87E]/10"
-                )}>
-                  <pkg.Icon className={cn("h-6 w-6", pkg.accent ? "text-[#FF6B35]" : "text-[#00A87E]")} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {LAB_TEST_PACKAGES.map((pkg, idx) => (
+              <Card key={idx} className="border border-slate-100 hover:border-emerald-100 shadow-md hover:shadow-xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
+                <div className="relative h-44 w-full overflow-hidden bg-slate-50">
+                  <img 
+                    src={pkg.img} 
+                    alt={pkg.title} 
+                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  
+                  {pkg.highlight && (
+                    <Badge className="absolute top-4 left-4 bg-[#E8593C] text-white border-none px-3 py-1 font-black text-xs tracking-wider rounded-lg shadow">
+                      {pkg.highlight}
+                    </Badge>
+                  )}
+
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="font-black text-lg text-white drop-shadow-md leading-tight">
+                      {pkg.title}
+                    </h3>
+                  </div>
                 </div>
 
-                {pkg.badge && (
-                  <span className={cn("inline-block self-start px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider mb-3", pkg.badgeColor)}>
-                    {pkg.badge}
-                  </span>
-                )}
+                <CardContent className="p-6 flex flex-col justify-between flex-1 gap-6">
+                  <div className="space-y-4 text-left">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">{t('plans.priceRange')}</span>
+                      <span className="text-xl font-black text-slate-900 ml-1">{pkg.price}</span>
+                    </div>
 
-                <h3 className="font-heading text-lg font-bold text-[#0F172A] mb-1">{pkg.title}</h3>
-                <p className="text-[#475569] text-sm font-medium mb-4 flex-1 leading-relaxed">{pkg.tests}</p>
+                    <p className="text-xs font-semibold text-slate-500 leading-relaxed">
+                      {pkg.desc}
+                    </p>
 
-                <div className={cn("text-2xl font-extrabold font-display", pkg.accent ? "text-[#FF6B35]" : "text-[#00A87E]")}>
-                  {pkg.price}
-                </div>
+                    <div className="space-y-2 pt-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{t('plans.parameters')}</span>
+                      <div className="flex flex-col gap-2">
+                        {pkg.parameters.map((param, pIdx) => (
+                          <div key={pIdx} className="flex items-start gap-2.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0D9373] mt-1.5 shrink-0" />
+                            <span className="text-xs font-bold text-slate-600 leading-tight">{param}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-                <Link href="/labs" className="mt-5">
-                  <Button variant="outline"
-                    className={cn("w-full rounded-xl font-bold h-11 transition-all",
-                      pkg.accent
-                        ? "border-[#FF6B35]/30 text-[#FF6B35] hover:bg-[#FF6B35]/5"
-                        : "border-[#00A87E]/30 text-[#00A87E] hover:bg-[#E6F7F3]"
-                    )}>
-                    Book Now →
-                  </Button>
-                </Link>
-              </motion.div>
+                  <div className="pt-6 border-t border-slate-50">
+                    <Link href="/labs">
+                      <Button className="w-full h-11 rounded-2xl bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-extrabold text-sm border-none shadow-sm flex items-center justify-center gap-1">
+                        {t('plans.bookDiagnostic')} <ArrowRight size={14} />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>
 
-        {/* ── SECTION 3: Medicines & Delivery ── */}
-        <section>
-          <div className="text-center mb-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-1">
-              Medicines &amp; Delivery
-            </h2>
-            <div className="h-1 w-16 bg-[#00A87E] rounded-full mx-auto mt-3" />
-          </div>
-
-          <motion.div {...cardAnim(0)}
-            className="bg-gradient-to-br from-[#0F172A] to-[#1A2E3B] rounded-2xl p-8 md:p-10 relative overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#00A87E]/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex flex-col sm:flex-row gap-6 flex-1">
-                {MEDICINE_FEATURES.map((f, i) => (
-                  <div key={f.label} className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#00A87E]/15 border border-[#00A87E]/20 flex items-center justify-center flex-shrink-0">
-                      <f.Icon className="h-5 w-5 text-[#00A87E]" />
-                    </div>
-                    <p className="text-slate-300 font-medium text-sm leading-snug pt-1">{f.label}</p>
-                  </div>
-                ))}
+        {/* 4. MEDICINES & PHARMACY PROMOTION CARD */}
+        <section className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] rounded-3xl p-8 sm:p-12 text-white border border-slate-800 shadow-xl relative overflow-hidden">
+          <div className="absolute right-[-50px] top-[-50px] w-96 h-96 rounded-full bg-[#E8593C]/5 blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 text-left">
+            <div className="space-y-6 max-w-xl">
+              <div className="inline-flex items-center gap-1.5 bg-[#E8593C]/10 border border-[#E8593C]/20 rounded-full px-3 py-1 text-[#E8593C] text-xs font-black tracking-widest uppercase">
+                <Pill size={12} /> {t('plans.medicinesBadge')}
               </div>
-              <Link href="/medicines" className="flex-shrink-0">
-                <Button className="bg-[#00A87E] hover:bg-[#007A5C] text-white font-bold px-7 h-11 rounded-xl shadow-lg shadow-[#00A87E]/25 active:scale-95 transition-all">
-                  Shop Medicines →
+              <h2 className="font-heading text-3xl font-black leading-tight tracking-tight">
+                💊 {t('plans.medicinesTitle')}
+              </h2>
+              <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+                {t('plans.medicinesDesc')}
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-800 pt-6">
+                <div>
+                  <span className="block text-2xl font-black text-[#E8593C]">{t('plans.discountTitle')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.discountDesc')}</span>
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-emerald-400">{t('plans.genuineTitle')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.genuineDesc')}</span>
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-blue-400">{t('plans.expressTitle')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.expressDesc')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full lg:w-auto shrink-0 flex flex-col gap-3 min-w-[240px]">
+              <Link href="/medicines" className="w-full">
+                <Button className="w-full h-12 rounded-2xl bg-[#E8593C] hover:bg-[#D14A30] text-white font-black text-sm border-none shadow-md">
+                  {t('plans.orderNow')}
+                </Button>
+              </Link>
+              <Link href="/support" className="w-full">
+                <Button className="w-full h-12 rounded-2xl bg-transparent hover:bg-white/5 border border-white/25 text-white font-bold text-sm">
+                  {t('plans.talkPharmacist')}
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </section>
 
-        {/* ── SECTION 4: Bottom CTA ── */}
-        <motion.section {...cardAnim(0)}
-          className="bg-gradient-to-br from-[#00A87E] to-[#059669] rounded-3xl p-10 md:p-14 text-center relative overflow-hidden">
-          <div className="absolute inset-0 hero-grid-pattern opacity-20" />
-          <div className="relative z-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-extrabold text-white mb-3">
-              Get Started Today
+        {/* 5. GET STARTED TODAY BANNER (CTA) */}
+        <section className="bg-gradient-to-br from-[#0D9373] via-[#0A7A5F] to-[#08614C] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 left-0 right-0 bottom-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+          
+          <div className="max-w-2xl mx-auto space-y-6 relative z-10">
+            <span className="text-4xl">🚀</span>
+            <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight">
+              {t('plans.getStartedTitle')}
             </h2>
-            <p className="text-white/80 font-medium text-lg max-w-xl mx-auto mb-8">
-              Book your consultation, order medicines, or schedule lab tests—all from one platform.
+            <p className="text-emerald-100 font-semibold text-base leading-relaxed opacity-95">
+              {t('plans.getStartedDesc')}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Link href="/register">
-                <Button className="bg-white text-[#00A87E] hover:bg-white/90 font-bold px-9 h-12 rounded-xl shadow-lg text-base active:scale-95 transition-all">
-                  Sign Up Now
+                <Button className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-white text-[#0D9373] hover:bg-slate-50 font-black text-sm border-none shadow-lg active:scale-95 transition-all">
+                  {t('plans.signUpButton')}
                 </Button>
               </Link>
-              <Link href="/consult">
-                <Button variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 font-bold px-9 h-12 rounded-xl text-base bg-transparent active:scale-95 transition-all">
-                  Book Consultation
+              <Link href="/">
+                <Button className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-[#E8593C] hover:bg-[#D14A30] text-white font-black text-sm border-none shadow-lg active:scale-95 transition-all">
+                  {t('plans.dashboardButton')}
                 </Button>
               </Link>
             </div>
           </div>
-        </motion.section>
-      </div>
+        </section>
 
-      {/* ── Cancel Modal ── */}
-      <AnimatePresence>
-        {showCancelModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl p-7 w-full max-w-md shadow-2xl">
-              <h3 className="font-heading text-xl font-bold text-[#0F172A] mb-2">Cancel Subscription?</h3>
-              <p className="text-[#475569] mb-6 font-medium">
-                You will lose access to free consultations and discounts at the end of your billing cycle.
-              </p>
-              <div className="flex gap-3 justify-end">
-                <Button variant="outline" onClick={() => setShowCancelModal(false)}
-                  className="font-bold rounded-xl">Keep Plan</Button>
-                <Button variant="destructive" onClick={() => cancelMutation.mutate()}
-                  disabled={cancelMutation.isPending} className="font-bold rounded-xl gap-2">
-                  {cancelMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Yes, Cancel
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
-  )
+  );
 }

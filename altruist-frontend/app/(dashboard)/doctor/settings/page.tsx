@@ -176,8 +176,8 @@ export default function DoctorSettingsPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50/50">
-        <Loader2 className="w-10 h-10 animate-spin text-[#00A87E]" />
+      <div className="min-h-screen flex items-center justify-center bg-surface-muted/50">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -193,8 +193,8 @@ export default function DoctorSettingsPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl mb-24">
        <div className="mb-8 space-y-2">
-         <h1 className="text-3xl tracking-tight font-extrabold text-slate-900">Doctor Settings</h1>
-         <p className="text-slate-500 font-medium">Manage your professional profile, clinic details, and schedule.</p>
+         <h1 className="text-3xl tracking-tight font-extrabold text-foreground">Doctor Settings</h1>
+         <p className="text-muted-foreground font-medium">Manage your professional profile, clinic details, and schedule.</p>
        </div>
 
        <Tabs defaultValue="profile" className="flex flex-col md:flex-row gap-8">
@@ -210,7 +210,7 @@ export default function DoctorSettingsPage() {
                   <TabsTrigger 
                     key={tab.id} 
                     value={tab.id}
-                    className="w-full justify-start text-left px-4 py-3 h-auto data-[state=active]:bg-[#00A87E]/10 data-[state=active]:text-[#00A87E] data-[state=active]:font-bold data-[state=active]:shadow-none rounded-xl border border-transparent data-[state=active]:border-[#00A87E]/20 transition-all gap-3 text-slate-600 font-medium"
+                    className="w-full justify-start text-left px-4 py-3 h-auto data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none rounded-2xl border border-transparent data-[state=active]:border-primary/20 transition-all gap-3 text-muted-foreground font-medium"
                   >
                      <tab.icon className="w-5 h-5 opacity-80" />
                      <span className="hidden sm:inline">{tab.label}</span>
@@ -224,24 +224,24 @@ export default function DoctorSettingsPage() {
              
              {/* Profile Tab */}
              <TabsContent value="profile" className="m-0 mt-0 focus-visible:outline-none">
-                <Card className="border border-slate-200 shadow-sm rounded-2xl bg-white overflow-hidden">
-                   <CardHeader className="border-b border-slate-100 pb-5 bg-slate-50/50">
-                      <CardTitle className="text-xl font-bold text-slate-900">Professional Profile</CardTitle>
+                <Card className="border border-border shadow-sm rounded-2xl bg-surface overflow-hidden">
+                   <CardHeader className="border-b border-border pb-5 bg-surface-muted/50">
+                      <CardTitle className="text-xl font-bold text-foreground">Professional Profile</CardTitle>
                       <CardDescription>Update your medical credentials and public biography.</CardDescription>
                    </CardHeader>
                    <CardContent className="pt-6 space-y-6">
                       
                       {/* Photo Upload Section */}
-                      <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
-                        <Avatar className="w-24 h-24 border-2 border-slate-100 shadow-sm">
+                      <div className="flex items-center gap-6 pb-6 border-b border-border">
+                        <Avatar className="w-24 h-24 border-2 border-border shadow-sm">
                           <AvatarImage src={profile.profilePictureUrl || ""} />
-                          <AvatarFallback className="bg-teal-50 text-[#00A87E] text-2xl font-bold">
+                          <AvatarFallback className="bg-teal-50 text-primary text-2xl font-bold">
                             {profile.name?.charAt(0) || "D"}
                           </AvatarFallback>
                         </Avatar>
                         <div className="space-y-2">
-                          <h4 className="font-bold text-slate-900">Profile Picture</h4>
-                          <p className="text-sm text-slate-500 max-w-xs">Upload a professional headshot for your patient-facing profile.</p>
+                          <h4 className="font-bold text-foreground">Profile Picture</h4>
+                          <p className="text-sm text-muted-foreground max-w-xs">Upload a professional headshot for your patient-facing profile.</p>
                           <div className="relative">
                             <input 
                               type="file" 
@@ -254,7 +254,7 @@ export default function DoctorSettingsPage() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="font-bold mt-2 border-slate-300"
+                              className="font-bold mt-2 border-border/80"
                               onClick={() => document.getElementById('profile-upload')?.click()}
                               disabled={uploadingImage}
                             >
@@ -267,20 +267,20 @@ export default function DoctorSettingsPage() {
 
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Full Name</Label>
+                           <Label className="text-foreground font-bold">Full Name</Label>
                            <Input 
                              value={profile.name || ""} 
                              disabled 
-                             className="h-11 bg-slate-50 border-slate-200 text-slate-500 font-medium" 
+                             className="h-11 bg-surface-muted border-border text-muted-foreground font-medium" 
                            />
                            <p className="text-[10px] text-slate-400">Contact admin to change your registered name.</p>
                         </div>
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Specialization</Label>
+                           <Label className="text-foreground font-bold">Specialization</Label>
                            <Input 
                              value={profile.specialization || ""} 
                              onChange={(e) => handleInputChange("specialization", e.target.value)} 
-                             className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
                              placeholder="e.g. Cardiologist"
                            />
                         </div>
@@ -288,47 +288,47 @@ export default function DoctorSettingsPage() {
 
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Qualification</Label>
+                           <Label className="text-foreground font-bold">Qualification</Label>
                            <Input 
                              value={profile.qualification || ""} 
                              onChange={(e) => handleInputChange("qualification", e.target.value)} 
-                             className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
                              placeholder="e.g. MBBS, MD"
                            />
                         </div>
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Years of Experience</Label>
+                           <Label className="text-foreground font-bold">Years of Experience</Label>
                            <Input 
                              type="number"
                              value={profile.experienceYears || ""} 
                              onChange={(e) => handleInputChange("experienceYears", parseInt(e.target.value) || 0)} 
-                             className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
                            />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                         <Label className="text-slate-700 font-bold">Bio</Label>
+                         <Label className="text-foreground font-bold">Bio</Label>
                          <Textarea 
                            value={profile.bio || ""} 
                            onChange={(e) => handleInputChange("bio", e.target.value)} 
                            placeholder="Write a short biography about your medical journey and expertise..."
-                           className="min-h-[100px] border-slate-300 focus-visible:ring-[#00A87E]" 
+                           className="min-h-[100px] border-border/80 focus-visible:ring-primary" 
                          />
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-3">
-                           <Label className="text-slate-700 font-bold">Languages (Press Enter)</Label>
+                           <Label className="text-foreground font-bold">Languages (Press Enter)</Label>
                            <div className="flex items-center gap-2">
                              <Input 
                                value={languageInput} 
                                onChange={(e) => setLanguageInput(e.target.value)}
                                onKeyDown={handleAddLanguage}
                                placeholder="e.g. English, Hindi"
-                               className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                               className="h-11 border-border/80 focus-visible:ring-primary" 
                              />
-                             <Button type="button" onClick={() => handleAddLanguage({ key: 'Enter', preventDefault: () => {} } as any)} className="bg-slate-100 text-slate-700 hover:bg-slate-200 h-11 shrink-0 font-bold">Add</Button>
+                             <Button type="button" onClick={() => handleAddLanguage({ key: 'Enter', preventDefault: () => {} } as any)} className="bg-slate-100 text-foreground hover:bg-slate-200 h-11 shrink-0 font-bold">Add</Button>
                            </div>
                            {languagesList.length > 0 && (
                              <div className="flex flex-wrap gap-2 pt-1">
@@ -343,9 +343,9 @@ export default function DoctorSettingsPage() {
                         </div>
                         
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Base City</Label>
+                           <Label className="text-foreground font-bold">Base City</Label>
                            <Select value={profile.city || ""} onValueChange={(val) => handleInputChange("city", val || "")}>
-                              <SelectTrigger className="h-11 border-slate-300 focus:ring-[#00A87E]">
+                              <SelectTrigger className="h-11 border-border/80 focus:ring-primary">
                                  <SelectValue placeholder="Select City" />
                               </SelectTrigger>
                               <SelectContent>
@@ -358,8 +358,8 @@ export default function DoctorSettingsPage() {
                       </div>
 
                    </CardContent>
-                   <CardFooter className="bg-slate-50/80 border-t border-slate-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSaveProfile("Profile")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                   <CardFooter className="bg-surface-muted/80 border-t border-border py-4 flex justify-end">
+                      <Button onClick={() => handleSaveProfile("Profile")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-2xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Profile
                       </Button>
@@ -369,31 +369,31 @@ export default function DoctorSettingsPage() {
 
              {/* Consultation Schedule Tab */}
              <TabsContent value="consultation" className="m-0 mt-0 focus-visible:outline-none">
-                <Card className="border border-slate-200 shadow-sm rounded-2xl bg-white overflow-hidden">
-                   <CardHeader className="border-b border-slate-100 pb-5 bg-slate-50/50">
-                      <CardTitle className="text-xl font-bold text-slate-900">Consultation Schedule</CardTitle>
+                <Card className="border border-border shadow-sm rounded-2xl bg-surface overflow-hidden">
+                   <CardHeader className="border-b border-border pb-5 bg-surface-muted/50">
+                      <CardTitle className="text-xl font-bold text-foreground">Consultation Schedule</CardTitle>
                       <CardDescription>Manage your consultation fees and weekly availability.</CardDescription>
                    </CardHeader>
                    <CardContent className="pt-6 space-y-8">
                       
                       <div className="space-y-2 max-w-sm">
-                         <Label className="text-slate-700 font-bold">Consultation Fee (₹)</Label>
+                         <Label className="text-foreground font-bold">Consultation Fee (₹)</Label>
                          <Input 
                            type="number"
                            value={profile.consultationFee || 0} 
                            onChange={(e) => handleInputChange("consultationFee", parseFloat(e.target.value) || 0)} 
-                           className="h-11 border-slate-300 focus-visible:ring-[#00A87E] text-lg font-bold" 
+                           className="h-11 border-border/80 focus-visible:ring-primary text-lg font-bold" 
                          />
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-2">Weekly Availability</h3>
-                        <p className="text-sm text-slate-500">Click on the slots to mark yourself as available.</p>
+                        <h3 className="font-bold text-foreground border-b border-border pb-2">Weekly Availability</h3>
+                        <p className="text-sm text-muted-foreground">Click on the slots to mark yourself as available.</p>
                         
                         <div className="space-y-4 mt-4">
                           {days.map((day) => (
                             <div key={day} className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                              <div className="w-24 shrink-0 font-bold text-slate-700 capitalize">
+                              <div className="w-24 shrink-0 font-bold text-foreground capitalize">
                                 {day.substring(0, 3)}
                               </div>
                               <div className="flex flex-wrap gap-2">
@@ -404,10 +404,10 @@ export default function DoctorSettingsPage() {
                                       key={`${day}-${time}`}
                                       onClick={() => toggleScheduleSlot(day, time)}
                                       className={cn(
-                                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all border",
+                                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
                                         isActive 
-                                          ? "bg-[#00A87E] border-[#00A87E] text-white shadow-sm" 
-                                          : "bg-white border-slate-200 text-slate-500 hover:border-[#00A87E]/50 hover:bg-[#00A87E]/5"
+                                          ? "bg-primary border-primary text-white shadow-sm" 
+                                          : "bg-surface border-border text-muted-foreground hover:border-primary/50 hover:bg-primary/5"
                                       )}
                                     >
                                       {time}
@@ -421,11 +421,11 @@ export default function DoctorSettingsPage() {
                       </div>
 
                    </CardContent>
-                   <CardFooter className="bg-slate-50/80 border-t border-slate-100 py-4 flex justify-end gap-3">
-                      <Button onClick={() => handleSaveProfile("Fee")} disabled={saving} variant="outline" className="font-bold h-11 rounded-xl">
+                   <CardFooter className="bg-surface-muted/80 border-t border-border py-4 flex justify-end gap-3">
+                      <Button onClick={() => handleSaveProfile("Fee")} disabled={saving} variant="outline" className="font-bold h-11 rounded-2xl">
                          Save Fee Only
                       </Button>
-                      <Button onClick={handleSaveSchedule} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                      <Button onClick={handleSaveSchedule} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-2xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Schedule
                       </Button>
@@ -435,43 +435,43 @@ export default function DoctorSettingsPage() {
 
              {/* Clinic Tab */}
              <TabsContent value="clinic" className="m-0 mt-0 focus-visible:outline-none">
-                <Card className="border border-slate-200 shadow-sm rounded-2xl bg-white overflow-hidden">
-                   <CardHeader className="border-b border-slate-100 pb-5 bg-slate-50/50">
-                      <CardTitle className="text-xl font-bold text-slate-900">Clinic Information</CardTitle>
+                <Card className="border border-border shadow-sm rounded-2xl bg-surface overflow-hidden">
+                   <CardHeader className="border-b border-border pb-5 bg-surface-muted/50">
+                      <CardTitle className="text-xl font-bold text-foreground">Clinic Information</CardTitle>
                       <CardDescription>Details about your physical clinic or hospital practice.</CardDescription>
                    </CardHeader>
                    <CardContent className="pt-6 space-y-5">
                       <div className="space-y-2">
-                         <Label className="text-slate-700 font-bold">Clinic Name</Label>
+                         <Label className="text-foreground font-bold">Clinic Name</Label>
                          <Input 
                            value={profile.clinicName || ""} 
                            onChange={(e) => handleInputChange("clinicName", e.target.value)} 
-                           className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                           className="h-11 border-border/80 focus-visible:ring-primary" 
                          />
                       </div>
                       
                       <div className="space-y-2">
-                         <Label className="text-slate-700 font-bold">Clinic Address</Label>
+                         <Label className="text-foreground font-bold">Clinic Address</Label>
                          <Textarea 
                            value={profile.clinicAddress || ""} 
                            onChange={(e) => handleInputChange("clinicAddress", e.target.value)} 
-                           className="min-h-[80px] border-slate-300 focus-visible:ring-[#00A87E]" 
+                           className="min-h-[80px] border-border/80 focus-visible:ring-primary" 
                          />
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">Clinic Phone</Label>
+                           <Label className="text-foreground font-bold">Clinic Phone</Label>
                            <Input 
                              value={profile.clinicPhone || ""} 
                              onChange={(e) => handleInputChange("clinicPhone", e.target.value)} 
-                             className="h-11 border-slate-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
                            />
                         </div>
                         <div className="space-y-2">
-                           <Label className="text-slate-700 font-bold">City Location</Label>
+                           <Label className="text-foreground font-bold">City Location</Label>
                            <Select value={profile.city || ""} onValueChange={(val) => handleInputChange("city", val || "")}>
-                              <SelectTrigger className="h-11 border-slate-300 focus:ring-[#00A87E]">
+                              <SelectTrigger className="h-11 border-border/80 focus:ring-primary">
                                  <SelectValue placeholder="Select City" />
                               </SelectTrigger>
                               <SelectContent>
@@ -482,9 +482,34 @@ export default function DoctorSettingsPage() {
                            </Select>
                         </div>
                       </div>
+
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                           <Label className="text-foreground font-bold">Latitude (For Proximity sorting)</Label>
+                           <Input 
+                             type="number"
+                             step="any"
+                             value={profile.latitude !== undefined && profile.latitude !== null ? profile.latitude : ""} 
+                             onChange={(e) => handleInputChange("latitude", e.target.value ? parseFloat(e.target.value) : null)} 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
+                             placeholder="e.g. 19.0760"
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <Label className="text-foreground font-bold">Longitude (For Proximity sorting)</Label>
+                           <Input 
+                             type="number"
+                             step="any"
+                             value={profile.longitude !== undefined && profile.longitude !== null ? profile.longitude : ""} 
+                             onChange={(e) => handleInputChange("longitude", e.target.value ? parseFloat(e.target.value) : null)} 
+                             className="h-11 border-border/80 focus-visible:ring-primary" 
+                             placeholder="e.g. 72.8777"
+                           />
+                        </div>
+                      </div>
                    </CardContent>
-                   <CardFooter className="bg-slate-50/80 border-t border-slate-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSaveProfile("Clinic Info")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                   <CardFooter className="bg-surface-muted/80 border-t border-border py-4 flex justify-end">
+                      <Button onClick={() => handleSaveProfile("Clinic Info")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-2xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Clinic Info
                       </Button>
@@ -494,26 +519,26 @@ export default function DoctorSettingsPage() {
 
              {/* Notifications Tab */}
              <TabsContent value="notifications" className="m-0 mt-0 focus-visible:outline-none">
-                <Card className="border border-slate-200 shadow-sm rounded-2xl bg-white overflow-hidden">
-                   <CardHeader className="border-b border-slate-100 pb-5 bg-slate-50/50">
-                      <CardTitle className="text-xl font-bold text-slate-900">Notification Preferences</CardTitle>
+                <Card className="border border-border shadow-sm rounded-2xl bg-surface overflow-hidden">
+                   <CardHeader className="border-b border-border pb-5 bg-surface-muted/50">
+                      <CardTitle className="text-xl font-bold text-foreground">Notification Preferences</CardTitle>
                       <CardDescription>Manage how you want to be alerted about patient appointments.</CardDescription>
                    </CardHeader>
                    <CardContent className="pt-6 space-y-4">
-                      <div className="flex items-center justify-between p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                      <div className="flex items-center justify-between p-5 bg-surface rounded-2xl border border-border shadow-sm hover:border-border/80 transition-colors">
                          <div className="space-y-1">
-                           <Label className="text-base font-bold text-slate-900">New Appointment Alerts</Label>
-                           <p className="text-sm text-slate-500">Get notified via email when a patient books a new consultation.</p>
+                           <Label className="text-base font-bold text-foreground">New Appointment Alerts</Label>
+                           <p className="text-sm text-muted-foreground">Get notified via email when a patient books a new consultation.</p>
                          </div>
-                         <Switch checked={true} className="data-[state=checked]:bg-[#00A87E]" />
+                         <Switch checked={true} className="data-[state=checked]:bg-primary" />
                       </div>
 
-                      <div className="flex items-center justify-between p-5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition-colors">
+                      <div className="flex items-center justify-between p-5 bg-surface rounded-2xl border border-border shadow-sm hover:border-border/80 transition-colors">
                          <div className="space-y-1">
-                           <Label className="text-base font-bold text-slate-900">Instant Consultation Ring</Label>
-                           <p className="text-sm text-slate-500">Play an audible ringtone when a patient enters the instant queue.</p>
+                           <Label className="text-base font-bold text-foreground">Instant Consultation Ring</Label>
+                           <p className="text-sm text-muted-foreground">Play an audible ringtone when a patient enters the instant queue.</p>
                          </div>
-                         <Switch checked={true} className="data-[state=checked]:bg-[#00A87E]" />
+                         <Switch checked={true} className="data-[state=checked]:bg-primary" />
                       </div>
                    </CardContent>
                 </Card>
@@ -521,19 +546,19 @@ export default function DoctorSettingsPage() {
 
              {/* Account Tab */}
              <TabsContent value="account" className="m-0 mt-0 focus-visible:outline-none">
-                <Card className="border border-slate-200 shadow-sm rounded-2xl bg-white overflow-hidden">
-                   <CardHeader className="border-b border-slate-100 pb-5 bg-slate-50/50">
-                      <CardTitle className="text-xl font-bold text-slate-900">Account Status & Security</CardTitle>
+                <Card className="border border-border shadow-sm rounded-2xl bg-surface overflow-hidden">
+                   <CardHeader className="border-b border-border pb-5 bg-surface-muted/50">
+                      <CardTitle className="text-xl font-bold text-foreground">Account Status & Security</CardTitle>
                       <CardDescription>Manage your authentication and platform access.</CardDescription>
                    </CardHeader>
                    <CardContent className="pt-6 space-y-6">
                       
                       <div className="space-y-3">
-                         <h3 className="font-bold text-slate-900">Verification Status</h3>
-                         <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                         <h3 className="font-bold text-foreground">Verification Status</h3>
+                         <div className="p-5 bg-surface rounded-2xl border border-border shadow-sm flex items-center justify-between">
                             <div>
-                               <p className="font-bold text-slate-900">Platform Verification</p>
-                               <p className="text-sm text-slate-500 mt-1">
+                               <p className="font-bold text-foreground">Platform Verification</p>
+                               <p className="text-sm text-muted-foreground mt-1">
                                  {profile.isVerified ? "Your medical credentials have been verified by administrators." : "Your profile is pending manual verification by our medical board."}
                                </p>
                             </div>
@@ -546,14 +571,14 @@ export default function DoctorSettingsPage() {
                          </div>
                       </div>
 
-                      <div className="space-y-3 pt-6 border-t border-slate-100">
-                         <h3 className="font-bold text-slate-900">Sign out sessions</h3>
-                         <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                      <div className="space-y-3 pt-6 border-t border-border">
+                         <h3 className="font-bold text-foreground">Sign out sessions</h3>
+                         <div className="p-5 bg-surface rounded-2xl border border-border shadow-sm flex items-center justify-between">
                             <div>
-                               <p className="font-bold text-slate-900">Log out from this device</p>
-                               <p className="text-sm text-slate-500 mt-1">You will need to sign back in.</p>
+                               <p className="font-bold text-foreground">Log out from this device</p>
+                               <p className="text-sm text-muted-foreground mt-1">You will need to sign back in.</p>
                             </div>
-                            <Button variant="outline" onClick={() => signOut()} className="font-bold text-slate-700 border-slate-300">
+                            <Button variant="outline" onClick={() => signOut()} className="font-bold text-foreground border-border/80">
                                Log out
                             </Button>
                          </div>

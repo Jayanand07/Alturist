@@ -73,7 +73,7 @@ const StarRating = ({ rating }: { rating: number }) => {
       {[...Array(fullStars)].map((_, i) => <Star key={`full-${i}`} size={14} fill="currentColor" />)}
       {hasHalfStar && <StarHalf size={14} fill="currentColor" />}
       {[...Array(emptyStars)].map((_, i) => <Star key={`empty-${i}`} size={14} />)}
-      <span className="ml-1.5 text-xs font-bold text-gray-400">{rating.toFixed(1)}</span>
+      <span className="ml-1.5 text-xs font-bold text-muted-foreground/70">{rating.toFixed(1)}</span>
     </div>
   );
 };
@@ -93,6 +93,7 @@ export default function AdminDoctorsPage() {
 
   // Form State
   const [formData, setFormData] = useState<any>({
+    firebaseUid: "",
     fullName: "",
     email: "",
     specialization: "",
@@ -102,6 +103,10 @@ export default function AdminDoctorsPage() {
     qualification: "",
     city: "",
     clinicName: "",
+    clinicAddress: "",
+    clinicPhone: "",
+    latitude: 0.0,
+    longitude: 0.0,
     bio: "",
     languages: "",
     isVerified: false
@@ -175,9 +180,11 @@ export default function AdminDoctorsPage() {
   // Handlers
   const resetForm = () => {
     setFormData({
+      firebaseUid: "",
       fullName: "", email: "", specialization: "", medicalLicense: "",
       experienceYears: 0, consultationFee: 0, qualification: "",
-      city: "", clinicName: "", bio: "", languages: "", isVerified: false
+      city: "", clinicName: "", clinicAddress: "", clinicPhone: "",
+      latitude: 0.0, longitude: 0.0, bio: "", languages: "", isVerified: false
     });
     setEditingDoctor(null);
   };
@@ -189,6 +196,7 @@ export default function AdminDoctorsPage() {
       const { data: fullProfile } = await api.get(`/admin/doctors/${doctor.id}`);
       setEditingDoctor(fullProfile);
       setFormData({
+        firebaseUid: fullProfile.firebaseUid || "",
         fullName: fullProfile.name || "",
         email: fullProfile.email || "",
         specialization: fullProfile.specialization || "",
@@ -198,6 +206,10 @@ export default function AdminDoctorsPage() {
         qualification: fullProfile.qualification || "",
         city: fullProfile.city || "",
         clinicName: fullProfile.clinicName || "",
+        clinicAddress: fullProfile.clinicAddress || "",
+        clinicPhone: fullProfile.clinicPhone || "",
+        latitude: fullProfile.latitude || 0.0,
+        longitude: fullProfile.longitude || 0.0,
         bio: fullProfile.bio || "",
         languages: fullProfile.languages || "",
         isVerified: fullProfile.isVerified || false
@@ -223,14 +235,14 @@ export default function AdminDoctorsPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-5 text-teal-600"><Users size={60} /></div>
+        <Card className="border-none shadow-sm bg-surface overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-5 text-primary"><Users size={60} /></div>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-2xl bg-teal-50 text-teal-600"><Users size={20} /></div>
+              <div className="p-3 rounded-2xl bg-primary/10 text-primary"><Users size={20} /></div>
               <div>
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Total Doctors</p>
-                <h3 className="text-2xl font-black text-gray-900">{totalCount}</h3>
+                <p className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest">Total Doctors</p>
+                <h3 className="text-xl font-bold text-foreground">{totalCount}</h3>
               </div>
             </div>
           </CardContent>
@@ -238,20 +250,20 @@ export default function AdminDoctorsPage() {
       </div>
 
       {/* Filter Bar */}
-      <Card className="border-none shadow-sm bg-white p-4">
+      <Card className="border-none shadow-sm bg-surface p-4">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 w-4 h-4" />
             <Input 
               placeholder="Search by name or specialization..." 
-              className="pl-10 h-11 border-gray-100 focus:border-teal-500 rounded-xl transition-all"
+              className="pl-10 h-10 border-border/50 focus:border-primary rounded-xl transition-all"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
             <Select value={specialization} onValueChange={(val) => setSpecialization(val ?? "all")}>
-              <SelectTrigger className="w-[180px] h-11 border-gray-100 rounded-xl focus:ring-teal-500">
+              <SelectTrigger className="w-[180px] h-10 border-border/50 rounded-xl focus:ring-primary">
                 <SelectValue placeholder="Specialization" />
               </SelectTrigger>
               <SelectContent>
@@ -263,77 +275,103 @@ export default function AdminDoctorsPage() {
             <Dialog open={isModalOpen} onOpenChange={(open) => { setIsModalOpen(open); if(!open) resetForm(); }}>
               <DialogTrigger 
                 render={
-                  <Button className="bg-[#0D9488] hover:bg-[#0b7a6e] h-11 px-6 rounded-xl font-bold flex gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-all">
+                  <Button className="bg-primary hover:bg-primary/90 h-10 px-6 rounded-xl font-bold flex gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
                     <Plus size={18} /> Add Doctor
                   </Button>
                 }
               />
-              <DialogContent className="sm:max-w-3xl p-0 overflow-y-auto max-h-[90vh] border-none rounded-[32px] shadow-2xl">
-                <div className="bg-[#0D9488] p-8 text-white relative">
-                   <div className="absolute top-0 right-0 p-8 opacity-10"><UserRound size={120} /></div>
-                   <DialogTitle className="text-2xl font-black">{editingDoctor ? "Edit Doctor Profile" : "Onboard New Doctor"}</DialogTitle>
+              <DialogContent className="sm:max-w-3xl p-0 overflow-y-auto max-h-[90vh] border-none rounded-2xl shadow-2xl">
+                <div className="bg-primary p-6 text-white relative">
+                   <div className="absolute top-0 right-0 p-6 opacity-10"><UserRound size={120} /></div>
+                   <DialogTitle className="text-xl font-bold">{editingDoctor ? "Edit Doctor Profile" : "Onboard New Doctor"}</DialogTitle>
                    <DialogDescription className="text-teal-50 mt-1 font-medium italic opacity-90">Manage complete profile details and verification.</DialogDescription>
                 </div>
-                <form onSubmit={handleSubmit} className="p-8 space-y-5 bg-white">
-                  <div className="grid grid-cols-2 gap-5">
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 bg-surface">
+                  <div className="grid grid-cols-2 gap-5 text-left">
+                    {!editingDoctor && (
+                      <div className="space-y-2 col-span-2">
+                         <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Firebase UID (Required for new doctor)</Label>
+                         <Input required placeholder="e.g. abcd1234efgh5678" className="h-10 border-border rounded-xl font-semibold bg-orange-50/30 focus:bg-white" value={formData.firebaseUid} onChange={e => setFormData({...formData, firebaseUid: e.target.value})} />
+                      </div>
+                    )}
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Full Name</Label>
-                       <Input required placeholder="Dr. John Doe" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Full Name</Label>
+                       <Input required placeholder="Dr. John Doe" className="h-10 border-border rounded-xl font-semibold" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Email Address</Label>
-                       <Input required type="email" placeholder="john.doe@altruist.com" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Email Address</Label>
+                       <Input required type="email" placeholder="john.doe@altruist.com" className="h-10 border-border rounded-xl font-semibold" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Specialization</Label>
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Specialization</Label>
                        <Select required value={formData.specialization} onValueChange={val => setFormData({...formData, specialization: val ?? ""})}>
-                          <SelectTrigger className="h-11 border-gray-200 rounded-xl font-semibold"><SelectValue placeholder="Select Specialty" /></SelectTrigger>
+                          <SelectTrigger className="h-10 border-border rounded-xl font-semibold"><SelectValue placeholder="Select Specialty" /></SelectTrigger>
                           <SelectContent>{SPECIALIZATIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                        </Select>
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Medical License</Label>
-                       <Input required placeholder="LIC-12345678" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.medicalLicense} onChange={e => setFormData({...formData, medicalLicense: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Medical License</Label>
+                       <Input required placeholder="LIC-12345678" className="h-10 border-border rounded-xl font-semibold" value={formData.medicalLicense} onChange={e => setFormData({...formData, medicalLicense: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Exp (Years)</Label>
-                       <Input required type="number" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Exp (Years)</Label>
+                       <Input required type="number" className="h-10 border-border rounded-xl font-semibold" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Fee (₹)</Label>
-                       <Input required type="number" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.consultationFee} onChange={e => setFormData({...formData, consultationFee: parseInt(e.target.value) || 0})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Fee (₹)</Label>
+                       <Input required type="number" className="h-10 border-border rounded-xl font-semibold" value={formData.consultationFee} onChange={e => setFormData({...formData, consultationFee: parseInt(e.target.value) || 0})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">City</Label>
-                       <Input required placeholder="Mumbai" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">City</Label>
+                       <Input required placeholder="Mumbai" className="h-10 border-border rounded-xl font-semibold" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Clinic Name</Label>
-                       <Input placeholder="Apollo Hospital" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Clinic Name</Label>
+                       <Input placeholder="Apollo Hospital" className="h-10 border-border rounded-xl font-semibold" value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Clinic Phone</Label>
+                       <Input placeholder="+91 98765 43210" className="h-10 border-border rounded-xl font-semibold" value={formData.clinicPhone} onChange={e => setFormData({...formData, clinicPhone: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                       <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest px-1">Latitude</Label>
+                            <Input type="number" step="any" placeholder="19.0760" className="h-10 border-border rounded-xl font-semibold" value={formData.latitude} onChange={e => setFormData({...formData, latitude: parseFloat(e.target.value) || 0})} />
+                          </div>
+                          <div>
+                            <Label className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest px-1">Longitude</Label>
+                            <Input type="number" step="any" placeholder="72.8777" className="h-10 border-border rounded-xl font-semibold" value={formData.longitude} onChange={e => setFormData({...formData, longitude: parseFloat(e.target.value) || 0})} />
+                          </div>
+                       </div>
                     </div>
                     <div className="space-y-2 col-span-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Qualification</Label>
-                       <Input required placeholder="MBBS, MD - Cardiology" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.qualification} onChange={e => setFormData({...formData, qualification: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Clinic Address</Label>
+                       <Input placeholder="123 Medical Square, Landmark, City, State" className="h-10 border-border rounded-xl font-semibold" value={formData.clinicAddress} onChange={e => setFormData({...formData, clinicAddress: e.target.value})} />
                     </div>
                     <div className="space-y-2 col-span-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Languages</Label>
-                       <Input placeholder="English, Hindi" className="h-11 border-gray-200 rounded-xl font-semibold" value={formData.languages} onChange={e => setFormData({...formData, languages: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Qualification</Label>
+                       <Input required placeholder="MBBS, MD - Cardiology" className="h-10 border-border rounded-xl font-semibold" value={formData.qualification} onChange={e => setFormData({...formData, qualification: e.target.value})} />
                     </div>
                     <div className="space-y-2 col-span-2">
-                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Bio</Label>
-                       <Textarea placeholder="Short biography..." className="min-h-[80px] border-gray-200 rounded-xl font-semibold" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Languages</Label>
+                       <Input placeholder="English, Hindi" className="h-10 border-border rounded-xl font-semibold" value={formData.languages} onChange={e => setFormData({...formData, languages: e.target.value})} />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                       <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Bio</Label>
+                       <Textarea placeholder="Short biography..." className="min-h-[80px] border-border rounded-xl font-semibold" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
                     </div>
                     <div className="col-span-2 flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl">
                       <div>
                         <Label className="font-bold text-slate-900">Platform Verification</Label>
                         <p className="text-xs font-medium text-slate-500">Enable this if the doctor's credentials have been manually verified.</p>
                       </div>
-                      <Switch checked={formData.isVerified} onCheckedChange={c => setFormData({...formData, isVerified: c})} className="data-[state=checked]:bg-[#0D9488]" />
+                      <Switch checked={formData.isVerified} onCheckedChange={c => setFormData({...formData, isVerified: c})} className="data-[state=checked]:bg-primary" />
                     </div>
                   </div>
                   <DialogFooter className="pt-4 gap-3">
-                     <Button type="button" variant="ghost" className="rounded-xl font-bold px-6 h-12" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                     <Button type="submit" className="bg-[#0D9488] hover:bg-[#0b7a6e] rounded-xl font-bold px-8 h-12 shadow-lg shadow-teal-500/20" disabled={createMutation.isPending || updateMutation.isPending}>
+                     <Button type="button" variant="ghost" className="rounded-xl font-bold px-6 h-10" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                     <Button type="submit" className="bg-primary hover:bg-primary/90 rounded-xl font-bold px-6 h-10 shadow-lg shadow-primary/20" disabled={createMutation.isPending || updateMutation.isPending}>
                         {createMutation.isPending || updateMutation.isPending ? <Loader2 className="animate-spin w-5 h-5" /> : (editingDoctor ? "Save Changes" : "Register Doctor")}
                      </Button>
                   </DialogFooter>
@@ -345,49 +383,49 @@ export default function AdminDoctorsPage() {
       </Card>
 
       {/* Main Table */}
-      <Card className="border-none shadow-sm bg-white overflow-hidden">
+      <Card className="border-none shadow-sm bg-surface overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="p-4 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}</div>
+            <div className="p-4 space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}</div>
           ) : doctors.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-6">
-              <div className="bg-gray-50 p-8 rounded-full text-gray-300"><FilterX size={64} strokeWidth={1.5} /></div>
+              <div className="bg-surface-muted/50 p-6 rounded-full text-muted-foreground/50"><FilterX size={64} strokeWidth={1.5} /></div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black text-gray-900 tracking-tight">No doctors found</h3>
-                <p className="text-gray-500 font-medium max-w-xs">Relax your filters or onboard a new doctor.</p>
+                <h3 className="text-xl font-black text-foreground tracking-tight">No doctors found</h3>
+                <p className="text-muted-foreground font-medium max-w-xs">Relax your filters or onboard a new doctor.</p>
               </div>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50/50 hover:bg-transparent border-gray-100">
-                    <TableHead className="px-6 py-5 font-black text-[11px] text-gray-400 uppercase tracking-widest">Doctor</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Location</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Status</TableHead>
-                    <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Verification</TableHead>
-                    <TableHead className="text-right pr-8 font-black text-[11px] text-gray-400 uppercase tracking-widest">Actions</TableHead>
+                  <TableRow className="bg-surface-muted/50/50 hover:bg-transparent border-border/50">
+                    <TableHead className="px-4 py-3 font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Doctor</TableHead>
+                    <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Location</TableHead>
+                    <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Status</TableHead>
+                    <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Verification</TableHead>
+                    <TableHead className="text-right pr-8 font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {doctors.map((doctor: Doctor) => (
-                    <TableRow key={doctor.id} className="border-gray-50 hover:bg-teal-50/10 transition-colors group">
-                      <TableCell className="px-6 py-4">
+                    <TableRow key={doctor.id} className="border-border/50 hover:bg-primary/10/10 transition-colors group">
+                      <TableCell className="px-4 py-3">
                         <div className="flex items-center gap-4">
-                          <Avatar className="h-10 w-10 border-2 border-white shadow-sm overflow-hidden bg-teal-50">
+                          <Avatar className="h-10 w-10 border-2 border-white shadow-sm overflow-hidden bg-primary/10">
                             <AvatarImage src={doctor.profilePictureUrl || ""} className="object-cover" />
-                            <AvatarFallback className="bg-teal-100 text-teal-600 font-bold">{(doctor?.name || "Dr.").charAt(0)}</AvatarFallback>
+                            <AvatarFallback className="bg-primary/20 text-primary font-bold">{(doctor?.name || "Dr.").charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-sm font-bold text-gray-900 truncate group-hover:text-teal-600 transition-colors">{doctor.name}</span>
-                            <span className="text-[11px] text-gray-400 font-medium truncate">{doctor.specialization}</span>
+                            <span className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{doctor.name}</span>
+                            <span className="text-[11px] text-muted-foreground/70 font-medium truncate">{doctor.specialization}</span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                          <div className="flex flex-col">
-                            <span className="text-xs font-bold text-gray-700">{doctor.city || "N/A"}</span>
-                            <span className="text-[11px] text-gray-400 font-bold truncate max-w-[120px]">{doctor.clinicName}</span>
+                            <span className="text-xs font-bold text-muted-foreground">{doctor.city || "N/A"}</span>
+                            <span className="text-[11px] text-muted-foreground/70 font-bold truncate max-w-[120px]">{doctor.clinicName}</span>
                          </div>
                       </TableCell>
                       <TableCell>
@@ -410,15 +448,15 @@ export default function AdminDoctorsPage() {
                           <Button 
                              variant="ghost" 
                              size="sm" 
-                             className="h-8 text-xs font-bold text-gray-500 hover:text-[#00A87E] hover:bg-teal-50 rounded-lg"
+                             className="h-8 text-xs font-bold text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg"
                              onClick={() => toggleVerifyMutation.mutate(doctor.id)}
                           >
                              {toggleVerifyMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : "Verify"}
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEdit(doctor)}>
+                          <Button variant="ghost" size="icon" title="Edit" className="h-8 w-8 text-muted-foreground/70 hover:text-blue-600 hover:bg-blue-50 rounded-lg" onClick={() => handleEdit(doctor)}>
                              <Edit2 size={14} />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 rounded-lg" onClick={() => { setDoctorToDelete(doctor); setIsDeleteDialogOpen(true); }}>
                              <Trash2 size={14} />
                           </Button>
                         </div>
@@ -434,18 +472,18 @@ export default function AdminDoctorsPage() {
 
       {/* Delete Confirmation */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-[32px] border-none shadow-2xl p-0 overflow-hidden">
-          <div className="bg-red-600 p-8 text-white relative">
-             <div className="absolute top-0 right-0 p-8 opacity-10"><AlertCircle size={100} /></div>
-             <AlertDialogTitle className="text-2xl font-black">Delete Doctor Profile?</AlertDialogTitle>
+        <AlertDialogContent className="rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-red-600 p-6 text-white relative">
+             <div className="absolute top-0 right-0 p-6 opacity-10"><AlertCircle size={100} /></div>
+             <AlertDialogTitle className="text-xl font-bold">Delete Doctor Profile?</AlertDialogTitle>
              <AlertDialogDescription className="text-red-50 font-medium italic mt-1 opacity-90">
                 This will permanently delete <span className="font-black underline">Dr. {doctorToDelete?.name}</span>. This action cannot be undone.
              </AlertDialogDescription>
           </div>
-          <AlertDialogFooter className="p-8 bg-white gap-3">
-            <AlertDialogCancel className="h-12 px-6 rounded-xl font-bold border-gray-100">Keep Profile</AlertDialogCancel>
+          <AlertDialogFooter className="p-6 bg-surface gap-3">
+            <AlertDialogCancel className="h-10 px-6 rounded-xl font-bold border-border/50">Keep Profile</AlertDialogCancel>
             <AlertDialogAction 
-              className="h-12 px-8 rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20"
+              className="h-10 px-6 rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20"
               onClick={() => doctorToDelete && deleteMutation.mutate(doctorToDelete.id)}
             >
               Confirm Deletion

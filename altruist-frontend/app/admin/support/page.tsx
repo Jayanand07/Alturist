@@ -35,7 +35,7 @@ export default function AdminSupportPage() {
   useEffect(() => {
     if (!authLoading && !authUser) {
       router.push("/login");
-    } else if (!authLoading && userType !== "ADMIN" && userType !== "SUPER_ADMIN") {
+    } else if (!authLoading && userType && userType !== "ADMIN" && userType !== "SUPER_ADMIN" && userType !== "DOCTOR") {
       router.push("/");
     }
   }, [authUser, userType, authLoading, router]);
@@ -49,7 +49,7 @@ export default function AdminSupportPage() {
         : `/admin/support/tickets?status=${filterStatus}`;
       return (await api.get(endpoint)).data;
     },
-    enabled: !!authUser && (userType === "ADMIN" || userType === "SUPER_ADMIN"),
+    enabled: !!authUser && (userType === "ADMIN" || userType === "SUPER_ADMIN" || userType === "DOCTOR"),
   });
 
   // Fetch Messages for selected ticket (polls every 15s)
@@ -113,7 +113,7 @@ export default function AdminSupportPage() {
   }, [tickets, selectedTicketId]);
 
   if (authLoading) {
-    return <div className="min-h-[500px] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-[#00A87E]" /></div>;
+    return <div className="min-h-[500px] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
   }
 
   return (
@@ -122,7 +122,7 @@ export default function AdminSupportPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-[#00A87E]/10 rounded-2xl flex items-center justify-center text-[#00A87E] shadow-sm">
+          <div className="w-12 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm">
             <LifeBuoy size={24} />
           </div>
           <div>
@@ -133,11 +133,11 @@ export default function AdminSupportPage() {
       </div>
 
       {/* Two-Panel Layout */}
-      <div className="flex-1 bg-white border border-slate-200 shadow-sm rounded-3xl overflow-hidden flex relative min-h-0">
+      <div className="flex-1 bg-surface border border-slate-200 shadow-sm rounded-3xl overflow-hidden flex relative min-h-0">
         
         {/* Left Panel: Ticket List */}
         <div className={cn(
-          "w-full md:w-80 lg:w-[400px] flex-shrink-0 flex flex-col border-r border-slate-100 transition-transform bg-white z-10",
+          "w-full md:w-80 lg:w-[400px] flex-shrink-0 flex flex-col border-r border-slate-100 transition-transform bg-surface z-10",
           showMobileChat ? "hidden md:flex" : "flex"
         )}>
           <div className="p-4 border-b border-slate-100 bg-slate-50/50">
@@ -154,9 +154,9 @@ export default function AdminSupportPage() {
           
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {ticketsLoading ? (
-              <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300" /></div>
+              <div className="p-6 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300" /></div>
             ) : !tickets || tickets.length === 0 ? (
-              <div className="p-8 text-center flex flex-col items-center justify-center h-full opacity-60">
+              <div className="p-6 text-center flex flex-col items-center justify-center h-full opacity-60">
                 <MessageSquare size={32} className="text-slate-400 mb-3" />
                 <p className="font-bold text-slate-600 mb-1">No tickets found</p>
                 <p className="text-xs text-slate-500 font-medium">Clear filters to see more.</p>
@@ -169,8 +169,8 @@ export default function AdminSupportPage() {
                   className={cn(
                     "p-4 rounded-2xl cursor-pointer transition-all border relative",
                     selectedTicketId === ticket.id 
-                      ? "bg-[#00A87E]/5 border-[#00A87E]/20" 
-                      : "bg-white border-transparent hover:bg-slate-50"
+                      ? "bg-primary/5 border-primary/20" 
+                      : "bg-surface border-transparent hover:bg-slate-50"
                   )}
                 >
                   {ticket.unreadCount > 0 && (
@@ -179,7 +179,7 @@ export default function AdminSupportPage() {
                   <div className="flex justify-between items-start mb-2">
                     <h3 className={cn(
                       "font-bold text-sm line-clamp-1 pr-6",
-                      selectedTicketId === ticket.id ? "text-[#00A87E]" : "text-slate-900",
+                      selectedTicketId === ticket.id ? "text-primary" : "text-slate-900",
                       ticket.unreadCount > 0 && "font-black"
                     )}>
                       {ticket.subject}
@@ -201,7 +201,7 @@ export default function AdminSupportPage() {
                         {ticket.category}
                       </Badge>
                     </div>
-                    <ChevronRight size={14} className={cn("transition-colors", selectedTicketId === ticket.id ? "text-[#00A87E]" : "text-slate-300")} />
+                    <ChevronRight size={14} className={cn("transition-colors", selectedTicketId === ticket.id ? "text-primary" : "text-slate-300")} />
                   </div>
                 </div>
               ))
@@ -211,13 +211,13 @@ export default function AdminSupportPage() {
 
         {/* Right Panel: Chat Area */}
         <div className={cn(
-          "flex-1 flex flex-col bg-[#F8FAFC]/50 absolute md:relative inset-0 z-20 transition-transform",
+          "flex-1 flex flex-col bg-surface-muted/30/50 absolute md:relative inset-0 z-20 transition-transform",
           showMobileChat ? "translate-x-0" : "translate-x-full md:translate-x-0"
         )}>
           {selectedTicketId ? (
             <>
               {/* Chat Header */}
-              <div className="h-16 border-b border-slate-200 bg-white px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
+              <div className="h-16 border-b border-slate-200 bg-surface px-4 flex items-center justify-between shrink-0 shadow-sm z-10">
                 <div className="flex items-center gap-3 overflow-hidden">
                   <Button variant="ghost" size="icon" className="md:hidden shrink-0 -ml-2" onClick={() => setShowMobileChat(false)}>
                     <ArrowLeft size={20} className="text-slate-600" />
@@ -238,7 +238,7 @@ export default function AdminSupportPage() {
                     onValueChange={(val) => updateStatusMutation.mutate(val)}
                     disabled={updateStatusMutation.isPending}
                   >
-                    <SelectTrigger className="h-9 w-[130px] font-bold text-xs bg-white border-slate-200">
+                    <SelectTrigger className="h-9 w-[130px] font-bold text-xs bg-surface border-slate-200">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -267,7 +267,7 @@ export default function AdminSupportPage() {
               <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" ref={chatScrollRef}>
                 {messagesLoading ? (
                   <div className="space-y-6">
-                    <div className="flex flex-col items-start"><div className="bg-[#00A87E]/20 animate-pulse h-12 w-48 rounded-2xl rounded-tl-sm" /></div>
+                    <div className="flex flex-col items-start"><div className="bg-primary/20 animate-pulse h-10 w-48 rounded-2xl rounded-tl-sm" /></div>
                     <div className="flex flex-col items-end"><div className="bg-slate-200 animate-pulse h-16 w-64 rounded-2xl rounded-tr-sm" /></div>
                   </div>
                 ) : !messages || messages.length === 0 ? (
@@ -283,7 +283,7 @@ export default function AdminSupportPage() {
                           "px-4 py-3 shadow-sm text-sm font-medium",
                           isAdmin 
                             ? "bg-slate-800 text-white rounded-2xl rounded-tr-sm" 
-                            : "bg-[#00A87E] text-white rounded-2xl rounded-tl-sm"
+                            : "bg-primary text-white rounded-2xl rounded-tl-sm"
                         )}>
                           {msg.message}
                         </div>
@@ -300,7 +300,7 @@ export default function AdminSupportPage() {
 
               {/* Input Area */}
               {selectedTicket?.status !== 'CLOSED' ? (
-                <div className="p-4 bg-white border-t border-slate-200 shrink-0">
+                <div className="p-4 bg-surface border-t border-slate-200 shrink-0">
                   <form onSubmit={handleSendMessage} className="flex items-end gap-2 max-w-4xl mx-auto">
                     <Textarea 
                       value={messageInput}
@@ -317,7 +317,7 @@ export default function AdminSupportPage() {
                     <Button 
                       type="submit" 
                       disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                      className="h-12 w-12 rounded-full shrink-0 bg-slate-800 hover:bg-slate-900 shadow-md transition-transform active:scale-95 text-white"
+                      className="h-10 w-12 rounded-full shrink-0 bg-slate-800 hover:bg-slate-900 shadow-md transition-transform active:scale-95 text-white"
                     >
                       {sendMessageMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
                     </Button>
@@ -333,7 +333,7 @@ export default function AdminSupportPage() {
             </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center bg-slate-50/50 hidden md:flex">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6 text-slate-300">
+              <div className="w-24 h-24 bg-surface rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6 text-slate-300">
                 <MessageSquare size={40} />
               </div>
               <h3 className="font-heading text-xl font-bold text-slate-900 mb-2">Admin Support Panel</h3>

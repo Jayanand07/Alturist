@@ -96,17 +96,17 @@ export default function DoctorProfilePage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <Loader2 size={36} className="animate-spin text-[#0D9488]" />
+      <div className="min-h-screen bg-surface-muted/30 flex items-center justify-center">
+        <Loader2 size={36} className="animate-spin text-primary" />
       </div>
     );
   }
 
   if (isError || !doctor) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-surface-muted/30 flex flex-col items-center justify-center gap-4">
         <Stethoscope size={48} className="text-gray-300" />
-        <p className="font-bold text-gray-700">Doctor not found</p>
+        <p className="font-bold text-muted-foreground">Doctor not found</p>
         <Button variant="outline" onClick={() => router.push("/consult")}>Browse Doctors</Button>
       </div>
     );
@@ -116,7 +116,7 @@ export default function DoctorProfilePage() {
   const initial = (doctor.name || "D").charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-surface-muted/30">
       {/* ── Hero Banner ────────────────────────────────────────────────── */}
       <div
         className="relative h-48 flex items-end"
@@ -142,17 +142,26 @@ export default function DoctorProfilePage() {
           {/* Left: Profile Card */}
           <div className="lg:col-span-1 space-y-4">
             {/* Doctor card */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center">
-              {/* Avatar */}
-              <div
-                className="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-4"
-                style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
-              >
-                {initial}
-              </div>
+            <div className="bg-surface rounded-2xl shadow-lg border border-border p-6 text-center">
+              {doctor.profilePictureUrl || doctor.profilePicture ? (
+                <div className="w-24 h-24 rounded-full mx-auto overflow-hidden border-2 border-emerald-500/10 shadow-xl mb-4 relative shrink-0">
+                  <img 
+                    src={doctor.profilePictureUrl || doctor.profilePicture} 
+                    alt={doctor.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-white text-4xl font-bold shadow-xl mb-4"
+                  style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}
+                >
+                  {initial}
+                </div>
+              )}
 
-              <h1 className="text-xl font-extrabold text-gray-900">Dr. {doctor.name}</h1>
-              <Badge className="bg-[#E6F7F5] text-[#0D9488] border-none font-bold mt-1 mb-3">
+              <h1 className="text-xl font-extrabold text-foreground">Dr. {doctor.name}</h1>
+              <Badge className="bg-[#E6F7F5] text-primary border-none font-bold mt-1 mb-3">
                 {doctor.specialization}
               </Badge>
 
@@ -161,7 +170,7 @@ export default function DoctorProfilePage() {
                 {[1,2,3,4,5].map(i => (
                   <Star key={i} size={14} className={cn("fill-amber-400 text-amber-400", i > 4 && "fill-gray-200 text-gray-200")} />
                 ))}
-                <span className="text-sm font-bold text-gray-600 ml-1">{doctor.rating?.toFixed(1) || "4.8"}</span>
+                <span className="text-sm font-bold text-muted-foreground ml-1">{doctor.rating?.toFixed(1) || "4.8"}</span>
               </div>
 
               {/* Available badge */}
@@ -173,14 +182,14 @@ export default function DoctorProfilePage() {
               ) : (
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <span className="w-2 h-2 rounded-full bg-gray-400" />
-                  <span className="text-sm text-gray-500">Currently Unavailable</span>
+                  <span className="text-sm text-muted-foreground">Currently Unavailable</span>
                 </div>
               )}
 
               {/* Fee */}
-              <div className="bg-[#F8FAFC] rounded-xl p-3 mb-4">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Consultation Fee</p>
-                <p className="text-2xl font-extrabold text-gray-900 flex items-center justify-center gap-1">
+              <div className="bg-surface-muted/30 rounded-xl p-3 mb-4">
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Consultation Fee</p>
+                <p className="text-2xl font-extrabold text-foreground flex items-center justify-center gap-1">
                   <IndianRupee size={18} />
                   {doctor.consultationFee || 500}
                 </p>
@@ -190,7 +199,7 @@ export default function DoctorProfilePage() {
               <Button
                 onClick={handleConsultClick}
                 disabled={!doctor.isAvailable}
-                className="w-full h-12 bg-[#0D9488] hover:bg-[#0b7a6e] font-bold rounded-xl gap-2 shadow-lg shadow-[#0D9488]/20 active:scale-95 transition-all disabled:opacity-50"
+                className="w-full h-12 bg-primary hover:bg-primary/90 font-bold rounded-xl gap-2 shadow-lg shadow-[#0D9488]/20 active:scale-95 transition-all disabled:opacity-50"
               >
                 <MessageSquare size={18} />
                 {doctor.isAvailable ? "Start Chat Consultation" : "Currently Unavailable"}
@@ -198,7 +207,7 @@ export default function DoctorProfilePage() {
             </div>
 
             {/* Quick stats */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <div className="bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow p-5 space-y-4">
               {[
                 { icon: Clock, label: "Experience", value: `${doctor.experienceYears || 5}+ years` },
                 { icon: UserCheck, label: "Patients Treated", value: "1,200+" },
@@ -206,12 +215,12 @@ export default function DoctorProfilePage() {
                 { icon: Shield, label: "Verified", value: "MBBS Certified" },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#0D9488]/10 flex items-center justify-center flex-shrink-0">
-                    <item.icon size={16} className="text-[#0D9488]" />
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <item.icon size={16} className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{item.label}</p>
-                    <p className="text-sm font-bold text-gray-800">{item.value}</p>
+                    <p className="text-[11px] text-muted-foreground/70 font-medium uppercase tracking-wider">{item.label}</p>
+                    <p className="text-sm font-bold text-foreground">{item.value}</p>
                   </div>
                 </div>
               ))}
@@ -221,19 +230,19 @@ export default function DoctorProfilePage() {
           {/* Right: Details */}
           <div className="lg:col-span-2 space-y-4">
             {/* About */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h2 className="font-bold text-gray-900 text-lg mb-3 flex items-center gap-2">
-                <Stethoscope size={18} className="text-[#0D9488]" />
+            <div className="bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow p-6">
+              <h2 className="font-bold text-foreground text-lg mb-3 flex items-center gap-2">
+                <Stethoscope size={18} className="text-primary" />
                 About Dr. {doctor.name}
               </h2>
-              <p className="text-gray-600 leading-relaxed text-sm">
+              <p className="text-muted-foreground leading-relaxed text-sm">
                 {doctor.bio || `Dr. ${doctor.name} is a highly experienced ${doctor.specialization} specialist with over ${doctor.experienceYears || 5} years of clinical practice. They are known for their patient-centric approach and evidence-based treatment plans. Patients appreciate their clarity in explaining medical conditions and their dedication to quality care.`}
               </p>
             </div>
 
             {/* How it works */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h2 className="font-bold text-gray-900 text-lg mb-4">How Chat Consultation Works</h2>
+            <div className="bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow p-6">
+              <h2 className="font-bold text-foreground text-lg mb-4">How Chat Consultation Works</h2>
               <div className="space-y-4">
                 {[
                   { step: "1", title: "Book & Confirm", desc: "Select instant or schedule for later. Pay the consultation fee securely." },
@@ -242,12 +251,12 @@ export default function DoctorProfilePage() {
                   { step: "4", title: "Follow Up", desc: "Continue the conversation for follow-up questions within the consultation window." },
                 ].map((s) => (
                   <div key={s.step} className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-[#0D9488] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
                       {s.step}
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">{s.title}</p>
-                      <p className="text-sm text-gray-500">{s.desc}</p>
+                      <p className="font-bold text-foreground text-sm">{s.title}</p>
+                      <p className="text-sm text-muted-foreground">{s.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -265,16 +274,26 @@ export default function DoctorProfilePage() {
         <DialogContent className="sm:max-w-[460px] rounded-3xl p-8 border-none shadow-2xl">
           <DialogHeader className="space-y-3">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg"
-                style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
-                {initial}
-              </div>
+              {doctor?.profilePictureUrl || doctor?.profilePicture ? (
+                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500/10 shadow-lg relative shrink-0">
+                  <img 
+                    src={doctor.profilePictureUrl || doctor.profilePicture} 
+                    alt={doctor.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg"
+                  style={{ background: `linear-gradient(135deg, ${color}, ${color}cc)` }}>
+                  {initial}
+                </div>
+              )}
               <div>
-                <DialogTitle className="text-xl font-extrabold text-gray-900">Dr. {doctor?.name}</DialogTitle>
-                <p className="text-sm font-bold text-[#0D9488] uppercase tracking-widest">{doctor?.specialization}</p>
+                <DialogTitle className="text-xl font-extrabold text-foreground">Dr. {doctor?.name}</DialogTitle>
+                <p className="text-sm font-bold text-primary uppercase tracking-widest">{doctor?.specialization}</p>
               </div>
             </div>
-            <DialogDescription className="text-gray-500">Choose your consultation type and confirm to start chatting.</DialogDescription>
+            <DialogDescription className="text-muted-foreground">Choose your consultation type and confirm to start chatting.</DialogDescription>
           </DialogHeader>
 
           <div className="py-4 space-y-5">
@@ -283,32 +302,32 @@ export default function DoctorProfilePage() {
               <button onClick={() => setBookingType("INSTANT")}
                 className={cn("h-14 rounded-2xl border-2 font-bold text-sm transition-all",
                   bookingType === "INSTANT"
-                    ? "border-[#0D9488] bg-[#E6F7F5] text-[#0D9488]"
-                    : "border-gray-200 text-gray-500 hover:border-gray-300")}>
+                    ? "border-[#0D9488] bg-[#E6F7F5] text-primary"
+                    : "border-border text-muted-foreground hover:border-gray-300")}>
                 <MessageSquare size={16} className="inline mr-2" />Connect Now
               </button>
               <button onClick={() => setBookingType("SCHEDULED")}
                 className={cn("h-14 rounded-2xl border-2 font-bold text-sm transition-all",
                   bookingType === "SCHEDULED"
-                    ? "border-[#0D9488] bg-[#E6F7F5] text-[#0D9488]"
-                    : "border-gray-200 text-gray-500 hover:border-gray-300")}>
+                    ? "border-[#0D9488] bg-[#E6F7F5] text-primary"
+                    : "border-border text-muted-foreground hover:border-gray-300")}>
                 <Calendar size={16} className="inline mr-2" />Schedule Later
               </button>
             </div>
 
             {/* Scheduled date/time pickers */}
             {bookingType === "SCHEDULED" && (
-              <div className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-in fade-in slide-in-from-top-2">
+              <div className="space-y-3 p-4 bg-surface-muted rounded-2xl border border-border animate-in fade-in slide-in-from-top-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Select Date</Label>
+                  <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Select Date</Label>
                   <input type="date" min={new Date().toISOString().split("T")[0]} value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm font-semibold outline-none focus:border-[#0D9488]" />
+                    className="w-full h-10 px-3 rounded-xl border border-border bg-surface text-sm font-semibold outline-none focus:border-[#0D9488]" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Select Time</Label>
+                  <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider">Select Time</Label>
                   <Select value={scheduledTime} onValueChange={(v) => setScheduledTime(v ?? "")}>
-                    <SelectTrigger className="w-full h-10 bg-white border-gray-200 rounded-xl font-semibold text-sm">
+                    <SelectTrigger className="w-full h-10 bg-surface border-border rounded-xl font-semibold text-sm">
                       <SelectValue placeholder="Pick a time" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[200px]">
@@ -320,23 +339,23 @@ export default function DoctorProfilePage() {
             )}
 
             {/* Fee summary */}
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
-              <div className="flex justify-between text-sm font-semibold text-gray-600">
-                <span>Consultation Fee</span><span className="text-gray-900">₹{doctor?.consultationFee || 500}</span>
+            <div className="p-4 bg-surface-muted rounded-2xl border border-border space-y-2">
+              <div className="flex justify-between text-sm font-semibold text-muted-foreground">
+                <span>Consultation Fee</span><span className="text-foreground">₹{doctor?.consultationFee || 500}</span>
               </div>
-              <div className="flex justify-between text-sm font-semibold text-gray-600">
-                <span>Platform Fee</span><span className="text-gray-900">₹49</span>
+              <div className="flex justify-between text-sm font-semibold text-muted-foreground">
+                <span>Platform Fee</span><span className="text-foreground">₹49</span>
               </div>
-              <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
-                <span className="font-extrabold text-gray-900">Total</span>
-                <span className="text-xl font-extrabold text-[#0D9488]">₹{(doctor?.consultationFee || 500) + 49}</span>
+              <div className="border-t border-border pt-2 flex justify-between items-center">
+                <span className="font-extrabold text-foreground">Total</span>
+                <span className="text-xl font-extrabold text-primary">₹{(doctor?.consultationFee || 500) + 49}</span>
               </div>
             </div>
           </div>
 
           <DialogFooter>
             <Button onClick={handleConfirmBooking} disabled={bookMutation.isPending}
-              className="w-full h-13 bg-[#0D9488] hover:bg-[#0b7a6e] font-extrabold rounded-2xl text-base shadow-xl shadow-[#0D9488]/20 active:scale-95 transition-all gap-2">
+              className="w-full h-13 bg-primary hover:bg-primary/90 font-extrabold rounded-2xl text-base shadow-xl shadow-[#0D9488]/20 active:scale-95 transition-all gap-2">
               {bookMutation.isPending ? (
                 <><Loader2 size={18} className="animate-spin" /> Processing…</>
               ) : (

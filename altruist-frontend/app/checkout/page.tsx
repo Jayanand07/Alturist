@@ -109,15 +109,15 @@ export default function CheckoutPage() {
   if (orderPlaced) {
     return (
       <div className="container mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
-        <div className="bg-teal-50 h-32 w-32 rounded-full flex items-center justify-center mb-8 shadow-inner">
-           <CheckCircle2 className="h-16 w-16 text-teal-600 animate-bounce" />
+        <div className="bg-primary/10 h-32 w-32 rounded-full flex items-center justify-center mb-8 shadow-inner">
+           <CheckCircle2 className="h-16 w-16 text-primary animate-bounce" />
         </div>
         <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Order Placed Successfully!</h2>
         <p className="text-slate-500 text-lg mb-8 max-w-md">
            Thank you for your order! Your medicines will be delivered shortly. You are being redirected to your dashboard...
         </p>
         <Link href="/patient">
-           <Button className="bg-teal-600 hover:bg-teal-700 rounded-xl px-10 py-6 text-lg shadow-xl shadow-teal-100">
+           <Button className="bg-primary hover:bg-primary/90 rounded-xl px-10 py-6 text-lg shadow-xl shadow-primary/10">
               Go to Dashboard Now
            </Button>
         </Link>
@@ -131,7 +131,7 @@ export default function CheckoutPage() {
         {/* Checkout Form */}
         <form onSubmit={handlePlaceOrder} className="flex-1 space-y-8">
           <div className="flex items-center gap-4 mb-2">
-            <Link href="/cart" className="text-slate-400 hover:text-teal-600 transition-colors">
+            <Link href="/cart" className="text-slate-400 hover:text-primary transition-colors">
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Checkout</h1>
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
           <Card className="border-slate-100 shadow-xl shadow-slate-50">
             <CardHeader className="p-8 border-b border-slate-50">
                <CardTitle className="text-xl flex items-center gap-3 font-bold text-slate-800">
-                  <Home className="h-5 w-5 text-teal-600" /> Delivery Address
+                  <Home className="h-5 w-5 text-primary" /> Delivery Address
                </CardTitle>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
                      <div className="relative">
                         <Input 
                            name="fullName" value={formData.fullName} onChange={handleInputChange} required 
-                           className="pl-10 rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                           className="pl-10 rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                            placeholder="Enter your name"
                         />
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -168,7 +168,7 @@ export default function CheckoutPage() {
                      <div className="relative">
                         <Input 
                            name="phone" value={formData.phone} onChange={handleInputChange} required 
-                           className="pl-10 rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                           className="pl-10 rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                            placeholder="Mobile number"
                         />
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -179,7 +179,7 @@ export default function CheckoutPage() {
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Address Line 1</Label>
                   <Input 
                      name="addressLine1" value={formData.addressLine1} onChange={handleInputChange} required 
-                     className="rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                     className="rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                      placeholder="House no, Street name"
                   />
                </div>
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                   <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Address Line 2 (Optional)</Label>
                   <Input 
                      name="addressLine2" value={formData.addressLine2} onChange={handleInputChange}
-                     className="rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                     className="rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                      placeholder="Landmark, Locality"
                   />
                </div>
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">City</Label>
                      <Input 
                         name="city" value={formData.city} onChange={handleInputChange} required 
-                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                         placeholder="City"
                      />
                   </div>
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">State</Label>
                      <Input 
                         name="state" value={formData.state} onChange={handleInputChange} required 
-                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                         placeholder="State"
                      />
                   </div>
@@ -212,7 +212,7 @@ export default function CheckoutPage() {
                      <Label className="text-xs font-bold uppercase tracking-wider text-slate-400">Pincode</Label>
                      <Input 
                         name="pincode" value={formData.pincode} onChange={handleInputChange} required 
-                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-white" 
+                        className="rounded-xl bg-slate-50 border-slate-200 focus:bg-surface" 
                         placeholder="6-digit PIN"
                      />
                   </div>
@@ -239,8 +239,8 @@ export default function CheckoutPage() {
                       <Input type="file" id="prescription" className="hidden" accept=".jpg,.png,.pdf" />
                       <Label htmlFor="prescription" className="cursor-pointer">
                          <div className="flex flex-col items-center">
-                            <div className="bg-white h-12 w-12 rounded-full shadow-sm flex items-center justify-center mb-4">
-                               <Plus className="h-6 w-6 text-teal-600" />
+                            <div className="bg-surface h-12 w-12 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center mb-4">
+                               <Plus className="h-6 w-6 text-primary" />
                             </div>
                             <p className="font-bold text-slate-800 mb-1">Upload Prescription</p>
                             <p className="text-xs text-slate-400">Accepted: JPG, PNG, PDF (Max 5MB)</p>
@@ -255,12 +255,12 @@ export default function CheckoutPage() {
           <Card className="border-slate-100 shadow-xl shadow-slate-50">
              <CardHeader className="p-8 border-b border-slate-50">
                 <CardTitle className="text-xl flex items-center gap-3 font-bold text-slate-800">
-                   <CreditCard className="h-5 w-5 text-teal-600" /> Payment Section
+                   <CreditCard className="h-5 w-5 text-primary" /> Payment Section
                 </CardTitle>
              </CardHeader>
              <CardContent className="p-8">
                 <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-100 flex flex-col items-center">
-                   <div className="bg-white p-4 rounded-full shadow-sm mb-4">
+                   <div className="bg-surface p-4 rounded-full shadow-sm hover:shadow-md transition-shadow mb-4">
                       <Loader2 className="h-8 w-8 text-slate-300 animate-spin" />
                    </div>
                    <h4 className="font-bold text-slate-800 mb-1">Payment integration coming soon</h4>
@@ -292,25 +292,25 @@ export default function CheckoutPage() {
                     ))}
                  </div>
                  <Separator className="bg-slate-100" />
-                 <div className="p-8 space-y-4 bg-teal-50/30">
+                 <div className="p-8 space-y-4 bg-primary/10/30">
                     <div className="flex justify-between text-slate-500 text-sm font-medium">
                        <span>Subtotal</span>
                        <span>₹{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-slate-500 text-sm font-medium">
                        <span>Delivery Fee</span>
-                       {deliveryFee === 0 ? <span className="text-teal-600">FREE</span> : <span>₹{deliveryFee.toFixed(2)}</span>}
+                       {deliveryFee === 0 ? <span className="text-primary">FREE</span> : <span>₹{deliveryFee.toFixed(2)}</span>}
                     </div>
                     <Separator className="bg-slate-100" />
                     <div className="flex justify-between items-center pt-2">
                        <span className="text-lg font-bold text-slate-800">Order Total</span>
-                       <span className="text-2xl font-extrabold text-teal-600">₹{total.toFixed(2)}</span>
+                       <span className="text-2xl font-extrabold text-primary">₹{total.toFixed(2)}</span>
                     </div>
                     <Button 
                        type="submit" 
                        disabled={loading}
                        onClick={handlePlaceOrder}
-                       className="w-full bg-teal-600 hover:bg-teal-700 text-white rounded-xl py-8 text-lg font-bold shadow-xl shadow-teal-100 mt-6"
+                       className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-8 text-lg font-bold shadow-xl shadow-primary/10 mt-6"
                     >
                        {loading ? <Loader2 className="h-6 w-6 animate-spin mr-2" /> : "Place Order & Pay"}
                     </Button>

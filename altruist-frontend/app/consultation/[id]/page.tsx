@@ -65,21 +65,21 @@ export default function ConsultationPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-[#F0F2F5] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-surface-muted/30 flex flex-col items-center justify-center gap-4">
         <div className="relative">
-          <div className="w-20 h-20 rounded-full border-4 border-[#0D9488]/20 animate-pulse" />
-          <Loader2 size={32} className="text-[#0D9488] animate-spin absolute inset-0 m-auto" />
+          <div className="w-20 h-20 rounded-full border-4 border-primary/20 animate-pulse" />
+          <Loader2 size={32} className="text-primary animate-spin absolute inset-0 m-auto" />
         </div>
-        <p className="text-gray-500 font-medium">Connecting to consultation…</p>
+        <p className="text-muted-foreground font-medium">Connecting to consultation…</p>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-[#F0F2F5] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-surface-muted/30 flex flex-col items-center justify-center gap-4">
         <ShieldAlert size={48} className="text-red-400" />
-        <p className="text-gray-600 font-semibold text-lg">Unable to load this consultation</p>
+        <p className="text-muted-foreground font-semibold text-lg">Unable to load this consultation</p>
         <Button variant="outline" onClick={() => router.push("/")} className="mt-2">
           Go Home
         </Button>
@@ -100,22 +100,22 @@ export default function ConsultationPage() {
   const currentStatus = statusConfig[consultation.status] || statusConfig.PENDING;
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex flex-col">
+    <div className="min-h-screen bg-surface-muted/30 flex flex-col">
       {/* ── Top Navigation Bar ─────────────────────────────────────────────── */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 shadow-sm">
+      <div className="bg-surface border-b border-border px-4 py-3 flex items-center gap-3 shadow-sm">
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          className="w-9 h-9 rounded-full bg-surface-muted hover:bg-gray-200 flex items-center justify-center transition-colors"
         >
-          <ArrowLeft size={18} className="text-gray-600" />
+          <ArrowLeft size={18} className="text-muted-foreground" />
         </button>
 
         <div className="flex-1">
-          <h1 className="font-bold text-gray-900 text-base leading-tight">
+          <h1 className="font-bold text-foreground text-base leading-tight">
             {isDoctor ? `Patient: ${consultation.patientName}` : `Dr. ${consultation.doctorName}`}
           </h1>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-gray-500">{consultation.doctorSpecialization}</span>
+            <span className="text-xs text-muted-foreground">{consultation.doctorSpecialization}</span>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${currentStatus.color}`}>
               {currentStatus.label}
             </span>
@@ -124,11 +124,11 @@ export default function ConsultationPage() {
 
         {/* Consultation info pills */}
         <div className="hidden sm:flex items-center gap-2">
-          <span className="flex items-center gap-1 text-xs bg-gray-100 px-2.5 py-1 rounded-full font-medium text-gray-600">
+          <span className="flex items-center gap-1 text-xs bg-surface-muted px-2.5 py-1 rounded-full font-medium text-muted-foreground">
             <IndianRupee size={11} />
             {consultation.amount}
           </span>
-          <span className="flex items-center gap-1 text-xs bg-gray-100 px-2.5 py-1 rounded-full font-medium text-gray-600">
+          <span className="flex items-center gap-1 text-xs bg-surface-muted px-2.5 py-1 rounded-full font-medium text-muted-foreground">
             <Calendar size={11} />
             {new Date(consultation.scheduledAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
           </span>
@@ -140,7 +140,7 @@ export default function ConsultationPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowPrescription(true)}
-            className="border-[#0D9488] text-[#0D9488] hover:bg-[#E6F7F5] font-bold rounded-xl gap-1.5 h-8"
+            className="border-primary text-primary hover:bg-[#E6F7F5] font-bold rounded-2xl gap-1.5 h-8"
           >
             <ClipboardList size={14} />
             <span className="hidden sm:inline">Prescription</span>

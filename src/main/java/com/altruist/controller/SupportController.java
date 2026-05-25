@@ -54,7 +54,7 @@ public class SupportController {
     }
 
     @GetMapping("/support/tickets/{ticketId}")
-    @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('PATIENT') or hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public ResponseEntity<?> getTicket(@AuthenticationPrincipal User user, @PathVariable UUID ticketId) {
         try {
             return ResponseEntity.ok(supportService.getTicketById(ticketId, user));
@@ -66,7 +66,7 @@ public class SupportController {
     }
 
     @GetMapping("/support/tickets/{ticketId}/messages")
-    @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('PATIENT') or hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public ResponseEntity<?> getMessages(@AuthenticationPrincipal User user, @PathVariable UUID ticketId) {
         try {
             return ResponseEntity.ok(supportService.getMessages(ticketId, user));
@@ -78,7 +78,7 @@ public class SupportController {
     }
 
     @PostMapping("/support/tickets/{ticketId}/messages")
-    @PreAuthorize("hasRole('PATIENT') or hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('PATIENT') or hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public ResponseEntity<?> sendMessage(@AuthenticationPrincipal User user, @PathVariable UUID ticketId, @Valid @RequestBody SendMessageRequest req) {
         try {
             return ResponseEntity.ok(supportService.sendMessage(ticketId, user, req.getMessage()));
@@ -92,7 +92,7 @@ public class SupportController {
     // --- Admin Endpoints ---
 
     @GetMapping("/admin/support/tickets")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public ResponseEntity<?> adminGetAllTickets(@RequestParam(required = false) String status) {
         try {
             return ResponseEntity.ok(supportService.adminGetAllTickets(status));
@@ -104,7 +104,7 @@ public class SupportController {
     }
 
     @PatchMapping("/admin/support/tickets/{ticketId}/status")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'DOCTOR')")
     public ResponseEntity<?> updateTicketStatus(@AuthenticationPrincipal User admin, @PathVariable UUID ticketId, @Valid @RequestBody UpdateStatusRequest req) {
         try {
             supportService.updateTicketStatus(ticketId, req.getStatus(), admin);

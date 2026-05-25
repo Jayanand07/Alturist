@@ -337,15 +337,15 @@ export default function MedicinesCatalogPage() {
       {/* Header and Stats */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight">Medicine Catalog</h2>
-          <p className="text-gray-500 font-medium">Manage pharmacy inventory and pricing</p>
+          <h2 className="text-3xl font-black text-foreground tracking-tight">Medicine Catalog</h2>
+          <p className="text-muted-foreground font-medium">Manage pharmacy inventory and pricing</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="h-11 rounded-xl bg-white border-gray-100 font-bold shadow-sm hover:bg-gray-50 text-gray-600" onClick={handleExportCSV} disabled={medicines.length === 0}>
+          <Button variant="outline" className="h-10 rounded-xl bg-surface border-border/50 font-bold shadow-sm hover:bg-surface-muted/50 text-muted-foreground" onClick={handleExportCSV} disabled={medicines.length === 0}>
             <Download size={18} className="mr-2" />
             Export Page CSV
           </Button>
-          <Button className="h-11 rounded-xl bg-teal-600 hover:bg-teal-700 font-bold shadow-lg shadow-teal-500/20" onClick={() => { resetForm(); setIsModalOpen(true); }}>
+          <Button className="h-10 rounded-xl bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20" onClick={() => { resetForm(); setIsModalOpen(true); }}>
             <Plus size={18} className="mr-2" />
             Add Single Medicine
           </Button>
@@ -353,49 +353,49 @@ export default function MedicinesCatalogPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
+        <Card className="border-none shadow-sm bg-surface overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5 text-blue-600"><Pill size={60} /></div>
           <CardContent className="p-6 flex items-center gap-4">
              <div className="p-3 rounded-2xl bg-blue-50 text-blue-600"><Pill size={20} /></div>
              <div>
-               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Total Listed</p>
-               <h3 className="text-2xl font-black text-gray-900">{statsData?.totalCount || 0}</h3>
+               <p className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest">Total Listed</p>
+               <h3 className="text-xl font-bold text-foreground">{statsData?.totalCount || 0}</h3>
              </div>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
+        <Card className="border-none shadow-sm bg-surface overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5 text-green-600"><Box size={60} /></div>
           <CardContent className="p-6 flex items-center gap-4">
              <div className="p-3 rounded-2xl bg-green-50 text-green-600"><Box size={20} /></div>
              <div>
-               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">In Stock</p>
-               <h3 className="text-2xl font-black text-gray-900">{statsData?.inStockCount || 0}</h3>
+               <p className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest">In Stock</p>
+               <h3 className="text-xl font-bold text-foreground">{statsData?.inStockCount || 0}</h3>
              </div>
           </CardContent>
         </Card>
-        <Card className="border-none shadow-sm bg-white overflow-hidden relative">
+        <Card className="border-none shadow-sm bg-surface overflow-hidden relative">
           <div className="absolute top-0 right-0 p-4 opacity-5 text-orange-600"><FileWarning size={60} /></div>
           <CardContent className="p-6 flex items-center gap-4">
              <div className="p-3 rounded-2xl bg-orange-50 text-orange-600"><FileWarning size={20} /></div>
              <div>
-               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Req. Prescription</p>
-               <h3 className="text-2xl font-black text-gray-900">{statsData?.requiresPrescriptionCount || 0}</h3>
+               <p className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest">Req. Prescription</p>
+               <h3 className="text-xl font-bold text-foreground">{statsData?.requiresPrescriptionCount || 0}</h3>
              </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Tabs Layout */}
-      <Card className="border-none shadow-sm bg-white">
-        <div className="flex border-b border-gray-100">
+      <Card className="border-none shadow-sm bg-surface">
+        <div className="flex border-b border-border/50">
            <button 
-             className={cn("px-8 py-4 text-sm font-black tracking-wide border-b-2 transition-all", activeTab === 'catalog' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400 hover:text-gray-600')}
+             className={cn("px-6 py-4 text-sm font-black tracking-wide border-b-2 transition-all", activeTab === 'catalog' ? 'border-teal-600 text-primary' : 'border-transparent text-muted-foreground/70 hover:text-muted-foreground')}
              onClick={() => setActiveTab('catalog')}
            >
              BROWSE CATALOG
            </button>
            <button 
-             className={cn("px-8 py-4 text-sm font-black tracking-wide border-b-2 transition-all", activeTab === 'bulk' ? 'border-teal-600 text-teal-600' : 'border-transparent text-gray-400 hover:text-gray-600')}
+             className={cn("px-6 py-4 text-sm font-black tracking-wide border-b-2 transition-all", activeTab === 'bulk' ? 'border-teal-600 text-primary' : 'border-transparent text-muted-foreground/70 hover:text-muted-foreground')}
              onClick={() => setActiveTab('bulk')}
            >
              BULK EXCEL UPLOAD
@@ -405,19 +405,19 @@ export default function MedicinesCatalogPage() {
         <CardContent className="p-0">
           {activeTab === 'catalog' && (
             <div className="flex flex-col animate-in fade-in duration-300">
-              <div className="p-6 flex flex-col md:flex-row items-center gap-4 border-b border-gray-50">
+              <div className="p-6 flex flex-col md:flex-row items-center gap-4 border-b border-border/50">
                 <div className="relative flex-1 w-full">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 w-4 h-4" />
                   <Input 
                     placeholder="Search medicines or manufacturers..." 
-                    className="pl-10 h-11 border-gray-100 focus:border-teal-500 rounded-xl transition-all shadow-none"
+                    className="pl-10 h-10 border-border/50 focus:border-primary rounded-xl transition-all shadow-none"
                     value={search}
                     onChange={(e) => { setSearch(e.target.value); setPage(0); }}
                   />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   <Select value={categoryFilter} onValueChange={(val) => { setCategoryFilter(val ?? "all"); setPage(0); }}>
-                    <SelectTrigger className="w-[180px] h-11 border-gray-100 rounded-xl focus:ring-teal-500 shadow-none font-semibold">
+                    <SelectTrigger className="w-[180px] h-10 border-border/50 rounded-xl focus:ring-primary shadow-none font-semibold">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -426,7 +426,7 @@ export default function MedicinesCatalogPage() {
                     </SelectContent>
                   </Select>
                   <Select value={prescriptionFilter} onValueChange={(val) => { setPrescriptionFilter(val ?? "all"); setPage(0); }}>
-                    <SelectTrigger className="w-[160px] h-11 border-gray-100 rounded-xl shadow-none font-semibold">
+                    <SelectTrigger className="w-[160px] h-10 border-border/50 rounded-xl shadow-none font-semibold">
                       <SelectValue placeholder="Prescription" />
                     </SelectTrigger>
                     <SelectContent>
@@ -440,45 +440,45 @@ export default function MedicinesCatalogPage() {
 
               {isLoading ? (
                 <div className="p-6 space-y-4">
-                  {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-2xl" />)}
+                  {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full rounded-2xl" />)}
                 </div>
               ) : medicines.length === 0 ? (
                 <div className="p-20 text-center flex flex-col items-center">
-                   <div className="p-6 rounded-full bg-gray-50 mb-4 text-gray-300"><Search size={40} /></div>
-                   <h4 className="text-xl font-black text-gray-800 tracking-tight">No medicines found</h4>
-                   <p className="text-gray-500 font-medium">Adjust your filters or add new stock.</p>
+                   <div className="p-6 rounded-full bg-surface-muted/50 mb-4 text-muted-foreground/50"><Search size={40} /></div>
+                   <h4 className="text-xl font-black text-foreground tracking-tight">No medicines found</h4>
+                   <p className="text-muted-foreground font-medium">Adjust your filters or add new stock.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                    <Table>
                       <TableHeader>
-                         <TableRow className="bg-gray-50/50 hover:bg-transparent border-gray-100">
-                           <TableHead className="px-6 py-5 font-black text-[11px] text-gray-400 uppercase tracking-widest">Medicine & Brand</TableHead>
-                           <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Category</TableHead>
-                           <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Pricing</TableHead>
-                           <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Prescription</TableHead>
-                           <TableHead className="font-black text-[11px] text-gray-400 uppercase tracking-widest">Stock</TableHead>
-                           <TableHead className="text-right pr-6 font-black text-[11px] text-gray-400 uppercase tracking-widest">Actions</TableHead>
+                         <TableRow className="bg-surface-muted/50/50 hover:bg-transparent border-border/50">
+                           <TableHead className="px-4 py-3 font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Medicine & Brand</TableHead>
+                           <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Category</TableHead>
+                           <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Pricing</TableHead>
+                           <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Prescription</TableHead>
+                           <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Stock</TableHead>
+                           <TableHead className="text-right pr-6 font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Actions</TableHead>
                          </TableRow>
                       </TableHeader>
                       <TableBody>
                         {medicines.map((med: Medicine) => (
-                           <TableRow key={med.id} className="border-gray-50 hover:bg-teal-50/10 transition-colors group">
-                              <TableCell className="px-6 py-4">
+                           <TableRow key={med.id} className="border-border/50 hover:bg-primary/10/10 transition-colors group">
+                              <TableCell className="px-4 py-3">
                                 <div className="flex items-center gap-4">
-                                   <div className="p-2 rounded-xl bg-gray-50 group-hover:bg-white text-gray-400 group-hover:text-teal-600 transition-colors border border-transparent group-hover:border-teal-100"><Pill size={20} /></div>
+                                   <div className="p-2 rounded-xl bg-surface-muted/50 group-hover:bg-surface text-muted-foreground/70 group-hover:text-primary transition-colors border border-transparent group-hover:border-teal-100"><Pill size={20} /></div>
                                    <div className="flex flex-col">
-                                      <p className="font-bold text-sm text-gray-900 group-hover:text-teal-700 transition-colors">{med.name}</p>
-                                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter">{med.manufacturer}</p>
+                                      <p className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">{med.name}</p>
+                                      <p className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-tighter">{med.manufacturer}</p>
                                    </div>
                                 </div>
                               </TableCell>
-                              <TableCell><Badge variant="outline" className="text-[10px] font-black uppercase bg-gray-50 border-gray-200">{med.category || 'N/A'}</Badge></TableCell>
+                              <TableCell><Badge variant="outline" className="text-[10px] font-black uppercase bg-surface-muted/50 border-border">{med.category || 'N/A'}</Badge></TableCell>
                               <TableCell>
                                 <div className="flex gap-2 items-center">
-                                   <span className="font-black text-sm text-gray-900">₹{med.discountedPrice || med.price}</span>
+                                   <span className="font-black text-sm text-foreground">₹{med.discountedPrice || med.price}</span>
                                    {med.discountedPrice && med.price > med.discountedPrice && (
-                                     <span className="text-[10px] text-gray-400 line-through font-bold">₹{med.price}</span>
+                                     <span className="text-[10px] text-muted-foreground/70 line-through font-bold">₹{med.price}</span>
                                    )}
                                 </div>
                               </TableCell>
@@ -493,12 +493,12 @@ export default function MedicinesCatalogPage() {
                                  <div className="flex flex-col items-start gap-1">
                                     <div className="flex items-center gap-1.5">
                                        <div className={cn("w-2 h-2 rounded-full", med.stockQuantity > 50 ? "bg-green-500" : med.stockQuantity >= 10 ? "bg-amber-500" : "bg-red-500")} />
-                                       <span className="text-xs font-black text-gray-900">{med.stockQuantity} <span className="text-gray-400 font-medium">units</span></span>
+                                       <span className="text-xs font-black text-foreground">{med.stockQuantity} <span className="text-muted-foreground/70 font-medium">units</span></span>
                                     </div>
                                     <button 
                                       onClick={() => toggleStockMutation.mutate(med.id)}
                                       className={cn("px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border transition-all", 
-                                        med.inStock ? "bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100" : "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                                        med.inStock ? "bg-primary/10 border-primary/20 text-primary hover:bg-primary/20" : "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
                                       )}
                                     >
                                        {med.inStock ? "In Stock" : "Disabled"}
@@ -507,10 +507,10 @@ export default function MedicinesCatalogPage() {
                               </TableCell>
                               <TableCell className="text-right pr-6">
                                  <div className="flex justify-end gap-1">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all" onClick={() => openEdit(med)}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-primary hover:bg-primary/10 rounded-lg transition-all" onClick={() => openEdit(med)}>
                                        <Edit2 size={14} />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" onClick={() => { setMedicineToDelete(med); setIsDeleteDialogOpen(true); }}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/70 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" onClick={() => { setMedicineToDelete(med); setIsDeleteDialogOpen(true); }}>
                                        <Trash2 size={14} />
                                     </Button>
                                  </div>
@@ -522,8 +522,8 @@ export default function MedicinesCatalogPage() {
 
                    {/* Pagination */}
                    {data?.totalPages > 1 && (
-                     <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-                        <span className="text-xs font-bold text-gray-500">Page {page + 1} of {data.totalPages}</span>
+                     <div className="px-4 py-3 bg-surface-muted/50 border-t border-border/50 flex justify-between items-center">
+                        <span className="text-xs font-bold text-muted-foreground">Page {page + 1} of {data.totalPages}</span>
                         <div className="flex gap-2">
                            <Button variant="outline" size="sm" className="h-8 rounded-lg font-bold" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button>
                            <Button variant="outline" size="sm" className="h-8 rounded-lg font-bold" disabled={page >= data.totalPages - 1} onClick={() => setPage(page + 1)}>Next</Button>
@@ -536,33 +536,33 @@ export default function MedicinesCatalogPage() {
           )}
 
           {activeTab === 'bulk' && (
-             <div className="p-8 animate-in fade-in duration-300">
+             <div className="p-6 animate-in fade-in duration-300">
                 <div className="max-w-4xl mx-auto space-y-8">
                    <div 
-                     className="border-2 border-dashed border-teal-200 rounded-[32px] p-16 flex flex-col items-center justify-center text-center bg-teal-50/20 hover:bg-teal-50/50 transition-colors cursor-pointer group"
+                     className="border-2 border-dashed border-primary/20 rounded-2xl p-16 flex flex-col items-center justify-center text-center bg-primary/10/20 hover:bg-primary/10/50 transition-colors cursor-pointer group"
                      onClick={() => fileInputRef.current?.click()}
                    >
                      <input type="file" ref={fileInputRef} className="hidden" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} />
-                     <div className="bg-white p-6 rounded-full shadow-lg shadow-teal-500/10 mb-6 group-hover:scale-110 transition-transform">
-                        <FileSpreadsheet className="text-teal-600" size={48} strokeWidth={1.5} />
+                     <div className="bg-surface p-6 rounded-full shadow-lg shadow-teal-500/10 mb-6 group-hover:scale-110 transition-transform">
+                        <FileSpreadsheet className="text-primary" size={48} strokeWidth={1.5} />
                      </div>
-                     <h3 className="text-2xl font-black text-gray-900 tracking-tight">Click or drag Excel file here</h3>
-                     <p className="text-sm font-medium text-gray-500 mt-2 max-w-sm">
+                     <h3 className="text-xl font-bold text-foreground tracking-tight">Click or drag Excel file here</h3>
+                     <p className="text-sm font-medium text-muted-foreground mt-2 max-w-sm">
                        Upload .xlsx or .csv files. Ensure headers include Name, Manufacturer, Price, and Category.
                      </p>
                    </div>
 
                    {previewData.length > 0 && (
-                     <div className="bg-white rounded-[24px] border border-gray-200 overflow-hidden shadow-sm">
-                        <div className="p-6 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                     <div className="bg-surface rounded-[24px] border border-border overflow-hidden shadow-sm">
+                        <div className="p-6 bg-surface-muted/50 border-b border-border flex justify-between items-center">
                            <div>
-                             <h4 className="text-lg font-black text-gray-900">Preview Data</h4>
-                             <p className="text-xs font-bold text-teal-600 mt-1 uppercase tracking-widest">{previewData.length} records ready</p>
+                             <h4 className="text-lg font-black text-foreground">Preview Data</h4>
+                             <p className="text-xs font-bold text-primary mt-1 uppercase tracking-widest">{previewData.length} records ready</p>
                            </div>
                            <div className="flex gap-3">
-                              <Button variant="ghost" className="font-bold text-gray-500" onClick={() => setPreviewData([])}>Clear</Button>
+                              <Button variant="ghost" className="font-bold text-muted-foreground" onClick={() => setPreviewData([])}>Clear</Button>
                               <Button 
-                                className="bg-teal-600 hover:bg-teal-700 font-bold px-8 shadow-lg shadow-teal-500/20" 
+                                className="bg-primary hover:bg-primary/90 font-bold px-6 shadow-lg shadow-primary/20" 
                                 onClick={submitBulkUpload}
                                 disabled={bulkUploadMutation.isPending}
                               >
@@ -573,7 +573,7 @@ export default function MedicinesCatalogPage() {
                         </div>
                         <div className="overflow-x-auto max-h-[400px]">
                            <Table>
-                              <TableHeader className="sticky top-0 bg-white z-10 shadow-sm shadow-gray-100">
+                              <TableHeader className="sticky top-0 bg-surface z-10 shadow-sm shadow-gray-100">
                                  <TableRow>
                                     <TableHead className="w-16 font-black uppercase text-[10px] tracking-widest">Row</TableHead>
                                     <TableHead className="font-black uppercase text-[10px] tracking-widest">Name</TableHead>
@@ -591,9 +591,9 @@ export default function MedicinesCatalogPage() {
 
                                     return (
                                        <TableRow key={idx} className={hasError ? "bg-red-50/50 hover:bg-red-50" : ""}>
-                                          <TableCell className="text-xs font-bold text-gray-400">{idx + 2}</TableCell>
+                                          <TableCell className="text-xs font-bold text-muted-foreground/70">{idx + 2}</TableCell>
                                           <TableCell className={cn("font-bold text-sm", !name && "text-red-500 italic")}>{name || "Missing Name"}</TableCell>
-                                          <TableCell className={cn("text-xs font-medium text-gray-500", !mfg && "text-red-500 italic")}>{mfg || "Missing Mfg"}</TableCell>
+                                          <TableCell className={cn("text-xs font-medium text-muted-foreground", !mfg && "text-red-500 italic")}>{mfg || "Missing Mfg"}</TableCell>
                                           <TableCell><Badge variant="outline" className="text-[9px] uppercase font-black">{row.category || row.Category || 'Unknown'}</Badge></TableCell>
                                           <TableCell className={cn("text-right font-black", !price && "text-red-500")}>{price ? `₹${price}` : "Missing"}</TableCell>
                                        </TableRow>
@@ -612,72 +612,72 @@ export default function MedicinesCatalogPage() {
 
       {/* Single Add/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={(o) => { setIsModalOpen(o); if(!o) resetForm(); }}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl">
-           <div className="bg-teal-600 p-8 text-white relative">
-              <div className="absolute top-0 right-0 p-8 opacity-10"><Pill size={120} /></div>
-              <DialogTitle className="text-2xl font-black tracking-tight">{editingMedicine ? 'Edit Medicine Details' : 'Add New Medicine'}</DialogTitle>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden border-none rounded-2xl shadow-2xl">
+           <div className="bg-primary p-6 text-white relative">
+              <div className="absolute top-0 right-0 p-6 opacity-10"><Pill size={120} /></div>
+              <DialogTitle className="text-xl font-bold tracking-tight">{editingMedicine ? 'Edit Medicine Details' : 'Add New Medicine'}</DialogTitle>
               <DialogDescription className="text-teal-50 font-medium italic mt-1 opacity-90">Ensure generic names and prices are verified.</DialogDescription>
            </div>
-           <form onSubmit={handleFormSubmit} className="p-8 bg-white grid grid-cols-2 gap-5">
+           <form onSubmit={handleFormSubmit} className="p-6 bg-surface grid grid-cols-2 gap-5">
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Medicine Name <span className="text-red-500">*</span></label>
-                 <Input required className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Paracetamol 500mg" />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Medicine Name <span className="text-red-500">*</span></label>
+                 <Input required className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Paracetamol 500mg" />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Generic Name</label>
-                 <Input className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.genericName} onChange={e => setFormData({...formData, genericName: e.target.value})} placeholder="e.g. Acetaminophen" />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Generic Name</label>
+                 <Input className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.genericName} onChange={e => setFormData({...formData, genericName: e.target.value})} placeholder="e.g. Acetaminophen" />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Manufacturer <span className="text-red-500">*</span></label>
-                 <Input required className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.manufacturer} onChange={e => setFormData({...formData, manufacturer: e.target.value})} placeholder="e.g. GSK" />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Manufacturer <span className="text-red-500">*</span></label>
+                 <Input required className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.manufacturer} onChange={e => setFormData({...formData, manufacturer: e.target.value})} placeholder="e.g. GSK" />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Category</label>
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Category</label>
                  <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v ?? ""})}>
-                    <SelectTrigger className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectTrigger className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10"><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                  </Select>
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">MRP Price (₹) <span className="text-red-500">*</span></label>
-                 <Input required type="number" step="0.01" className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="0.00" />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">MRP Price (₹) <span className="text-red-500">*</span></label>
+                 <Input required type="number" step="0.01" className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="0.00" />
               </div>
               <div className="space-y-2 col-span-2 md:col-span-1">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Discount Price (₹)</label>
-                 <Input type="number" step="0.01" className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.discountedPrice} onChange={e => setFormData({...formData, discountedPrice: e.target.value})} placeholder="0.00" />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Discount Price (₹)</label>
+                 <Input type="number" step="0.01" className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.discountedPrice} onChange={e => setFormData({...formData, discountedPrice: e.target.value})} placeholder="0.00" />
               </div>
 
-              <div className="col-span-2 flex gap-8 p-4 bg-gray-50 rounded-[20px] border border-gray-100">
+              <div className="col-span-2 flex gap-6 p-4 bg-surface-muted/50 rounded-[20px] border border-border/50">
                  <div className="flex items-center gap-3">
                     <Checkbox id="reqPres" checked={formData.requiresPrescription} onCheckedChange={c => setFormData({...formData, requiresPrescription: !!c})} />
-                    <label htmlFor="reqPres" className="text-xs font-black uppercase tracking-widest text-gray-600 cursor-pointer">Requires Prescription</label>
+                    <label htmlFor="reqPres" className="text-xs font-black uppercase tracking-widest text-muted-foreground cursor-pointer">Requires Prescription</label>
                  </div>
                  <div className="flex items-center gap-3">
                     <Checkbox id="inStock" checked={formData.inStock} onCheckedChange={c => setFormData({...formData, inStock: !!c})} />
-                    <label htmlFor="inStock" className="text-xs font-black uppercase tracking-widest text-gray-600 cursor-pointer">Available Online</label>
+                    <label htmlFor="inStock" className="text-xs font-black uppercase tracking-widest text-muted-foreground cursor-pointer">Available Online</label>
                  </div>
                  <div className="flex-1 flex items-center justify-end gap-3">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Stock Units</label>
-                    <Input required type="number" className="w-24 border-gray-200 rounded-xl font-bold h-9" value={formData.stockQuantity} onChange={e => setFormData({...formData, stockQuantity: parseInt(e.target.value) || 0})} placeholder="0" />
+                    <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Stock Units</label>
+                    <Input required type="number" className="w-24 border-border rounded-xl font-bold h-9" value={formData.stockQuantity} onChange={e => setFormData({...formData, stockQuantity: parseInt(e.target.value) || 0})} placeholder="0" />
                  </div>
               </div>
 
               <div className="col-span-2 space-y-2">
-                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Description (Optional)</label>
-                 <Input className="border-gray-100 bg-gray-50/50 rounded-xl font-bold h-11" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Uses, side effects, etc." />
+                 <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">Description (Optional)</label>
+                 <Input className="border-border/50 bg-surface-muted/50/50 rounded-xl font-bold h-10" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Uses, side effects, etc." />
               </div>
 
 
                <div className="col-span-2 space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">
+                  <label className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest px-1">
                     Product Image
                   </label>
                   <div className="flex items-center gap-4">
                     <label className={cn(
                       "flex items-center gap-3 px-5 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all",
                       imageUploading
-                        ? "border-teal-300 bg-teal-50 cursor-not-allowed"
-                        : "border-gray-200 hover:border-teal-400 hover:bg-teal-50/30"
+                        ? "border-teal-300 bg-primary/10 cursor-not-allowed"
+                        : "border-border hover:border-teal-400 hover:bg-primary/10/30"
                     )}>
                       <input
                         type="file"
@@ -687,11 +687,11 @@ export default function MedicinesCatalogPage() {
                         disabled={imageUploading}
                       />
                       {imageUploading ? (
-                        <Loader2 className="w-4 h-4 text-teal-600 animate-spin" />
+                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
                       ) : (
-                        <Upload className="w-4 h-4 text-gray-400" />
+                        <Upload className="w-4 h-4 text-muted-foreground/70" />
                       )}
-                      <span className="text-xs font-bold text-gray-500">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {imageUploading ? 'Uploading...' : 'Click to upload image'}
                       </span>
                     </label>
@@ -699,20 +699,20 @@ export default function MedicinesCatalogPage() {
                       <img
                         src={formData.imageUrl}
                         alt="Preview"
-                        className="h-16 w-16 object-contain rounded-xl border border-gray-200 bg-white p-1"
+                        className="h-16 w-16 object-contain rounded-xl border border-border bg-surface p-1"
                         onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                       />
                     )}
                   </div>
                   {formData.imageUrl && (
-                    <p className="text-[10px] text-teal-600 font-bold truncate px-1">
+                    <p className="text-[10px] text-primary font-bold truncate px-1">
                       ✓ {formData.imageUrl.split("/").pop()}
                     </p>
                   )}
                </div>
-              <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100 mt-2">
-                 <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-bold" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="h-12 px-8 rounded-xl bg-teal-600 hover:bg-teal-700 font-bold shadow-lg shadow-teal-500/20">
+              <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-border/50 mt-2">
+                 <Button type="button" variant="ghost" className="h-10 px-6 rounded-xl font-bold" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="h-10 px-6 rounded-xl bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20">
                     {createMutation.isPending || updateMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Medicine"}
                  </Button>
               </div>
@@ -722,18 +722,18 @@ export default function MedicinesCatalogPage() {
 
       {/* Delete Confirmation */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-[32px] border-none shadow-2xl p-0 overflow-hidden">
-          <div className="bg-red-600 p-8 text-white relative">
-             <div className="absolute top-0 right-0 p-8 opacity-10"><AlertCircle size={100} /></div>
-             <AlertDialogTitle className="text-2xl font-black">Remove from Catalog?</AlertDialogTitle>
+        <AlertDialogContent className="rounded-2xl border-none shadow-2xl p-0 overflow-hidden">
+          <div className="bg-red-600 p-6 text-white relative">
+             <div className="absolute top-0 right-0 p-6 opacity-10"><AlertCircle size={100} /></div>
+             <AlertDialogTitle className="text-xl font-bold">Remove from Catalog?</AlertDialogTitle>
              <AlertDialogDescription className="text-red-50 font-medium italic mt-1 opacity-90">
                 You are about to delete <span className="font-black underline">{medicineToDelete?.name}</span>. This removes it permanently.
              </AlertDialogDescription>
           </div>
-          <AlertDialogFooter className="p-8 bg-white gap-3">
-            <AlertDialogCancel className="h-12 px-6 rounded-xl font-bold border-gray-100">Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="p-6 bg-surface gap-3">
+            <AlertDialogCancel className="h-10 px-6 rounded-xl font-bold border-border/50">Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              className="h-12 px-8 rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20"
+              className="h-10 px-6 rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20"
               onClick={() => medicineToDelete && deleteMutation.mutate(medicineToDelete.id)}
             >
               <Trash2 size={18} className="mr-2" />

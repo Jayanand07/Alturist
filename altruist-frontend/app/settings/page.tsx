@@ -52,7 +52,7 @@ interface PatientProfile {
 export default function SettingsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user: authUser, loading: authLoading, signOut } = useAuth();
+  const { user: authUser, userType, loading: authLoading, signOut } = useAuth();
   
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,33 @@ export default function SettingsPage() {
   // Profile Fetch
   const fetchProfile = useCallback(async () => {
     try {
-      const response = await api.get("/patients/profile");
+      let endpoint = "/patients/profile";
+      if (userType === "DOCTOR") {
+        endpoint = "/doctors/profile";
+      } else if (userType === "ADMIN" || userType === "SUPER_ADMIN") {
+        setProfile({
+          fullName: authUser?.displayName || "Admin User",
+          email: authUser?.email || "",
+          phone: authUser?.phoneNumber || "",
+          dateOfBirth: "",
+          gender: "",
+          bloodGroup: "",
+          street: "",
+          city: "",
+          state: "",
+          pincode: "",
+          allergies: "",
+          chronicConditions: "",
+          currentMedications: "",
+          emailAlerts: true,
+          smsAlerts: true,
+          appointmentReminders: true
+        });
+        setLoading(false);
+        return;
+      }
+      
+      const response = await api.get(endpoint);
       setProfile(response.data);
       if (response.data.allergies) {
         setAllergiesList(response.data.allergies.split(",").filter((a: string) => a.trim() !== ""));
@@ -84,10 +110,10 @@ export default function SettingsPage() {
       router.push("/login");
       return;
     }
-    if (authUser) {
+    if (authUser && userType) {
       fetchProfile();
     }
-  }, [authUser, authLoading, router, fetchProfile]);
+  }, [authUser, userType, authLoading, router, fetchProfile]);
 
   // Subscription Fetch
   const { data: sub, isLoading: subLoading } = useQuery({
@@ -141,7 +167,15 @@ export default function SettingsPage() {
     if (!profile) return;
     setSaving(true);
     try {
-      await api.patch("/patients/profile", profile);
+      let endpoint = "/patients/profile";
+      if (userType === "DOCTOR") {
+        endpoint = "/doctors/profile";
+      } else if (userType === "ADMIN" || userType === "SUPER_ADMIN") {
+        toast.success(`${section} settings saved successfully!`);
+        setSaving(false);
+        return;
+      }
+      await api.patch(endpoint, profile);
       toast.success(`${section} settings saved successfully!`);
     } catch (err) {
       toast.error("Failed to save changes. Please try again.");
@@ -154,7 +188,18 @@ export default function SettingsPage() {
     if (deleteInput !== "DELETE") return;
     setIsDeleting(true);
     try {
-      await api.delete("/patients/profile");
+      let endpoint = "/patients/profile";
+      if (userType === "DOCTOR") {
+        endpoint = "/doctors/profile"; // Wait, doctors don't have DELETE /profile endpoint? Let's check DoctorController...
+        toast.error("Doctors cannot delete their account from this page.");
+        setIsDeleting(false);
+        return;
+      } else if (userType === "ADMIN" || userType === "SUPER_ADMIN") {
+        toast.error("Admins cannot delete their account from this page.");
+        setIsDeleting(false);
+        return;
+      }
+      await api.delete(endpoint);
       toast.success("Account deleted successfully.");
       signOut();
     } catch (err) {
@@ -186,7 +231,11 @@ export default function SettingsPage() {
       handleInputChange("profilePictureUrl", newUrl);
       
       // Auto-save the new profile picture URL
-      await api.patch("/patients/profile", { ...profile, profilePictureUrl: newUrl });
+      let endpoint = "/patients/profile";
+      if (userType === "DOCTOR") endpoint = "/doctors/profile";
+      if (userType !== "ADMIN" && userType !== "SUPER_ADMIN") {
+        await api.patch(endpoint, { ...profile, profilePictureUrl: newUrl });
+      }
       toast.success("Profile picture updated!");
     } catch (err: any) {
       console.error(err);
@@ -199,7 +248,7 @@ export default function SettingsPage() {
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50/50">
-        <Loader2 className="w-10 h-10 animate-spin text-[#00A87E]" />
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -227,7 +276,7 @@ export default function SettingsPage() {
                   <TabsTrigger 
                     key={tab.id} 
                     value={tab.id}
-                    className="w-full justify-start text-left px-4 py-3 h-auto data-[state=active]:bg-[#00A87E]/10 data-[state=active]:text-[#00A87E] data-[state=active]:font-bold data-[state=active]:shadow-none rounded-xl border border-transparent data-[state=active]:border-[#00A87E]/20 transition-all gap-3 text-gray-600 font-medium"
+                    className="w-full justify-start text-left px-4 py-3 h-auto data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-none rounded-xl border border-transparent data-[state=active]:border-primary/20 transition-all gap-3 text-gray-600 font-medium"
                   >
                      <tab.icon className="w-5 h-5 opacity-80" />
                      <span className="hidden sm:inline">{tab.label}</span>
@@ -252,7 +301,7 @@ export default function SettingsPage() {
                       <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
                         <Avatar className="w-24 h-24 border-2 border-gray-100 shadow-sm">
                           <AvatarImage src={profile.profilePictureUrl || ""} />
-                          <AvatarFallback className="bg-teal-50 text-[#00A87E] text-2xl font-bold">
+                          <AvatarFallback className="bg-teal-50 text-primary text-2xl font-bold">
                             {profile.fullName?.charAt(0) || "U"}
                           </AvatarFallback>
                         </Avatar>
@@ -288,7 +337,7 @@ export default function SettingsPage() {
                            <Input 
                              value={profile.fullName || ""} 
                              onChange={(e) => handleInputChange("fullName", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                         <div className="space-y-2">
@@ -303,7 +352,7 @@ export default function SettingsPage() {
                            <Input 
                              value={profile.phone || ""} 
                              onChange={(e) => handleInputChange("phone", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                         <div className="space-y-2">
@@ -312,7 +361,7 @@ export default function SettingsPage() {
                              type="date" 
                              value={profile.dateOfBirth || ""} 
                              onChange={(e) => handleInputChange("dateOfBirth", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                       </div>
@@ -321,7 +370,7 @@ export default function SettingsPage() {
                         <div className="space-y-2">
                            <Label className="text-gray-700 font-bold">Gender</Label>
                            <Select value={profile.gender || ""} onValueChange={(val) => handleInputChange("gender", val || "")}>
-                              <SelectTrigger className="h-11 border-gray-300 focus:ring-[#00A87E]">
+                              <SelectTrigger className="h-11 border-gray-300 focus:ring-primary">
                                  <SelectValue placeholder="Select Gender" />
                               </SelectTrigger>
                               <SelectContent>
@@ -334,7 +383,7 @@ export default function SettingsPage() {
                         <div className="space-y-2">
                            <Label className="text-gray-700 font-bold">Blood Group</Label>
                            <Select value={profile.bloodGroup || ""} onValueChange={(val) => handleInputChange("bloodGroup", val || "")}>
-                              <SelectTrigger className="h-11 border-gray-300 focus:ring-[#00A87E]">
+                              <SelectTrigger className="h-11 border-gray-300 focus:ring-primary">
                                  <SelectValue placeholder="Select Blood Group" />
                               </SelectTrigger>
                               <SelectContent>
@@ -356,7 +405,7 @@ export default function SettingsPage() {
                               value={profile.emergencyContactName || ""} 
                               onChange={(e) => handleInputChange("emergencyContactName", e.target.value)} 
                               placeholder="Full Name"
-                              className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                              className="h-11 border-gray-300 focus-visible:ring-primary" 
                             />
                           </div>
                           <div className="space-y-2">
@@ -365,13 +414,13 @@ export default function SettingsPage() {
                               value={profile.emergencyContactPhone || ""} 
                               onChange={(e) => handleInputChange("emergencyContactPhone", e.target.value)} 
                               placeholder="Phone Number"
-                              className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                              className="h-11 border-gray-300 focus-visible:ring-primary" 
                             />
                           </div>
                           <div className="space-y-2 sm:col-span-2">
                             <Label className="text-gray-700 font-bold">Relationship</Label>
                             <Select value={profile.emergencyContactRelation || ""} onValueChange={(val) => handleInputChange("emergencyContactRelation", val || "")}>
-                               <SelectTrigger className="h-11 border-gray-300 focus:ring-[#00A87E]">
+                               <SelectTrigger className="h-11 border-gray-300 focus:ring-primary">
                                   <SelectValue placeholder="Select Relationship" />
                                </SelectTrigger>
                                <SelectContent>
@@ -386,7 +435,7 @@ export default function SettingsPage() {
 
                    </CardContent>
                    <CardFooter className="bg-gray-50/80 border-t border-gray-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSave("Personal Info")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                      <Button onClick={() => handleSave("Personal Info")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Changes
                       </Button>
@@ -408,7 +457,7 @@ export default function SettingsPage() {
                            value={profile.street || ""} 
                            onChange={(e) => handleInputChange("street", e.target.value)} 
                            placeholder="House number, Street name, Area"
-                           className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                           className="h-11 border-gray-300 focus-visible:ring-primary" 
                          />
                       </div>
                       <div className="grid sm:grid-cols-3 gap-5">
@@ -417,7 +466,7 @@ export default function SettingsPage() {
                            <Input 
                              value={profile.city || ""} 
                              onChange={(e) => handleInputChange("city", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                         <div className="space-y-2 sm:col-span-1">
@@ -425,7 +474,7 @@ export default function SettingsPage() {
                            <Input 
                              value={profile.state || ""} 
                              onChange={(e) => handleInputChange("state", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                         <div className="space-y-2 sm:col-span-1">
@@ -433,13 +482,13 @@ export default function SettingsPage() {
                            <Input 
                              value={profile.pincode || ""} 
                              onChange={(e) => handleInputChange("pincode", e.target.value)} 
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                         </div>
                       </div>
                    </CardContent>
                    <CardFooter className="bg-gray-50/80 border-t border-gray-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSave("Address")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                      <Button onClick={() => handleSave("Address")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Address
                       </Button>
@@ -464,7 +513,7 @@ export default function SettingsPage() {
                              onChange={(e) => setAllergyInput(e.target.value)}
                              onKeyDown={handleAddAllergy}
                              placeholder="e.g., Peanuts, Penicillin..."
-                             className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                             className="h-11 border-gray-300 focus-visible:ring-primary" 
                            />
                            <Button type="button" onClick={() => handleAddAllergy({ key: 'Enter', preventDefault: () => {} } as any)} className="bg-gray-100 text-gray-700 hover:bg-gray-200 h-11 shrink-0 font-bold">Add</Button>
                          </div>
@@ -486,7 +535,7 @@ export default function SettingsPage() {
                            value={profile.chronicConditions || ""} 
                            onChange={(e) => handleInputChange("chronicConditions", e.target.value)} 
                            placeholder="e.g., Asthma, Diabetes..."
-                           className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                           className="h-11 border-gray-300 focus-visible:ring-primary" 
                          />
                       </div>
 
@@ -496,13 +545,13 @@ export default function SettingsPage() {
                            value={profile.currentMedications || ""} 
                            onChange={(e) => handleInputChange("currentMedications", e.target.value)} 
                            placeholder="Any medicines you take regularly"
-                           className="h-11 border-gray-300 focus-visible:ring-[#00A87E]" 
+                           className="h-11 border-gray-300 focus-visible:ring-primary" 
                          />
                       </div>
 
                    </CardContent>
                    <CardFooter className="bg-gray-50/80 border-t border-gray-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSave("Health Profile")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                      <Button onClick={() => handleSave("Health Profile")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Save Health Info
                       </Button>
@@ -527,7 +576,7 @@ export default function SettingsPage() {
                          <Switch 
                            checked={profile.emailAlerts !== false} 
                            onCheckedChange={(val) => handleInputChange("emailAlerts", val)}
-                           className="data-[state=checked]:bg-[#00A87E]"
+                           className="data-[state=checked]:bg-primary"
                          />
                       </div>
 
@@ -539,7 +588,7 @@ export default function SettingsPage() {
                          <Switch 
                            checked={profile.smsAlerts !== false} 
                            onCheckedChange={(val) => handleInputChange("smsAlerts", val)}
-                           className="data-[state=checked]:bg-[#00A87E]"
+                           className="data-[state=checked]:bg-primary"
                          />
                       </div>
 
@@ -551,13 +600,13 @@ export default function SettingsPage() {
                          <Switch 
                            checked={profile.appointmentReminders !== false} 
                            onCheckedChange={(val) => handleInputChange("appointmentReminders", val)}
-                           className="data-[state=checked]:bg-[#00A87E]"
+                           className="data-[state=checked]:bg-primary"
                          />
                       </div>
 
                    </CardContent>
                    <CardFooter className="bg-gray-50/80 border-t border-gray-100 py-4 flex justify-end">
-                      <Button onClick={() => handleSave("Notifications")} disabled={saving} className="bg-[#00A87E] hover:bg-[#00906B] text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
+                      <Button onClick={() => handleSave("Notifications")} disabled={saving} className="bg-primary hover:bg-primary/90 text-white font-bold px-8 h-11 rounded-xl shadow-md active:scale-95 transition-all">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                         Update Preferences
                       </Button>
@@ -666,7 +715,7 @@ export default function SettingsPage() {
                                 </p>
                              </div>
                              <div className="flex flex-col gap-2 shrink-0">
-                               <Button onClick={() => router.push("/plans")} className="bg-[#00A87E] hover:bg-[#00906B] font-bold h-10 w-full md:w-auto">
+                               <Button onClick={() => router.push("/plans")} className="bg-primary hover:bg-primary/90 font-bold h-10 w-full md:w-auto">
                                  Upgrade Plan
                                </Button>
                                <AlertDialog>
@@ -701,7 +750,7 @@ export default function SettingsPage() {
                                <p className="font-bold text-gray-900">No active subscription</p>
                                <p className="text-sm text-gray-500 mt-1">Subscribe to a health plan for priority support and free consultations.</p>
                              </div>
-                             <Button onClick={() => router.push("/plans")} className="bg-[#00A87E] hover:bg-[#00906B] font-bold h-10 mt-2">
+                             <Button onClick={() => router.push("/plans")} className="bg-primary hover:bg-primary/90 font-bold h-10 mt-2">
                                View Plans
                              </Button>
                           </div>

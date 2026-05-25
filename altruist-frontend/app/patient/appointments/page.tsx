@@ -146,31 +146,31 @@ export default function PatientAppointmentsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/30">
-      <div className="bg-[#0D9488] text-white py-12 px-6">
+      <div className="bg-surface border-b border-border py-12 px-6">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-black tracking-tight mb-2">My Appointments</h1>
-          <p className="text-teal-100 font-medium">Manage your consultations, rescheduling, and history.</p>
+          <h1 className="text-3xl font-heading font-extrabold text-foreground tracking-tight mb-2">My Appointments</h1>
+          <p className="text-muted-foreground font-medium">Manage your consultations, rescheduling, and history.</p>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 -mt-6">
         {/* Tabs */}
-        <div className="flex bg-white rounded-2xl shadow-sm border border-gray-100 p-1.5 gap-2 overflow-x-auto w-fit mb-8 relative z-10">
+        <div className="flex bg-surface-muted rounded-2xl shadow-sm border border-border p-1.5 gap-2 overflow-x-auto w-fit mb-8 relative z-10">
           <button 
             onClick={() => setActiveTab("upcoming")}
-            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "upcoming" ? "bg-teal-50 text-teal-700" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50")}
+            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "upcoming" ? "bg-white text-accent shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-surface-muted/80")}
           >
             Upcoming ({upcoming.length})
           </button>
           <button 
             onClick={() => setActiveTab("past")}
-            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "past" ? "bg-teal-50 text-teal-700" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50")}
+            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "past" ? "bg-white text-accent shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-surface-muted/80")}
           >
             Past ({past.length})
           </button>
           <button 
             onClick={() => setActiveTab("cancelled")}
-            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "cancelled" ? "bg-teal-50 text-teal-700" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50")}
+            className={cn("px-6 py-2.5 rounded-xl font-bold text-sm transition-all", activeTab === "cancelled" ? "bg-white text-accent shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-surface-muted/80")}
           >
             Cancelled ({cancelled.length})
           </button>
@@ -195,15 +195,15 @@ export default function PatientAppointmentsPage() {
         ) : (
           <div className="space-y-6">
             {getActiveList().map((c: any) => (
-              <Card key={c.consultationId} className={cn("overflow-hidden border-none shadow-sm transition-all", c.status === "ONGOING" ? "ring-2 ring-indigo-500 shadow-indigo-500/10" : "border border-gray-100")}>
+              <Card key={c.consultationId} className={cn("overflow-hidden border-none shadow-sm transition-all bg-surface", c.status === "ONGOING" ? "ring-2 ring-primary shadow-primary/10" : "border border-border")}>
                 <div className="flex flex-col md:flex-row">
                    {/* Left Date Pane */}
-                   <div className="md:w-48 bg-gray-50 p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100">
-                      <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">{format(parseISO(c.scheduledAt), "MMM")}</p>
-                      <h3 className="text-4xl font-black text-gray-900 tracking-tighter mb-1">{format(parseISO(c.scheduledAt), "dd")}</h3>
-                      <p className="font-bold text-gray-500">{format(parseISO(c.scheduledAt), "hh:mm a")}</p>
-                      {c.type === "INSTANT" && <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-700 border-none font-black text-[10px] uppercase tracking-wider">Instant</Badge>}
-                      {c.type === "SCHEDULED" && <Badge variant="secondary" className="mt-4 bg-blue-100 text-blue-700 border-none font-black text-[10px] uppercase tracking-wider">Scheduled</Badge>}
+                   <div className="md:w-48 bg-surface-muted p-6 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border">
+                      <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-1">{format(parseISO(c.scheduledAt), "MMM")}</p>
+                      <h3 className="text-4xl font-black text-foreground tracking-tighter mb-1">{format(parseISO(c.scheduledAt), "dd")}</h3>
+                      <p className="font-bold text-muted-foreground">{format(parseISO(c.scheduledAt), "hh:mm a")}</p>
+                      {c.type === "INSTANT" && <Badge variant="secondary" className="mt-4 bg-orange-100 text-orange-700 border-none font-bold text-[10px] uppercase tracking-wider">Instant</Badge>}
+                      {c.type === "SCHEDULED" && <Badge variant="secondary" className="mt-4 bg-blue-100 text-blue-700 border-none font-bold text-[10px] uppercase tracking-wider">Scheduled</Badge>}
                    </div>
 
                    {/* Main Content */}
@@ -212,18 +212,18 @@ export default function PatientAppointmentsPage() {
                       {c.status === "COMPLETED" && <Badge className="absolute top-6 right-6 bg-green-50 border-green-200 text-green-700">Completed</Badge>}
                       {c.status === "CANCELLED" && <Badge className="absolute top-6 right-6 bg-red-50 border-red-200 text-red-700">Cancelled</Badge>}
 
-                      <div className="flex gap-4">
+                       <div className="flex gap-4">
                          {c.doctorProfilePictureUrl ? (
-                           <img src={c.doctorProfilePictureUrl} className="w-14 h-14 rounded-full object-cover shadow-sm bg-gray-100" alt="Doctor" />
+                           <img src={c.doctorProfilePictureUrl} className="w-14 h-14 rounded-full object-cover shadow-sm bg-surface-muted" alt="Doctor" />
                          ) : (
-                           <div className="w-14 h-14 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center text-primary font-black text-lg">
+                           <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black text-lg">
                              {getInitials(c.doctorName)}
                            </div>
                          )}
                          <div>
-                            <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Consulting Physician</p>
-                            <h4 className="text-xl font-black text-gray-900">Dr. {c.doctorName}</h4>
-                            <p className="text-teal-600 font-bold text-sm tracking-tight">{c.doctorSpecialization}</p>
+                            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest mt-1">Consulting Physician</p>
+                            <h4 className="text-xl font-heading font-extrabold text-foreground">Dr. {c.doctorName}</h4>
+                            <p className="text-primary font-bold text-sm tracking-tight">{c.doctorSpecialization}</p>
                          </div>
                       </div>
 
@@ -264,7 +264,7 @@ export default function PatientAppointmentsPage() {
                               >
                                 Request Reschedule
                               </Button>
-                              <Button onClick={() => window.open(`/consultation/${c.consultationId}`, "_blank")} className="h-11 bg-primary hover:bg-teal-700 rounded-xl px-6 font-bold shadow-sm ml-auto">
+                              <Button onClick={() => window.open(`/consultation/${c.consultationId}`, "_blank")} className="h-11 bg-primary hover:bg-primary/90 rounded-xl px-6 font-bold shadow-sm ml-auto">
                                 Enter Waitroom
                               </Button>
                            </>
@@ -328,38 +328,38 @@ export default function PatientAppointmentsPage() {
 
       {/* Reschedule Dialog */}
       <Dialog open={rescheduleModal.open} onOpenChange={(open) => setRescheduleModal({ ...rescheduleModal, open })}>
-        <DialogContent className="sm:max-w-lg rounded-[32px] p-8 border-none bg-white shadow-2xl">
+        <DialogContent className="sm:max-w-lg rounded-3xl p-8 border-none bg-surface shadow-2xl">
            <DialogHeader>
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-4">
                  <CalendarDays size={32} />
               </div>
-              <DialogTitle className="text-2xl font-black tracking-tight text-gray-900">Request Reschedule</DialogTitle>
-              <DialogDescription className="text-gray-500 font-medium pt-2">
+              <DialogTitle className="text-2xl font-heading font-black tracking-tight text-foreground">Request Reschedule</DialogTitle>
+              <DialogDescription className="text-muted-foreground font-medium pt-2">
                  Propose a new time to the doctor. Your current appointment remains active until they approve this request.
               </DialogDescription>
            </DialogHeader>
            
            <div className="py-2 space-y-4">
-              <div className="p-4 bg-gray-50 rounded-2xl flex items-center gap-3 border border-gray-100 text-sm font-medium text-gray-600">
-                 <Clock size={18} className="text-gray-400 shrink-0" />
-                 <span><span className="font-bold text-gray-900 block text-xs tracking-widest uppercase mb-0.5">Current Time</span> {rescheduleModal.currentDate}</span>
+              <div className="p-4 bg-surface-muted rounded-2xl flex items-center gap-3 border border-border text-sm font-medium text-muted-foreground">
+                 <Clock size={18} className="text-muted-foreground shrink-0" />
+                 <span><span className="font-bold text-foreground block text-xs tracking-widest uppercase mb-0.5">Current Time</span> {rescheduleModal.currentDate}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                  <div className="space-y-2">
-                     <Label className="text-xs font-black uppercase text-gray-400">New Date</Label>
+                     <Label className="text-xs font-bold uppercase text-muted-foreground">New Date</Label>
                      <input 
                        type="date" 
                        min={new Date().toISOString().split("T")[0]} 
                        value={rDate}
                        onChange={(e) => setRDate(e.target.value)}
-                       className="w-full h-11 px-3 rounded-xl border border-gray-200 bg-white shadow-sm font-semibold text-gray-700 outline-none focus:border-blue-500 transition-colors"
+                       className="w-full h-11 px-3 rounded-xl border border-border bg-surface shadow-sm font-semibold text-foreground outline-none focus:border-accent transition-colors"
                      />
                  </div>
                  <div className="space-y-2">
-                     <Label className="text-xs font-black uppercase text-gray-400">New Time</Label>
+                     <Label className="text-xs font-bold uppercase text-muted-foreground">New Time</Label>
                      <Select value={rTime} onValueChange={(val) => setRTime(val ?? '')}>
-                         <SelectTrigger className="w-full h-11 bg-white border-gray-200 rounded-xl font-semibold">
+                         <SelectTrigger className="w-full h-11 bg-surface border-border rounded-xl font-semibold">
                              <SelectValue placeholder="Select" />
                          </SelectTrigger>
                          <SelectContent className="max-h-[200px]">
@@ -372,12 +372,12 @@ export default function PatientAppointmentsPage() {
               </div>
 
               <div className="space-y-2">
-                 <Label className="text-xs font-black uppercase text-gray-400">Reason (Optional)</Label>
+                 <Label className="text-xs font-bold uppercase text-muted-foreground">Reason (Optional)</Label>
                  <Textarea 
                    placeholder="Why do you need to reschedule?" 
                    value={rReason}
                    onChange={e => setRReason(e.target.value)}
-                   className="resize-none rounded-2xl border-gray-200 focus:border-blue-500 shadow-sm font-medium" 
+                   className="resize-none rounded-2xl border-border focus:border-accent shadow-sm font-medium bg-surface" 
                    rows={3} 
                  />
               </div>
@@ -387,7 +387,7 @@ export default function PatientAppointmentsPage() {
               <Button 
                 onClick={submitReschedule}
                 disabled={rescheduleMutation.isPending}
-                className="w-full h-14 bg-blue-600 hover:bg-blue-700 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+                className="w-full h-14 bg-accent hover:bg-accent/90 rounded-2xl font-bold text-lg shadow-xl shadow-accent/20 active:scale-95 transition-all text-white"
               >
                 {rescheduleMutation.isPending ? <Loader2 className="animate-spin w-5 h-5"/> : "Send Request to Doctor"}
               </Button>

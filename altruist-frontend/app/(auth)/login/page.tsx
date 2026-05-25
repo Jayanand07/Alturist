@@ -7,20 +7,23 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { 
-  Video, 
+  MessageSquare, 
   TestTube, 
   Pill, 
   HeartPulse, 
   Eye, 
   EyeOff, 
   Loader2, 
-  Chrome,
-  ArrowRight
+  ShieldCheck,
+  Smartphone,
+  Lock,
+  Mail
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   signInWithGoogle, 
@@ -45,6 +48,26 @@ const phoneSchema = z.object({
 type EmailFormValues = z.infer<typeof emailSchema>;
 type PhoneFormValues = z.infer<typeof phoneSchema>;
 
+const getAuthErrorMessage = (error: any) => {
+  const code = error?.code || "";
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+      return 'Invalid email or password. Please try again.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled. Please contact support.';
+    case 'auth/too-many-requests':
+      return 'Too many failed login attempts. Please try again later.';
+    case 'auth/invalid-verification-code':
+      return 'Invalid OTP. Please check and try again.';
+    case 'auth/code-expired':
+      return 'OTP has expired. Please request a new one.';
+    default:
+      return error?.message || 'An error occurred during authentication. Please try again.';
+  }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const { user, userType, loading: authLoading, syncing } = useAuth();
@@ -52,6 +75,7 @@ export default function LoginPage() {
   const redirectAfterLogin = (role: string | null) => {
     switch(role) {
       case 'ADMIN':
+      case 'SUPER_ADMIN':
         router.push('/admin/dashboard')
         break
       case 'DOCTOR':
@@ -70,12 +94,12 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [countdown, setCountdown] = useState(0);
 
-  // Redirect as soon as we have user + userType (instant for returning users)
+  // Wait for background sync to finish before redirecting, to prevent stale cookie from routing Doctors to /patient
   useEffect(() => {
-    if (!authLoading && user && userType) {
+    if (!authLoading && user && userType && !syncing) {
       redirectAfterLogin(userType);
     }
-  }, [user, userType, authLoading]);
+  }, [user, userType, authLoading, syncing]);
 
   // Safety net: if user is logged in but sync is taking too long (new user),
   // redirect to /patient after 3 seconds max
@@ -113,10 +137,9 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      toast.success("Welcome to Altruist!");
-      // AuthContext handles redirect — keep loading true
+      toast.success("Welcome back!");
     } catch (error: any) {
-      toast.error(error.message || "Google sign-in failed");
+      toast.error(getAuthErrorMessage(error));
       setIsLoading(false);
     }
   };
@@ -126,9 +149,8 @@ export default function LoginPage() {
     try {
       await signInWithEmail(data.email, data.password);
       toast.success("Logged in successfully!");
-      // AuthContext handles redirect — keep loading true
     } catch (error: any) {
-      toast.error(error.message || "Check your credentials");
+      toast.error(getAuthErrorMessage(error));
       setIsLoading(false);
     }
   };
@@ -149,7 +171,7 @@ export default function LoginPage() {
       toast.success("OTP sent to your phone");
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to send OTP");
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -161,10 +183,9 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await confirmationResult.confirm(data.otp);
-      toast.success("Phone verified!");
-      // AuthContext handles redirect — keep loading true
+      toast.success("Phone verified successfully!");
     } catch (error: any) {
-      toast.error("Invalid OTP. Try again.");
+      toast.error(getAuthErrorMessage(error));
       setIsLoading(false);
     }
   };
@@ -172,8 +193,8 @@ export default function LoginPage() {
   // Show loading spinner while Firebase is initializing
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen bg-surface">
+        <Loader2 className="w-10 h-10 animate-spin text-accent" />
       </div>
     );
   }
@@ -181,216 +202,197 @@ export default function LoginPage() {
   // New user: Firebase auth done but waiting for background sync
   if (user && !userType && syncing) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-white">
-        <div className="bg-gradient-to-br from-[#0D9488] to-[#3B82F6] p-5 rounded-2xl shadow-lg">
-          <HeartPulse className="w-10 h-10 text-white animate-pulse" />
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-surface">
+        <div className="bg-gradient-to-br from-accent to-primary p-6 rounded-3xl shadow-xl animate-pulse">
+          <HeartPulse className="w-12 h-12 text-white" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900">Setting up your account...</h2>
-        <p className="text-gray-500 text-sm">This will only take a moment</p>
-        <Loader2 className="w-6 h-6 animate-spin text-primary mt-2" />
+        <h2 className="text-2xl font-heading font-extrabold text-foreground mt-4">Setting up your account...</h2>
+        <p className="text-muted-foreground font-medium">Securing your healthcare profile</p>
+        <Loader2 className="w-6 h-6 animate-spin text-accent mt-4" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white overflow-hidden">
-      {/* Left Side: Gradient Hero */}
-      <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#0D9488] to-[#3B82F6] p-12 flex-col justify-between text-white relative">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-12">
-            <HeartPulse className="w-10 h-10" />
-            <span className="text-3xl font-bold tracking-tight">Altruist</span>
+    <div className="min-h-screen flex flex-col md:flex-row bg-surface">
+      {/* Left Side: Trust Panel Hero */}
+      <div className="hidden md:flex flex-1 relative bg-surface-muted overflow-hidden">
+        {/* Background Decorative Pattern */}
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#0D9488_1px,transparent_1px)] [background-size:20px_20px]" />
+        
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full max-w-2xl mx-auto h-full">
+          <div>
+            <Link href="/" className="inline-flex items-center mb-16">
+              <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
+            </Link>
+            
+            <Badge variant="accent" className="mb-6 py-1.5 px-4"><ShieldCheck className="w-4 h-4 mr-2" /> 100% Secure & Confidential</Badge>
+            <h1 className="text-5xl font-heading font-extrabold leading-[1.1] text-foreground mb-6 tracking-tight">
+              Your health data,<br />
+              <span className="text-accent">safely in your hands.</span>
+            </h1>
+            <p className="text-lg text-muted-foreground font-medium max-w-md">
+              Log in to access your digital prescriptions, book chat consultations, and manage your health records seamlessly.
+            </p>
           </div>
-          
-          <h1 className="text-5xl font-extrabold leading-tight mb-8">
-            Instant Healthcare. <br />
-            <span className="text-teal-100">Anytime. Anywhere.</span>
-          </h1>
 
-          <div className="space-y-8 mt-16">
+          <div className="grid grid-cols-2 gap-6 mt-12">
             {[
-              { icon: Video, title: "Video Consultation", desc: "Talk to expert doctors from home" },
-              { icon: TestTube, title: "Lab Tests", desc: "Book diagnostic tests at best prices" },
-              { icon: Pill, title: "Online Medicines", desc: "Get prescribed medicines delivered fast" },
-              { icon: HeartPulse, title: "Health Records", desc: "Securely store your medical history" }
+              { icon: MessageSquare, title: "Chat Consults", desc: "Private & encrypted" },
+              { icon: Pill, title: "Genuine Medicines", desc: "Verified pharmacies" },
+              { icon: TestTube, title: "Lab Reports", desc: "Stored securely" },
+              { icon: Lock, title: "Data Privacy", desc: "HIPAA compliant" }
             ].map((feature, i) => (
-              <div key={i} className="flex gap-4 items-start group">
-                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                  <feature.icon className="w-6 h-6" />
+              <div key={i} className="flex gap-4 items-start bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-border">
+                <div className="bg-accent/10 p-3 rounded-xl text-accent shrink-0">
+                  <feature.icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-xl">{feature.title}</h3>
-                  <p className="text-white/80">{feature.desc}</p>
+                  <h3 className="font-bold text-foreground text-sm">{feature.title}</h3>
+                  <p className="text-muted-foreground text-xs mt-1 font-medium">{feature.desc}</p>
                 </div>
               </div>
             ))}
           </div>
+          
+          <div className="mt-auto pt-12 text-sm text-muted-foreground font-medium">
+            © {new Date().getFullYear()} Altruist Healthcare. All rights reserved.
+          </div>
         </div>
-        
-        <div className="relative z-10 mt-auto opacity-70">
-          <p>© 2026 Altruist Healthcare Services. All rights reserved.</p>
-        </div>
-
-        {/* Decorative Circles */}
-        <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
       </div>
 
       {/* Right Side: Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-white relative">
+        <div className="w-full max-w-[440px] space-y-8 relative z-10">
           {/* Logo mobile only */}
-          <div className="md:hidden flex flex-col items-center gap-2 mb-4">
-             <div className="bg-primary p-3 rounded-2xl">
-               <HeartPulse className="w-8 h-8 text-white" />
-             </div>
-             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Altruist</h2>
+          <div className="md:hidden flex flex-col items-center gap-3 mb-8">
+             <img src="/logo.png" alt="Altruist Wellness" className="h-12 w-auto object-contain" />
           </div>
 
-          <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Welcome Back</h2>
-            <p className="text-gray-500 font-medium">Log in to your account to continue</p>
+          <div className="space-y-3 text-center md:text-left">
+            <h2 className="text-3xl font-heading font-extrabold text-foreground tracking-tight">Welcome Back</h2>
+            <p className="text-muted-foreground font-medium text-lg">Log in to your account to continue</p>
           </div>
 
-          <Card className="border-none shadow-none md:shadow-sm md:border bg-white">
-            <CardContent className="pt-6">
-              <Tabs defaultValue="google" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-gray-50 p-1 border">
-                  <TabsTrigger 
-                    value="google" 
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-md"
-                  >
-                    Google
-                  </TabsTrigger>
+          <Card className="border-border shadow-xl shadow-accent/5 rounded-3xl bg-white overflow-hidden">
+            <CardContent className="p-8">
+              <Tabs defaultValue="email" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8 h-14 bg-surface-muted p-1.5 rounded-2xl">
                   <TabsTrigger 
                     value="email"
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-md"
+                    className="data-[state=active]:bg-white data-[state=active]:text-accent data-[state=active]:shadow-sm rounded-xl font-bold transition-all"
                   >
                     Email
                   </TabsTrigger>
                   <TabsTrigger 
                     value="phone"
-                    className="data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm rounded-md"
+                    className="data-[state=active]:bg-white data-[state=active]:text-accent data-[state=active]:shadow-sm rounded-xl font-bold transition-all"
                   >
                     Phone
                   </TabsTrigger>
                 </TabsList>
 
-                {/* Google Tab */}
-                <TabsContent value="google" className="space-y-4 focus-visible:outline-none">
-                  <Button 
-                    variant="outline" 
-                    className="w-full h-14 text-lg font-semibold bg-white hover:bg-gray-50 border-gray-200 transition-all active:scale-[0.98] relative overflow-hidden group"
-                    onClick={onGoogleLogin}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    ) : (
-                      <Chrome className="w-5 h-5 mr-3 text-blue-500 group-hover:scale-110 transition-transform" />
-                    )}
-                    Continue with Google
-                  </Button>
-                  <div className="relative py-4">
-                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
-                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-3 text-gray-400 font-medium">Platform secured by Firebase</span></div>
-                  </div>
-                </TabsContent>
-
                 {/* Email Tab */}
-                <TabsContent value="email" className="space-y-4 focus-visible:outline-none">
-                  <form onSubmit={emailForm.handleSubmit(onEmailLogin)} className="space-y-4">
+                <TabsContent value="email" className="space-y-6 focus-visible:outline-none mt-0">
+                  <form onSubmit={emailForm.handleSubmit(onEmailLogin)} className="space-y-5">
                     <div className="space-y-2">
-                       <Input 
-                         type="email" 
-                         placeholder="Email address" 
-                         className="h-12 border-gray-200 focus:border-primary transition-colors pr-10"
-                         disabled={isLoading}
-                         {...emailForm.register("email")}
-                       />
+                       <div className="relative">
+                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                         <Input 
+                           type="email" 
+                           placeholder="Email address" 
+                           className={cn("h-14 pl-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all font-medium", emailForm.formState.errors.email && "border-red-500 focus:border-red-500")}
+                           disabled={isLoading}
+                           {...emailForm.register("email")}
+                         />
+                       </div>
                        {emailForm.formState.errors.email && (
-                         <p className="text-sm text-red-500 font-medium px-1">{emailForm.formState.errors.email.message}</p>
+                         <p className="text-sm text-red-500 font-bold px-1">{emailForm.formState.errors.email.message}</p>
                        )}
                     </div>
 
                     <div className="space-y-2">
                        <div className="relative">
+                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                          <Input 
                            type={showPassword ? "text" : "password"} 
                            placeholder="Password" 
-                           className="h-12 border-gray-200 focus:border-primary transition-colors pr-10"
+                           className={cn("h-14 pl-12 pr-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all font-medium", emailForm.formState.errors.password && "border-red-500 focus:border-red-500")}
                            disabled={isLoading}
                            {...emailForm.register("password")}
                          />
                          <button 
                            type="button"
                            onClick={() => setShowPassword(!showPassword)}
-                           className="absolute right-3 top-3 text-gray-400 hover:text-primary transition-colors"
+                           className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
                          >
                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                          </button>
                        </div>
                        {emailForm.formState.errors.password && (
-                         <p className="text-sm text-red-500 font-medium px-1">{emailForm.formState.errors.password.message}</p>
+                         <p className="text-sm text-red-500 font-bold px-1">{emailForm.formState.errors.password.message}</p>
                        )}
-                       <div className="text-right">
-                         <Link href="#" className="text-sm font-semibold text-primary/80 hover:text-primary transition-colors underline-offset-4 hover:underline">Forgot password?</Link>
+                       <div className="text-right pt-1">
+                         <Link href="#" className="text-sm font-bold text-muted-foreground hover:text-accent transition-colors">Forgot password?</Link>
                        </div>
                     </div>
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-lg font-bold bg-[#0D9488] hover:bg-[#0b7a6e] transition-all active:scale-[0.98]"
+                      className="w-full h-14 text-base font-bold bg-accent hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20 transition-all active:scale-[0.98]"
                       disabled={isLoading}
                     >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Log in"}
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Log in to Account"}
                     </Button>
                   </form>
                 </TabsContent>
 
                 {/* Phone Tab */}
-                <TabsContent value="phone" className="space-y-4 focus-visible:outline-none">
-                  <form onSubmit={phoneForm.handleSubmit(onVerifyOTP)} className="space-y-4">
+                <TabsContent value="phone" className="space-y-6 focus-visible:outline-none mt-0">
+                  <form onSubmit={phoneForm.handleSubmit(onVerifyOTP)} className="space-y-5">
                     <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <div className="w-24 shrink-0">
-                          <Input value="+91" disabled className="h-12 text-center font-bold bg-gray-50 border-gray-200" />
+                      <div className="flex gap-3">
+                        <div className="w-24 shrink-0 relative">
+                          <Input value="+91" disabled className="h-14 text-center font-bold bg-surface-muted border-transparent rounded-xl text-foreground" />
                         </div>
-                        <Input 
-                          placeholder="Phone number" 
-                          className="h-12 border-gray-200 focus:border-primary transition-colors"
-                          disabled={isLoading || otpSent}
-                          {...phoneForm.register("phone")}
-                        />
+                        <div className="relative flex-1">
+                          <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                          <Input 
+                            placeholder="Phone number" 
+                            className={cn("h-14 pl-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all font-medium", phoneForm.formState.errors.phone && "border-red-500")}
+                            disabled={isLoading || otpSent}
+                            {...phoneForm.register("phone")}
+                          />
+                        </div>
                       </div>
                       {phoneForm.formState.errors.phone && (
-                        <p className="text-sm text-red-500 font-medium px-1">{phoneForm.formState.errors.phone.message}</p>
+                        <p className="text-sm text-red-500 font-bold px-1">{phoneForm.formState.errors.phone.message}</p>
                       )}
                     </div>
 
                     {otpSent && (
-                      <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-300">
                         <Input 
                           placeholder="6-digit OTP" 
                           maxLength={6}
-                          className="h-12 text-center text-xl font-bold tracking-[0.5em] border-gray-200 focus:border-primary transition-colors"
+                          className={cn("h-14 text-center text-2xl font-bold tracking-[0.5em] bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all rounded-xl", phoneForm.formState.errors.otp && "border-red-500")}
                           disabled={isLoading}
                           {...phoneForm.register("otp")}
                         />
                          {phoneForm.formState.errors.otp && (
-                           <p className="text-sm text-red-500 font-medium px-1">{phoneForm.formState.errors.otp.message}</p>
+                           <p className="text-sm text-red-500 font-bold px-1">{phoneForm.formState.errors.otp.message}</p>
                          )}
-                         <div className="flex justify-between items-center text-sm px-1">
+                         <div className="flex justify-between items-center text-sm px-2">
                            <button 
                              type="button" 
                              onClick={onSendOTP}
                              disabled={countdown > 0 || isLoading}
-                             className={cn("font-semibold transition-colors", 
-                               countdown > 0 ? "text-gray-400" : "text-primary hover:text-primary/80")}
+                             className={cn("font-bold transition-colors", 
+                               countdown > 0 ? "text-muted-foreground" : "text-accent hover:text-accent/80")}
                            >
                              Resend OTP
                            </button>
-                           {countdown > 0 && <span className="text-gray-500 font-medium">00:{countdown.toString().padStart(2, '0')}</span>}
+                           {countdown > 0 && <span className="text-muted-foreground font-bold">00:{countdown.toString().padStart(2, '0')}</span>}
                          </div>
                       </div>
                     )}
@@ -398,7 +400,7 @@ export default function LoginPage() {
                     <Button 
                       type={otpSent ? "submit" : "button"} 
                       onClick={!otpSent ? onSendOTP : undefined}
-                      className="w-full h-12 text-lg font-bold bg-primary hover:bg-[#0b7a6e] transition-all active:scale-[0.98]"
+                      className="w-full h-14 text-base font-bold bg-accent hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20 transition-all active:scale-[0.98]"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -410,12 +412,34 @@ export default function LoginPage() {
                   </form>
                    <div id="recaptcha-container" className="flex justify-center mt-4 overflow-hidden"></div>
                 </TabsContent>
+
+                {/* Google Login Shared Divider */}
+                <div className="relative py-6">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border"></span></div>
+                  <div className="relative flex justify-center text-xs font-bold uppercase tracking-wider text-muted-foreground"><span className="bg-white px-4">Or continue with</span></div>
+                </div>
+
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full h-14 text-base font-bold bg-white hover:bg-surface-muted border-border transition-all active:scale-[0.98] rounded-xl"
+                  onClick={onGoogleLogin}
+                  disabled={isLoading}
+                >
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                  Google
+                </Button>
               </Tabs>
             </CardContent>
           </Card>
 
-          <p className="text-center text-gray-500 font-medium pt-4">
-            New user? <Link href="/register" className="text-primary font-bold hover:underline underline-offset-4">Register here</Link>
+          <p className="text-center text-muted-foreground font-medium pt-2">
+            New to Altruist? <Link href="/register" className="text-accent font-bold hover:underline underline-offset-4">Create an account</Link>
           </p>
         </div>
       </div>

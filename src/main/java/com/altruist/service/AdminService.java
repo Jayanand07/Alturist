@@ -171,13 +171,9 @@ public class AdminService {
         // 2. Create Doctor
         Doctor doctor = new Doctor();
         doctor.setUser(savedUser);
-        doctor.setSpecialization(request.getSpecialization());
-        doctor.setMedicalLicense(request.getMedicalLicense());
-        doctor.setExperienceYears(request.getExperienceYears());
-        doctor.setConsultationFee(request.getConsultationFee());
-        doctor.setQualification(request.getQualification());
         doctor.setIsAvailable(true);
         doctor.setRating(5.0); // New doctors start with 5 stars
+        DoctorMapper.updateDoctorFromRequest(doctor, request);
         doctor = doctorRepository.save(doctor);
 
         return DoctorMapper.toListDTO(doctor);
@@ -190,16 +186,12 @@ public class AdminService {
         User user = doctor.getUser();
 
         // Update User
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
+        if (request.getFullName() != null) user.setFullName(request.getFullName());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
         userRepository.save(user);
 
         // Update Doctor
-        doctor.setSpecialization(request.getSpecialization());
-        doctor.setMedicalLicense(request.getMedicalLicense());
-        doctor.setExperienceYears(request.getExperienceYears());
-        doctor.setConsultationFee(request.getConsultationFee());
-        doctor.setQualification(request.getQualification());
+        DoctorMapper.updateDoctorFromRequest(doctor, request);
         doctor = doctorRepository.save(doctor);
 
         return DoctorMapper.toListDTO(doctor);

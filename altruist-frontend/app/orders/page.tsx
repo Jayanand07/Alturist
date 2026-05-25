@@ -33,7 +33,7 @@ type OrdersResponse = {
 const statusStyles: Record<Order["status"], string> = {
   PENDING: "border-amber-200 bg-amber-50 text-amber-700",
   CONFIRMED: "border-blue-200 bg-blue-50 text-blue-700",
-  DELIVERED: "border-teal-200 bg-teal-50 text-teal-700",
+  DELIVERED: "border-primary/20 bg-primary/10 text-primary",
 };
 
 function parseItems(items: string): OrderItem[] {
@@ -104,7 +104,7 @@ export default function OrdersPage() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Link href="/patient" className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-teal-700">
+            <Link href="/patient" className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-primary">
               <ArrowLeft className="h-4 w-4" />
               Back to dashboard
             </Link>
@@ -112,7 +112,7 @@ export default function OrdersPage() {
             <p className="mt-2 text-sm text-slate-500">Track medicine orders placed from your Altruist account.</p>
           </div>
           <Link href="/medicines">
-            <Button className="bg-teal-600 font-bold text-white hover:bg-teal-700">
+            <Button className="bg-primary font-bold text-white hover:bg-primary/90">
               <ShoppingCart className="mr-2 h-4 w-4" />
               Order Medicines
             </Button>
@@ -120,8 +120,8 @@ export default function OrdersPage() {
         </div>
 
         {loading && (
-          <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-slate-200 bg-white">
-            <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+          <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-slate-200 bg-surface">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
@@ -132,17 +132,17 @@ export default function OrdersPage() {
         )}
 
         {!loading && !error && orders.length === 0 && (
-          <Card className="border-slate-200 bg-white">
+          <Card className="border-slate-200 bg-surface">
             <CardContent className="flex flex-col items-center justify-center px-6 py-16 text-center">
-              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50">
-                <Package className="h-8 w-8 text-teal-600" />
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                <Package className="h-8 w-8 text-primary" />
               </div>
               <h2 className="text-xl font-bold text-slate-950">No orders yet</h2>
               <p className="mt-2 max-w-md text-sm text-slate-500">
                 Medicines you order from Altruist will appear here with their latest status.
               </p>
               <Link href="/medicines" className="mt-6">
-                <Button className="bg-teal-600 font-bold text-white hover:bg-teal-700">Browse Medicines</Button>
+                <Button className="bg-primary font-bold text-white hover:bg-primary/90">Browse Medicines</Button>
               </Link>
             </CardContent>
           </Card>
@@ -153,7 +153,7 @@ export default function OrdersPage() {
             {orders.map((order) => {
               const items = parseItems(order.items);
               return (
-                <Card key={order.id} className="border-slate-200 bg-white shadow-sm">
+                <Card key={order.id} className="border-slate-200 bg-surface shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <CardTitle className="text-base font-bold text-slate-950">Order #{order.id.slice(0, 8)}</CardTitle>
@@ -184,7 +184,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="text-left md:text-right">
                         <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total</p>
-                        <p className="mt-1 text-2xl font-extrabold text-teal-700">₹{Number(order.totalAmount).toFixed(2)}</p>
+                        <p className="mt-1 text-2xl font-extrabold text-primary">₹{Number(order.totalAmount).toFixed(2)}</p>
                       </div>
                     </div>
                   </CardContent>

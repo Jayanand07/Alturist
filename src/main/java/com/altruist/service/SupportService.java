@@ -46,7 +46,7 @@ public class SupportService {
             messageRepository.save(message);
         }
 
-        return toTicketDTO(ticket, patient.getUserType() == UserType.SUPER_ADMIN ? "ADMIN" : "PATIENT");
+        return toTicketDTO(ticket, isStaff(patient) ? "ADMIN" : "PATIENT");
     }
 
     public List<SupportTicketDTO> getPatientTickets(User patient) {
@@ -57,7 +57,7 @@ public class SupportService {
 
     public SupportTicketDTO getTicketById(UUID ticketId, User requester) {
         SupportTicket ticket = getAndValidateTicketAccess(ticketId, requester);
-        return toTicketDTO(ticket, requester.getUserType() == UserType.SUPER_ADMIN ? "ADMIN" : "PATIENT");
+        return toTicketDTO(ticket, isStaff(requester) ? "ADMIN" : "PATIENT");
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class SupportService {
         SupportTicket ticket = getAndValidateTicketAccess(ticketId, requester);
         List<SupportMessage> messages = messageRepository.findByTicketOrderByCreatedAtAsc(ticket);
 
-        String requesterRole = requester.getUserType() == UserType.SUPER_ADMIN ? "ADMIN" : "PATIENT";
+        String requesterRole = isStaff(requester) ? "ADMIN" : "PATIENT";
         
         boolean updated = false;
         for (SupportMessage msg : messages) {
@@ -85,7 +85,7 @@ public class SupportService {
     public SupportMessageDTO sendMessage(UUID ticketId, User sender, String messageText) {
         SupportTicket ticket = getAndValidateTicketAccess(ticketId, sender);
 
-        String senderRole = sender.getUserType() == UserType.SUPER_ADMIN ? "ADMIN" : "PATIENT";
+        String senderRole = isStaff(sender) ? "ADMIN" : "PATIENT";
 
         SupportMessage message = new SupportMessage();
         message.setTicket(ticket);
@@ -107,8 +107,8 @@ public class SupportService {
 
     @Transactional
     public void closeTicket(UUID ticketId, User admin) {
-        if (admin.getUserType() != UserType.SUPER_ADMIN) {
-            throw new UnauthorizedException("Only admins can close tickets");
+        if (!isStaff(admin)) {
+            throw new UnauthorizedException("Only support staff can close tickets");
         }
         SupportTicket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
@@ -118,8 +118,8 @@ public class SupportService {
 
     @Transactional
     public void updateTicketStatus(UUID ticketId, String status, User admin) {
-        if (admin.getUserType() != UserType.SUPER_ADMIN) {
-            throw new UnauthorizedException("Only admins can update ticket status");
+        if (!isStaff(admin)) {
+            throw new UnauthorizedException("Only support staff can update ticket status");
         }
         SupportTicket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
@@ -143,10 +143,14 @@ public class SupportService {
         SupportTicket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
         
-        if (requester.getUserType() != UserType.SUPER_ADMIN && !ticket.getPatient().getId().equals(requester.getId())) {
+        if (!isStaff(requester) && !ticket.getPatient().getId().equals(requester.getId())) {
             throw new UnauthorizedException("You do not have permission to view this ticket");
         }
         return ticket;
+    }
+
+    private boolean isStaff(User user) {
+        return user.getUserType() == UserType.SUPER_ADMIN || user.getUserType() == UserType.ADMIN || user.getUserType() == UserType.DOCTOR;
     }
 
     private SupportTicketDTO toTicketDTO(SupportTicket ticket, String viewerRole) {

@@ -128,7 +128,7 @@ export default function PatientSupportPage() {
   const selectedTicket = tickets?.find((t: any) => t.id === selectedTicketId);
 
   if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-10 h-10 animate-spin text-[#00A87E]" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>;
   }
 
   return (
@@ -137,7 +137,7 @@ export default function PatientSupportPage() {
         
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="w-12 h-12 bg-[#00A87E]/10 rounded-2xl flex items-center justify-center text-[#00A87E] shadow-sm">
+          <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm">
             <LifeBuoy size={24} />
           </div>
           <div>
@@ -156,7 +156,7 @@ export default function PatientSupportPage() {
           )}>
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h2 className="font-bold text-slate-900">Your Tickets</h2>
-              <Button onClick={() => setIsNewTicketOpen(true)} size="sm" className="bg-[#00A87E] hover:bg-[#00906B] font-bold rounded-lg shadow-sm">
+              <Button onClick={() => setIsNewTicketOpen(true)} size="sm" className="bg-primary hover:bg-primary/90 font-bold rounded-lg shadow-sm">
                 <Plus size={16} className="mr-1" /> New
               </Button>
             </div>
@@ -178,14 +178,14 @@ export default function PatientSupportPage() {
                     className={cn(
                       "p-4 rounded-2xl cursor-pointer transition-all border",
                       selectedTicketId === ticket.id 
-                        ? "bg-[#00A87E]/5 border-[#00A87E]/20" 
+                        ? "bg-primary/5 border-primary/20" 
                         : "bg-white border-transparent hover:bg-slate-50"
                     )}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <h3 className={cn(
                         "font-bold text-sm line-clamp-1 pr-2",
-                        selectedTicketId === ticket.id ? "text-[#00A87E]" : "text-slate-900"
+                        selectedTicketId === ticket.id ? "text-primary" : "text-slate-900"
                       )}>
                         {ticket.subject}
                       </h3>
@@ -200,7 +200,7 @@ export default function PatientSupportPage() {
                           {ticket.category}
                         </Badge>
                       </div>
-                      <ChevronRight size={14} className={cn("transition-colors", selectedTicketId === ticket.id ? "text-[#00A87E]" : "text-slate-300")} />
+                      <ChevronRight size={14} className={cn("transition-colors", selectedTicketId === ticket.id ? "text-primary" : "text-slate-300")} />
                     </div>
                   </div>
                 ))
@@ -210,7 +210,7 @@ export default function PatientSupportPage() {
 
           {/* Right Panel: Chat Area */}
           <div className={cn(
-            "flex-1 flex flex-col bg-[#F8FAFC]/50 absolute md:relative inset-0 z-20 transition-transform",
+            "flex-1 flex flex-col bg-surface-muted/30/50 absolute md:relative inset-0 z-20 transition-transform",
             showMobileChat ? "translate-x-0" : "translate-x-full md:translate-x-0"
           )}>
             {selectedTicketId ? (
@@ -235,7 +235,7 @@ export default function PatientSupportPage() {
                   {messagesLoading ? (
                     <div className="space-y-6">
                       <div className="flex flex-col items-start"><div className="bg-slate-200 animate-pulse h-12 w-48 rounded-2xl rounded-tl-sm" /></div>
-                      <div className="flex flex-col items-end"><div className="bg-[#00A87E]/20 animate-pulse h-16 w-64 rounded-2xl rounded-tr-sm" /></div>
+                      <div className="flex flex-col items-end"><div className="bg-primary/20 animate-pulse h-16 w-64 rounded-2xl rounded-tr-sm" /></div>
                     </div>
                   ) : !messages || messages.length === 0 ? (
                     <div className="h-full flex items-center justify-center">
@@ -249,7 +249,7 @@ export default function PatientSupportPage() {
                           <div className={cn(
                             "px-4 py-3 shadow-sm text-sm font-medium",
                             isPatient 
-                              ? "bg-[#00A87E] text-white rounded-2xl rounded-tr-sm" 
+                              ? "bg-primary text-white rounded-2xl rounded-tr-sm" 
                               : "bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-sm"
                           )}>
                             {msg.message}
@@ -279,12 +279,12 @@ export default function PatientSupportPage() {
                           }
                         }}
                         placeholder="Type your message..."
-                        className="min-h-[50px] max-h-[120px] resize-none rounded-2xl focus-visible:ring-[#00A87E] border-slate-300 py-3 bg-slate-50"
+                        className="min-h-[50px] max-h-[120px] resize-none rounded-2xl focus-visible:ring-primary border-slate-300 py-3 bg-slate-50"
                       />
                       <Button 
                         type="submit" 
                         disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                        className="h-12 w-12 rounded-full shrink-0 bg-[#00A87E] hover:bg-[#007A5C] shadow-md transition-transform active:scale-95"
+                        className="h-12 w-12 rounded-full shrink-0 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95"
                       >
                         {sendMessageMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
                       </Button>
@@ -300,7 +300,7 @@ export default function PatientSupportPage() {
               </>
             ) : (
               <div className="h-full flex flex-col items-center justify-center bg-slate-50/50 hidden md:flex">
-                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6 text-[#00A87E]">
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6 text-primary">
                   <LifeBuoy size={40} />
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 mb-2">How can we help?</h3>
@@ -329,7 +329,7 @@ export default function PatientSupportPage() {
                 value={newTicketForm.subject} 
                 onChange={e => setNewTicketForm({...newTicketForm, subject: e.target.value})} 
                 placeholder="Briefly summarize your issue"
-                className="h-11 rounded-xl focus-visible:ring-[#00A87E] border-slate-300 font-medium"
+                className="h-11 rounded-xl focus-visible:ring-primary border-slate-300 font-medium"
               />
             </div>
             
@@ -337,7 +337,7 @@ export default function PatientSupportPage() {
               <div className="space-y-2">
                 <Label className="font-bold text-slate-700">Category</Label>
                 <Select value={newTicketForm.category} onValueChange={v => setNewTicketForm({...newTicketForm, category: v || 'Other'})}>
-                  <SelectTrigger className="h-11 rounded-xl focus:ring-[#00A87E] border-slate-300 font-medium">
+                  <SelectTrigger className="h-11 rounded-xl focus:ring-primary border-slate-300 font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl font-medium">
@@ -350,7 +350,7 @@ export default function PatientSupportPage() {
               <div className="space-y-2">
                 <Label className="font-bold text-slate-700">Priority</Label>
                 <Select value={newTicketForm.priority} onValueChange={v => setNewTicketForm({...newTicketForm, priority: v || 'LOW'})}>
-                  <SelectTrigger className="h-11 rounded-xl focus:ring-[#00A87E] border-slate-300 font-medium">
+                  <SelectTrigger className="h-11 rounded-xl focus:ring-primary border-slate-300 font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl font-medium">
@@ -369,7 +369,7 @@ export default function PatientSupportPage() {
                 value={newTicketForm.firstMessage} 
                 onChange={e => setNewTicketForm({...newTicketForm, firstMessage: e.target.value})} 
                 placeholder="Please provide as much detail as possible..."
-                className="min-h-[120px] rounded-xl focus-visible:ring-[#00A87E] border-slate-300 resize-none py-3 font-medium"
+                className="min-h-[120px] rounded-xl focus-visible:ring-primary border-slate-300 resize-none py-3 font-medium"
               />
             </div>
 
@@ -377,7 +377,7 @@ export default function PatientSupportPage() {
               <Button type="button" variant="ghost" onClick={() => setIsNewTicketOpen(false)} className="rounded-xl font-bold text-slate-600 hover:bg-slate-100">
                 Cancel
               </Button>
-              <Button type="submit" disabled={createTicketMutation.isPending} className="rounded-xl font-bold px-6 bg-[#00A87E] hover:bg-[#007A5C] shadow-md transition-transform active:scale-95">
+              <Button type="submit" disabled={createTicketMutation.isPending} className="rounded-xl font-bold px-6 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95">
                 {createTicketMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                 Submit Ticket
               </Button>
