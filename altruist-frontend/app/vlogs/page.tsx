@@ -203,7 +203,7 @@ export default function PublicVlogsPage() {
             {t('vlogs.title')} <span className="text-[#0D9373]">{t('vlogs.titleHighlight')}</span>
           </h1>
           
-          <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto font-medium leading-relaxed opacity-95">
+          <p className="text-slate-200 text-base md:text-lg max-w-2xl mx-auto font-semibold leading-relaxed">
             {t('vlogs.desc')}
           </p>
         </div>

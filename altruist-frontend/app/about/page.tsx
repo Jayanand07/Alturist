@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function AboutPage() {
@@ -189,7 +190,7 @@ export default function AboutPage() {
           <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight">
             Ready to Take Control of Your Health?
           </h2>
-          <p className="text-slate-400 text-base max-w-xl mx-auto font-medium leading-relaxed">
+          <p className="text-slate-200 text-base max-w-xl mx-auto font-medium leading-relaxed">
             Experience modern, HIPAA-compliant digital consulting with our panel of experts today. First consult is completely free!
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">

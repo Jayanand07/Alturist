@@ -44,7 +44,7 @@ export default function CheckoutPage() {
   }, [user])
 
   const subtotal = getTotalPrice()
-  const deliveryFee = subtotal > 500 ? 0 : 49
+  let deliveryFee = 0
   const total = subtotal + deliveryFee
   const hasPrescriptionItems = items.some((i) => i.requiresPrescription)
 

@@ -2,14 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Next.js Route Guard (proxy.ts)
+ * Next.js Route Guard (middleware.ts)
  *
  * Reads `token` and `userType` cookies written by AuthContext after Firebase sign-in.
  * Redirects unauthenticated or unauthorised users before any page renders.
- *
- * Cookie semantics (set in context/AuthContext.tsx):
- *   token    — Firebase JWT (presence = authenticated)
- *   userType — PATIENT | DOCTOR | SUPER_ADMIN
  */
 
 // ── Route rule sets ──────────────────────────────────────────────────────────
@@ -25,19 +21,19 @@ const AUTH_REQUIRED_PREFIXES = [
 ];
 
 /**
- * Routes guarded by a specific role.
- * Matched in order — first matching prefix wins.
+ * Routes guarded by specific roles.
+ * Supports multiple allowed roles for a prefix.
  */
-const ROLE_RULES: { prefix: string; role: string }[] = [
-  // Admin panel — SUPER_ADMIN only
-  { prefix: '/admin',           role: 'SUPER_ADMIN' },
+const ROLE_RULES: { prefix: string; roles: string[] }[] = [
+  // Admin panel — both ADMIN and SUPER_ADMIN allowed
+  { prefix: '/admin',           roles: ['SUPER_ADMIN', 'ADMIN'] },
 
   // Doctor dashboard & management — DOCTOR only
-  { prefix: '/doctor',          role: 'DOCTOR' },   // /(dashboard)/doctor/*
-  { prefix: '/doctors/vlogs',   role: 'DOCTOR' },   // doctor vlog management
+  { prefix: '/doctor',          roles: ['DOCTOR'] },
+  { prefix: '/doctors/vlogs',   roles: ['DOCTOR'] },
 
   // Patient dashboard — PATIENT only
-  { prefix: '/patient',         role: 'PATIENT' },  // /(dashboard)/patient/*
+  { prefix: '/patient',         roles: ['PATIENT'] },
 ];
 
 /** Auth pages that should redirect to the user's dashboard when already logged in. */
@@ -48,15 +44,16 @@ const AUTH_PAGE_PATHS = ['/login', '/register'];
 /** Maps a userType to the correct post-login landing page. */
 function dashboardForRole(userType: string | undefined): string {
   switch (userType) {
-    case 'SUPER_ADMIN': return '/admin';
+    case 'SUPER_ADMIN':
+    case 'ADMIN':       return '/admin/dashboard';
     case 'DOCTOR':      return '/doctor';
-    default:            return '/patient'; // PATIENT or unknown
+    default:            return '/patient';
   }
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token    = request.cookies.get('token')?.value;
   const userType = request.cookies.get('userType')?.value;
@@ -91,9 +88,9 @@ export function proxy(request: NextRequest) {
     }
 
     // 3b. Wrong role → /unauthorized
-    if (userType !== matchedRule.role) {
+    if (!matchedRule.roles.includes(userType ?? '')) {
       const url = new URL('/unauthorized', request.url);
-      url.searchParams.set('required', matchedRule.role);
+      url.searchParams.set('required', matchedRule.roles[0]); // default hint
       url.searchParams.set('current', userType ?? '');
       return NextResponse.redirect(url);
     }

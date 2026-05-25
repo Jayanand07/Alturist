@@ -73,7 +73,7 @@ const LAB_TEST_PACKAGES = [
   {
     title: "Advanced Health Package",
     price: "₹1199 – ₹1499",
-    img: "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=300&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&h=400&fit=crop&q=80",
     icon: Award,
     desc: "Complete head-to-toe screening for full system assessment.",
     parameters: ["Full Body Checkup (84 tests)", "Comprehensive Liver Tests", "Kidney Function Analysis", "Thyroid Profile (T3, T4, TSH)", "Detailed Clinical Health Report"]
@@ -81,7 +81,7 @@ const LAB_TEST_PACKAGES = [
   {
     title: "Combo Offer 🎯",
     price: "Starting at ₹1199",
-    img: "https://images.unsplash.com/photo-1579684385101-f3d34f634312?w=300&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&h=400&fit=crop&q=80",
     icon: Sparkles,
     desc: "Best for quick diagnosis & treatment. Combined Doctor + Lab checks.",
     parameters: ["Annual Doctor Consultation Subscription", "Basic Health Screening Tests Included", "2Hr Pharmacy Priority Shipping"],
@@ -212,7 +212,7 @@ export default function RedesignedPlansPage() {
                   {t('plans.enterpriseBadge')}
                 </Badge>
                 <h3 className="font-extrabold text-xl">{t('plans.enterpriseTitle')}</h3>
-                <p className="text-sm font-semibold text-slate-400 leading-relaxed">
+                <p className="text-sm font-semibold text-slate-200 leading-relaxed">
                   {t('plans.enterpriseDesc')}
                 </p>
               </div>
@@ -312,22 +312,22 @@ export default function RedesignedPlansPage() {
               <h2 className="font-heading text-3xl font-black leading-tight tracking-tight">
                 💊 {t('plans.medicinesTitle')}
               </h2>
-              <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+              <p className="text-slate-200 font-semibold text-sm leading-relaxed">
                 {t('plans.medicinesDesc')}
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-800 pt-6">
                 <div>
                   <span className="block text-2xl font-black text-[#E8593C]">{t('plans.discountTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.discountDesc')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.discountDesc')}</span>
                 </div>
                 <div>
                   <span className="block text-2xl font-black text-emerald-400">{t('plans.genuineTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.genuineDesc')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.genuineDesc')}</span>
                 </div>
                 <div>
                   <span className="block text-2xl font-black text-blue-400">{t('plans.expressTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('plans.expressDesc')}</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.expressDesc')}</span>
                 </div>
               </div>
             </div>

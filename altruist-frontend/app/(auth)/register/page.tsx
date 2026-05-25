@@ -98,15 +98,26 @@ const getAuthErrorMessage = (error: any) => {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userType } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      router.push("/patient");
+    if (user && userType) {
+      switch(userType) {
+        case "ADMIN":
+        case "SUPER_ADMIN":
+          router.push("/admin/dashboard");
+          break;
+        case "DOCTOR":
+          router.push("/doctor");
+          break;
+        default:
+          router.push("/patient");
+          break;
+      }
     }
-  }, [user, router]);
+  }, [user, userType, router]);
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),

@@ -180,12 +180,12 @@ export default function Header() {
         <div className="flex items-center gap-4 md:gap-8">
           <DropdownMenu>
             <DropdownMenuTrigger render={
-              <div className="flex items-center gap-2 cursor-pointer hover:text-accent-foreground/80 transition-colors">
+              <button className="flex items-center gap-2 cursor-pointer hover:text-accent-foreground/80 transition-colors bg-transparent border-none text-xs font-medium text-inherit focus:outline-none p-0">
                 <Globe size={12} />
                 <span className="opacity-80">{t("nav.language")}:</span>
                 <span className="font-bold uppercase">{language}</span>
                 <ChevronDown size={10} className="opacity-60" />
-              </div>
+              </button>
             } />
             <DropdownMenuContent align="end" className="mt-1 border-border shadow-md rounded-xl bg-background p-1 min-w-[120px]">
               <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
@@ -230,7 +230,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[350px]">
               <SheetHeader className="mb-8">
                 <SheetTitle>
-                  <img src="/logo.png" alt="Altruist Wellness" className="h-[150px] w-auto object-contain" />
+                  <img src="/logo.png" alt="Altruist Wellness" className="h-20 w-auto object-contain" />
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-1">
@@ -286,7 +286,7 @@ export default function Header() {
  
           {/* Logo */}
           <Link href="/" className="flex items-center group transition-transform active:scale-95">
-            <img src="/logo.png" alt="Altruist Wellness" className="h-[165px] w-auto object-contain" />
+            <img src="/logo.png" alt="Altruist Wellness" className="h-24 w-auto object-contain" />
           </Link>
         </div>
 
@@ -579,22 +579,37 @@ export default function Header() {
                   <DropdownMenuGroup>
                     {/* My Dashboard */}
                     <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
-                      <Link href={userType === "DOCTOR" ? "/doctor" : userType === "SUPER_ADMIN" ? "/admin/dashboard" : "/patient"}
+                      <Link href={userType === "DOCTOR" ? "/doctor" : (userType === "SUPER_ADMIN" || userType === "ADMIN") ? "/admin/dashboard" : "/patient"}
                         className="flex items-center gap-3 w-full">
                         <LayoutDashboard size={16} className="text-muted-foreground" />
                         <span className="text-sm font-semibold text-foreground">My Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
 
-                    {/* Patient-only: My Appointments */}
-                    {(!userType || userType === "PATIENT") && (
-                      <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
-                        <Link href="/patient/appointments" className="flex items-center gap-3 w-full">
-                          <ClipboardList size={16} className="text-muted-foreground" />
-                          <span className="text-sm font-semibold text-foreground">My Appointments</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
+                    {/* Dynamic Appointments / Consultations Route */}
+                    <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
+                      <Link 
+                        href={
+                          userType === "DOCTOR" 
+                            ? "/doctor" 
+                            : (userType === "SUPER_ADMIN" || userType === "ADMIN") 
+                              ? "/admin/consultations" 
+                              : "/patient/appointments"
+                        }
+                        className="flex items-center gap-3 w-full"
+                      >
+                        <ClipboardList size={16} className="text-muted-foreground" />
+                        <span className="text-sm font-semibold text-foreground">
+                          {
+                            userType === "DOCTOR" 
+                              ? "My Schedule" 
+                              : (userType === "SUPER_ADMIN" || userType === "ADMIN") 
+                                ? "Manage Consultations" 
+                                : "My Appointments"
+                          }
+                        </span>
+                      </Link>
+                    </DropdownMenuItem>
 
                     {/* Doctor-only: My Vlogs */}
                     {userType === "DOCTOR" && (
@@ -606,19 +621,21 @@ export default function Header() {
                       </DropdownMenuItem>
                     )}
 
-                    {/* My Orders (patient / all) */}
-                    {(!userType || userType === "PATIENT") && (
+                    {/* Dynamic Orders / Manage Medicines Route */}
+                    {userType !== "DOCTOR" && (
                       <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
-                        <Link href="/orders" className="flex items-center gap-3 w-full">
+                        <Link href={(userType === "SUPER_ADMIN" || userType === "ADMIN") ? "/admin/medicines" : "/orders"} className="flex items-center gap-3 w-full">
                           <Package size={16} className="text-muted-foreground" />
-                          <span className="text-sm font-semibold text-foreground">My Orders</span>
+                          <span className="text-sm font-semibold text-foreground">
+                            {(userType === "SUPER_ADMIN" || userType === "ADMIN") ? "Manage Medicines" : "My Orders"}
+                          </span>
                         </Link>
                       </DropdownMenuItem>
                     )}
 
                     {/* Settings */}
                     <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
-                      <Link href={userType === "DOCTOR" ? "/doctor/settings" : "/settings"} className="flex items-center gap-3 w-full">
+                      <Link href={userType === "DOCTOR" ? "/doctor/settings" : (userType === "SUPER_ADMIN" || userType === "ADMIN") ? "/admin/settings" : "/settings"} className="flex items-center gap-3 w-full">
                         <Settings size={16} className="text-muted-foreground" />
                         <span className="text-sm font-semibold text-foreground">Settings</span>
                       </Link>
@@ -630,7 +647,7 @@ export default function Header() {
                   {/* Support */}
                   <DropdownMenuGroup>
                     <DropdownMenuItem className="py-2.5 px-3 rounded-xl cursor-pointer focus:bg-muted/50">
-                      <Link href={(userType === "DOCTOR" || userType === "ADMIN" || userType === "SUPER_ADMIN") ? "/admin/support" : "/support"} className="flex items-center gap-3 w-full">
+                      <Link href={userType === "DOCTOR" ? "/doctor/support" : (userType === "ADMIN" || userType === "SUPER_ADMIN") ? "/admin/support" : "/support"} className="flex items-center gap-3 w-full">
                         <MessageSquare size={16} className="text-muted-foreground" />
                         <span className="text-sm font-semibold text-foreground">Help & Support</span>
                       </Link>

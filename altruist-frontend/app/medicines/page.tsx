@@ -59,7 +59,7 @@ const SORT_OPTIONS = [
 ]
 
 const DELIVERY_THRESHOLD = 500
-const DELIVERY_FEE = 49
+const DELIVERY_FEE = 0
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value)

@@ -13,7 +13,7 @@ import { useCartStore } from "@/store/cartStore"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
-const DELIVERY_FEE    = 49
+const DELIVERY_FEE    = 0
 const FREE_THRESHOLD  = 500
 
 export default function CartPage() {
@@ -85,7 +85,7 @@ export default function CartPage() {
             )}
 
             {/* Free delivery progress */}
-            {subtotal < FREE_THRESHOLD && (
+            {subtotal < FREE_THRESHOLD && DELIVERY_FEE > 0 && (
               <div className="bg-surface border border-border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
                 <Truck className="h-5 w-5 text-primary flex-shrink-0" />
                 <div className="flex-1">

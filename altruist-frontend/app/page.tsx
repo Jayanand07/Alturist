@@ -104,11 +104,11 @@ const PROMO_CARDS = [
     textColor: "text-white",
     btnColor: "bg-[#E8593C] hover:bg-[#D14A30] text-white",
     href: "/consult",
-    img: "/promo1.png"
+    img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&h=300&fit=crop&q=80"
   },
   {
     title: "Comprehensive Health Screen 🧪",
-    desc: "Identify early health warning signs. 84 critical blood & urine parameters.",
+    desc: "Identify early health warning signs with comprehensive blood & urine parameters.",
     tTitleKey: "promo.promo2Title",
     tDescKey: "promo.promo2Desc",
     tag: "NABL ACCREDITED",
@@ -116,7 +116,7 @@ const PROMO_CARDS = [
     textColor: "text-white",
     btnColor: "bg-[#0D9373] hover:bg-[#0A7A5F] text-white",
     href: "/labs",
-    img: "/promo2.png"
+    img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop&q=80"
   },
   {
     title: "Upload Prescription & Order 💊",
@@ -128,7 +128,7 @@ const PROMO_CARDS = [
     textColor: "text-white",
     btnColor: "bg-white text-slate-900 hover:bg-slate-100",
     href: "/medicines",
-    img: "/promo3.png"
+    img: "https://images.unsplash.com/photo-1587854692152-cbe660dbbab9?w=300&h=300&fit=crop&q=80"
   }
 ];
 
@@ -142,7 +142,7 @@ const DOCTOR_SPECIALTIES = [
   { 
     name: "Pediatrician", 
     count: "18 Doctors", 
-    img: "https://images.unsplash.com/photo-1594824436998-058d0152462e?w=300&h=300&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1502740479091-635887520276?w=300&h=300&fit=crop&q=80",
     href: "/consult?specialty=Pediatrician" 
   },
   { 
@@ -271,7 +271,7 @@ const BEST_SELLERS = [
 const TOP_DOCTORS = [
   { id: 1, name: "Dr. Sarah Jenkins", spec: "Cardiologist", exp: "15+ Yrs Exp", fee: 500, rating: 4.9, reviews: 120, img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&q=80" },
   { id: 2, name: "Dr. Michael Chen", spec: "Neurologist", exp: "12+ Yrs Exp", fee: 600, rating: 4.8, reviews: 95, img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&q=80" },
-  { id: 3, name: "Dr. Emily Roberts", spec: "Pediatrician", exp: "8+ Yrs Exp", fee: 400, rating: 4.9, reviews: 210, img: "https://images.unsplash.com/photo-1594824436998-058d0152462e?w=150&h=150&fit=crop&q=80" },
+  { id: 3, name: "Dr. Emily Roberts", spec: "Pediatrician", exp: "8+ Yrs Exp", fee: 400, rating: 4.9, reviews: 210, img: "https://images.unsplash.com/photo-1594824436967-6a2c2b1f09c2?w=150&h=150&fit=crop&q=80" },
   { id: 4, name: "Dr. Amit Patel", spec: "Dermatologist", exp: "10+ Yrs Exp", fee: 450, rating: 4.7, reviews: 80, img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&h=150&fit=crop&q=80" },
   { id: 5, name: "Dr. Lisa Wong", spec: "General Physician", exp: "20+ Yrs Exp", fee: 350, rating: 4.9, reviews: 300, img: "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=150&h=150&fit=crop&q=80" }
 ];
@@ -454,43 +454,49 @@ export default function RedesignedHomePage() {
 
       {/* 2. DYNAMIC PROMO CARDS ( tata 1mg / apollo styled ) */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 -mt-10 relative z-20 mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {PROMO_CARDS.map((card, i) => (
             <motion.div 
               key={i}
               whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className={`rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[190px] border-none ${card.bg} ${card.textColor}`}
+              className={`rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between h-full border-none ${card.bg} ${card.textColor}`}
             >
-              {card.img && <img src={card.img} className="absolute right-[-10px] bottom-[-10px] h-32 w-auto opacity-70 object-contain pointer-events-none" />}
+              {card.img && (
+                <img 
+                  src={card.img} 
+                  className="absolute right-[-10px] bottom-[-10px] h-32 w-auto opacity-35 object-contain pointer-events-none z-0" 
+                  alt=""
+                />
+              )}
               {/* Abs decoration circles */}
-              <div className="absolute right-[-20px] bottom-[-20px] w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+              <div className="absolute right-[-20px] bottom-[-20px] w-24 h-24 rounded-full bg-white/5 pointer-events-none z-0" />
               
-              <div className="space-y-2 relative z-10">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-extrabold text-xl leading-snug tracking-tight max-w-[200px]">
-                    {t(card.tTitleKey)}
-                  </h3>
+              <div className="space-y-3 relative z-10 flex-1 flex flex-col justify-start">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   {card.coupon && (
-                    <Badge className="bg-[#E8593C] text-white border-none py-1 px-2.5 font-black text-xs tracking-wider rounded-lg">
+                    <Badge className="bg-[#E8593C] text-white border-none py-1 px-2.5 font-black text-[10px] tracking-wider rounded-lg shadow-sm">
                       USE: {card.coupon}
                     </Badge>
                   )}
                   {card.tag && (
-                    <Badge className="bg-[#0D9373] text-white border-none py-1 px-2.5 font-bold text-xs rounded-lg">
+                    <Badge className="bg-[#0D9373] text-white border-none py-1 px-2.5 font-bold text-[10px] rounded-lg shadow-sm">
                       {card.tag}
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm font-medium leading-relaxed opacity-90 max-w-[250px]">
+                <h3 className="font-extrabold text-xl leading-snug tracking-tight max-w-[200px] text-ellipsis overflow-hidden">
+                  {t(card.tTitleKey)}
+                </h3>
+                <p className="text-sm font-medium leading-relaxed opacity-95 max-w-[240px] line-clamp-2 md:line-clamp-none text-ellipsis overflow-hidden">
                   {t(card.tDescKey)}
                 </p>
               </div>
               
-              <div className="pt-4 flex items-center">
+              <div className="pt-4 flex items-center relative z-10">
                 <Link href={card.href}>
-                  <Button className={`font-extrabold text-sm px-6 py-2 h-9 rounded-full shadow transition-colors border-none ${card.btnColor}`}>
-                    {t("promo.claimOffer")} <ChevronRight className="w-4 h-4 ml-1" />
+                  <Button className={`font-extrabold text-xs sm:text-sm px-6 py-2 h-9 rounded-full shadow hover:shadow-lg transition-all border-none ${card.btnColor}`}>
+                    {t("promo.claimOffer")} <ChevronRight className="w-3.5 h-3.5 ml-1" />
                   </Button>
                 </Link>
               </div>
