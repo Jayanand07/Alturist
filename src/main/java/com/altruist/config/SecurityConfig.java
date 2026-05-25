@@ -54,7 +54,7 @@ public class SecurityConfig {
 
                         // ── PATIENT role ──────────────────────────────────────
                         .requestMatchers("/api/patients/**").hasRole("PATIENT")
-                        .requestMatchers("/api/support/tickets/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN", "DOCTOR")
+                        .requestMatchers("/api/support/tickets", "/api/support/tickets/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN", "DOCTOR")
                         .requestMatchers("/api/subscriptions/my").hasAnyRole("PATIENT", "SUPER_ADMIN")
                         .requestMatchers("/api/subscriptions/subscribe").hasAnyRole("PATIENT", "SUPER_ADMIN")
                         .requestMatchers("/api/subscriptions/cancel").hasAnyRole("PATIENT", "SUPER_ADMIN")
@@ -84,7 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/notifications/**").authenticated()
 
                         // ── Support ticket solver (Admins & Doctors) ──────────
-                        .requestMatchers("/api/admin/support/tickets/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "DOCTOR")
+                        .requestMatchers("/api/admin/support/tickets", "/api/admin/support/tickets/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "DOCTOR")
 
                         // ── SUPER_ADMIN role ─────────────────────────────────
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")

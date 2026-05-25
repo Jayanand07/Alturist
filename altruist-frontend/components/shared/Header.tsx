@@ -33,7 +33,6 @@ import { formatDistanceToNow } from "date-fns";
 // ── Services dropdown items ────────────────────────────────────────────────
 const SERVICES = [
   { label: "Consult Doctors",  href: "/consult",     icon: Stethoscope, desc: "Instant chat consultation", tKey: "nav.consult"  },
-  { label: "Find Clinics",     href: "/clinics",     icon: Building2,   desc: "In-person appointments", tKey: "nav.clinics"       },
   { label: "Order Medicines",  href: "/medicines",   icon: Pill,        desc: "Delivered to your door", tKey: "nav.medicines"       },
   { label: "Diagnostic Tests", href: "/labs",        icon: FlaskConical,desc: "Lab reports in 24h", tKey: "nav.labs"           },
   { label: "Health Plans",     href: "/plans",       icon: CreditCard,  desc: "Affordable subscriptions", tKey: "nav.plans"     },
@@ -47,7 +46,6 @@ const NAV_LINKS = [
 
 const RESOURCES = [
   { label: "Doctor Vlogs", href: "/vlogs",   icon: Video,     desc: "Health tips from experts", tKey: "nav.vlogs" },
-  { label: "Find Clinics", href: "/clinics", icon: Building2, desc: "In-person appointments", tKey: "nav.clinics"  },
 ];
 
 export default function Header() {
@@ -218,7 +216,7 @@ export default function Header() {
       {/* Main Navbar */}
       <nav className={cn(
         "bg-background border-b border-border transition-all duration-300 z-50 px-4 md:px-8 py-3 flex items-center justify-between",
-        isSticky ? "fixed top-0 left-0 w-full shadow-lg shadow-black/5 h-[72px]" : "relative h-[76px]"
+        isSticky ? "fixed top-0 left-0 w-full shadow-lg shadow-black/5 h-[110px]" : "relative h-[120px]"
       )}>
         {/* Left: Logo & Mobile Toggle */}
         <div className="flex items-center gap-4">
@@ -232,7 +230,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[350px]">
               <SheetHeader className="mb-8">
                 <SheetTitle>
-                  <img src="/logo.png" alt="Altruist Wellness" className="h-[100px] w-auto object-contain" />
+                  <img src="/logo.png" alt="Altruist Wellness" className="h-[150px] w-auto object-contain" />
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-1">
@@ -288,7 +286,7 @@ export default function Header() {
  
           {/* Logo */}
           <Link href="/" className="flex items-center group transition-transform active:scale-95">
-            <img src="/logo.png" alt="Altruist Wellness" className="h-[110px] w-auto object-contain" />
+            <img src="/logo.png" alt="Altruist Wellness" className="h-[165px] w-auto object-contain" />
           </Link>
         </div>
 
@@ -679,7 +677,7 @@ export default function Header() {
       </nav>
 
       {/* Sticky spacer */}
-      {isSticky && <div className="h-[76px]" />}
+      {isSticky && <div className="h-[120px]" />}
       {/* Location Selector Modal */}
       <LocationSelectorModal 
         isOpen={isLocationOpen} 

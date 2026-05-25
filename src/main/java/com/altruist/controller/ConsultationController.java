@@ -139,8 +139,15 @@ public class ConsultationController {
 
             // Sign using HMAC SHA256
             String signatureTarget = headerB64 + "." + payloadB64;
+            byte[] secretBytes;
+            try {
+                secretBytes = java.util.Base64.getDecoder().decode(jwtSecret.trim());
+            } catch (IllegalArgumentException e) {
+                secretBytes = jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            }
+
             javax.crypto.Mac sha256_HMAC = javax.crypto.Mac.getInstance("HmacSHA256");
-            javax.crypto.spec.SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256");
+            javax.crypto.spec.SecretKeySpec secret_key = new javax.crypto.spec.SecretKeySpec(secretBytes, "HmacSHA256");
             sha256_HMAC.init(secret_key);
             String signatureB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(sha256_HMAC.doFinal(signatureTarget.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 

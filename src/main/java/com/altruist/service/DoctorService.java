@@ -338,7 +338,20 @@ public class DoctorService {
 
         List<Object[]> monthlyDataRaw = consultationRepository.getMonthlyEarningsData(doctor.getId());
         List<MonthlyEarningDTO> monthlyData = monthlyDataRaw.stream()
-                .map(row -> new MonthlyEarningDTO((String) row[0], ((Number) row[1]).toString() != null ? new BigDecimal(((Number) row[1]).toString()) : BigDecimal.ZERO))
+                .map(row -> {
+                    String month = row[0] != null ? row[0].toString() : "Unknown";
+                    BigDecimal amount = BigDecimal.ZERO;
+                    if (row[1] != null) {
+                        if (row[1] instanceof BigDecimal) {
+                            amount = (BigDecimal) row[1];
+                        } else if (row[1] instanceof Number) {
+                            amount = new BigDecimal(((Number) row[1]).toString());
+                        } else {
+                            amount = new BigDecimal(row[1].toString());
+                        }
+                    }
+                    return new MonthlyEarningDTO(month, amount);
+                })
                 .collect(Collectors.toList());
 
         return DoctorEarningsDTO.builder()

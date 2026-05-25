@@ -13,7 +13,6 @@ export default function Footer() {
       title: "Our Services",
       links: [
         { label: "Consult Doctors",  href: "/consult"   },
-        { label: "Find a Clinic",    href: "/clinics"   },
         { label: "Diagnostic Tests", href: "/labs"      },
         { label: "Order Medicines",  href: "/medicines" },
         { label: "Health Plans",     href: "/plans"     },
@@ -140,8 +139,6 @@ export default function Footer() {
             <Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link>
             <span className="text-white/10 hidden sm:block">|</span>
             <Link href="/plans"         className="hover:text-primary transition-colors">Health Plans</Link>
-            <span className="text-white/10 hidden sm:block">|</span>
-            <Link href="/clinics"       className="hover:text-primary transition-colors">Find a Clinic</Link>
             <span className="text-white/10 hidden sm:block">|</span>
             <Link href="/vlogs"         className="hover:text-primary transition-colors">Doctor Vlogs</Link>
             <span className="text-white/10 hidden sm:block">|</span>

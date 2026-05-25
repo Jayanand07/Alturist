@@ -79,8 +79,8 @@ const SERVICES = [
   { 
     title: "About Us", 
     desc: "Learn more about Altruist Wellness and our mission.", 
-    tTitleKey: "nav.aboutUs",
-    tDescKey: "quick.descAboutUs",
+    tTitleKey: "nav.about",
+    tDescKey: "about.desc",
     tCtaKey: "quick.learnMore",
     badge: "KNOW MORE", 
     badgeColor: "bg-blue-500",
@@ -187,7 +187,7 @@ const LAB_PACKAGES = [
   {
     title: "Active Fitness & Joint Screen",
     testsCount: 45,
-    img: "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=300&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&h=400&fit=crop&q=80",
     parameters: ["Vitamin D3 (Immunity)", "Vitamin B12 (Nerves)", "Calcium (Bone Health)", "Uric Acid", "Rheumatoid Factor", "Complete Urine Analysis"],
     originalPrice: 1499,
     discountPrice: 599,
@@ -199,7 +199,7 @@ const LAB_PACKAGES = [
   {
     title: "Diabetes Care Assessment",
     testsCount: 28,
-    img: "https://images.unsplash.com/photo-1579684385101-f3d34f634312?w=300&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&h=400&fit=crop&q=80",
     parameters: ["HbA1c", "Fasting Blood Sugar", "Post-Prandial Sugar", "Microalbumin", "Average Blood Glucose"],
     originalPrice: 999,
     discountPrice: 399,
@@ -238,7 +238,7 @@ const BEST_SELLERS = [
     name: "Revital H Daily Health Supplement (30 Caps)",
     brand: "Sun Pharma",
     category: "Vitamins & Supplements",
-    img: "https://images.unsplash.com/photo-1550572017-edb799298379?w=200&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop&q=80",
     originalPrice: 370,
     discountPrice: 299,
     discountText: "19% OFF",
