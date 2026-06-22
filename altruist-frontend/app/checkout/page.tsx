@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/axios"
+import { cn } from "@/lib/utils"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -20,6 +21,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState("COD")
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -79,7 +81,8 @@ export default function CheckoutPage() {
         })),
         totalAmount: total,
         deliveryAddress: deliveryAddress,
-        prescriptionUrl: null
+        prescriptionUrl: null,
+        paymentMethod: paymentMethod
       }
 
       await api.post("/orders", orderData)
@@ -251,23 +254,56 @@ export default function CheckoutPage() {
              </Card>
           )}
 
-          {/* Payment Placeholder */}
+          {/* Payment Section */}
           <Card className="border-slate-100 shadow-xl shadow-slate-50">
              <CardHeader className="p-8 border-b border-slate-50">
                 <CardTitle className="text-xl flex items-center gap-3 font-bold text-slate-800">
-                   <CreditCard className="h-5 w-5 text-primary" /> Payment Section
+                   <CreditCard className="h-5 w-5 text-primary" /> Payment Method
                 </CardTitle>
              </CardHeader>
-             <CardContent className="p-8">
-                <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-100 flex flex-col items-center">
-                   <div className="bg-surface p-4 rounded-full shadow-sm hover:shadow-md transition-shadow mb-4">
-                      <Loader2 className="h-8 w-8 text-slate-300 animate-spin" />
+             <CardContent className="p-8 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {/* COD Option */}
+                   <div 
+                      onClick={() => setPaymentMethod("COD")}
+                      className={cn(
+                         "border rounded-2xl p-6 cursor-pointer transition-all flex items-start gap-4 hover:border-primary/50",
+                         paymentMethod === "COD" 
+                            ? "border-primary bg-primary/5 shadow-md shadow-primary/5" 
+                            : "border-slate-100 bg-slate-50/50"
+                      )}
+                   >
+                      <div className={cn(
+                         "w-10 h-10 rounded-xl flex items-center justify-center border shrink-0",
+                         paymentMethod === "COD" 
+                            ? "bg-primary text-white border-primary/20" 
+                            : "bg-white text-slate-400 border-slate-200"
+                      )}>
+                         <Home size={18} />
+                      </div>
+                      <div className="space-y-1">
+                         <p className="font-extrabold text-sm text-slate-800">Cash on Delivery (COD)</p>
+                         <p className="text-xs text-slate-400 font-semibold leading-relaxed">
+                            Pay with cash or scan dynamic UPI QR code at your doorstep during delivery.
+                         </p>
+                      </div>
                    </div>
-                   <h4 className="font-bold text-slate-800 mb-1">Payment integration coming soon</h4>
-                   <p className="text-sm text-slate-400">Choose "Cash on Delivery" or click "Place Order" to finish.</p>
-                   <Button type="button" variant="outline" className="mt-6 border-slate-200 rounded-xl px-12 py-5 font-bold pointer-events-none">
-                      Proceed to Pay ₹{total.toFixed(2)}
-                   </Button>
+
+                   {/* Online Payment Option */}
+                   <div className="border border-slate-100 bg-slate-50/30 rounded-2xl p-6 opacity-60 cursor-not-allowed flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white text-slate-300 border border-slate-100 flex items-center justify-center shrink-0">
+                         <CreditCard size={18} />
+                      </div>
+                      <div className="space-y-1">
+                         <div className="flex items-center gap-2">
+                            <p className="font-extrabold text-sm text-slate-400">Online Payment / Cards</p>
+                            <span className="text-[9px] font-black uppercase bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">Soon</span>
+                         </div>
+                         <p className="text-xs text-slate-400 font-semibold leading-relaxed">
+                            Securely pay online via UPI, Credit/Debit Cards, or Net Banking.
+                         </p>
+                      </div>
+                   </div>
                 </div>
              </CardContent>
           </Card>

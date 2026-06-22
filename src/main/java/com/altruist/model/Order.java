@@ -41,6 +41,9 @@ public class Order {
     private OrderStatus status;
 
     private String prescriptionUrl;
+    
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod; // e.g. "COD" or "ONLINE"
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

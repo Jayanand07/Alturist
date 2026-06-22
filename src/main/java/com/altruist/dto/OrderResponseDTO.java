@@ -22,5 +22,6 @@ public class OrderResponseDTO {
     private String deliveryAddress;
     private OrderStatus status;
     private String prescriptionUrl;
+    private String paymentMethod;
     private LocalDateTime createdAt;
 }
