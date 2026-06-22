@@ -16,6 +16,7 @@ export default function Footer() {
         { label: "Diagnostic Tests", href: "/labs"      },
         { label: "Order Medicines",  href: "/medicines" },
         { label: "Health Plans",     href: "/plans"     },
+        { label: "Health Insurance", href: "/insurance" },
         { label: "Doctor Vlogs",     href: "/vlogs"     },
       ],
     },
@@ -24,8 +25,8 @@ export default function Footer() {
       links: [
         { label: "About Us",   href: "/about"                             },
         { label: "Careers",    href: "/about"                             },
-        { label: "Press",      href: "/about"                             },
-        { label: "Blog",       href: "/vlogs"                             },
+        { label: "Press",      href: "/press"                             },
+        { label: "Blog",       href: "/blog"                              },
         { label: "Contact Us", href: "mailto:support@altruistwellness.com" },
       ],
     },
@@ -36,7 +37,7 @@ export default function Footer() {
         { label: "Terms & Conditions", href: "/terms"         },
         { label: "Privacy Policy",     href: "/privacy"       },
         { label: "Refund Policy",      href: "/refund-policy" },
-        { label: "Cookie Policy",      href: "/about"         },
+        { label: "Cookie Policy",      href: "/privacy"       },
       ],
     },
   ]
@@ -59,10 +60,8 @@ export default function Footer() {
             {/* Social links */}
             <div className="flex items-center gap-4 pt-2">
               {[
-                { icon: Twitter,   href: "#", label: "Twitter"   },
-                { icon: Instagram, href: "#", label: "Instagram" },
-                { icon: Facebook,  href: "#", label: "Facebook"  },
-                { icon: Linkedin,  href: "#", label: "LinkedIn"  },
+                { icon: Facebook,  href: "https://www.facebook.com/profile.php?id=61582181543862",  label: "Facebook"  },
+                { icon: Linkedin,  href: "https://www.linkedin.com/company/altruistwellness/",  label: "LinkedIn"  },
               ].map((s) => (
                 <Link key={s.label} href={s.href} aria-label={s.label}
                   className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 hover:border-primary/30 transition-all">
@@ -74,17 +73,13 @@ export default function Footer() {
             {/* Contact info */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3 text-sm text-slate-400">
-                <Phone size={14} className="text-primary flex-shrink-0" />
-                <span>+91 800 123 4567</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-400">
                 <Mail size={14} className="text-primary flex-shrink-0" />
                 <a href="mailto:support@altruistwellness.com"
                   className="hover:text-primary transition-colors">support@altruistwellness.com</a>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-400">
                 <MapPin size={14} className="text-primary flex-shrink-0" />
-                <span>Amritsar, Punjab, India</span>
+                <span>Bengaluru, Karnataka, India</span>
               </div>
             </div>
           </div>
@@ -140,11 +135,13 @@ export default function Footer() {
             <span className="text-white/10 hidden sm:block">|</span>
             <Link href="/plans"         className="hover:text-primary transition-colors">Health Plans</Link>
             <span className="text-white/10 hidden sm:block">|</span>
+            <Link href="/insurance"     className="hover:text-primary transition-colors">Health Insurance</Link>
+            <span className="text-white/10 hidden sm:block">|</span>
             <Link href="/vlogs"         className="hover:text-primary transition-colors">Doctor Vlogs</Link>
             <span className="text-white/10 hidden sm:block">|</span>
             <Link href="/support"       className="hover:text-primary transition-colors">Support</Link>
             <span className="text-white/10 hidden sm:block">|</span>
-            <Link href="/about"         className="hover:text-primary transition-colors">Cookies</Link>
+            <Link href="/privacy"       className="hover:text-primary transition-colors">Cookies</Link>
           </div>
 
         </div>

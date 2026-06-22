@@ -12,11 +12,13 @@ import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store/cartStore"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/AuthContext"
 
 const DELIVERY_FEE    = 0
 const FREE_THRESHOLD  = 500
 
 export default function CartPage() {
+  const { user } = useAuth()
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice, getTotalItems } = useCartStore()
 
   const subtotal              = getTotalPrice()
@@ -26,6 +28,26 @@ export default function CartPage() {
   const cartCount             = getTotalItems()
 
   const handleUploadRx = () => toast.info("Prescription upload coming soon!", { icon: "📎" })
+
+  /* ── Logged-out state ── */
+  if (!user) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center page-enter">
+        <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-[#E6F7F3] to-[#D1FAE5] flex items-center justify-center mb-6 shadow-lg shadow-[#00A87E]/10">
+          <ShoppingCart className="h-14 w-14 text-primary/40" />
+        </div>
+        <h2 className="font-heading text-3xl font-extrabold text-foreground mb-3">Login to view your cart</h2>
+        <p className="text-muted-foreground mb-8 max-w-sm font-medium">
+          Please log in to manage your cart, add items, and complete your orders.
+        </p>
+        <Link href="/login?redirect=/cart">
+          <Button className="bg-primary hover:bg-primary/90 text-white font-bold px-10 py-6 text-base rounded-2xl shadow-xl shadow-[#00A87E]/20 active:scale-95 transition-all">
+            Log In
+          </Button>
+        </Link>
+      </div>
+    )
+  }
 
   /* ── Empty state ── */
   if (items.length === 0) {

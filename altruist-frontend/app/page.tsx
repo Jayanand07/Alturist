@@ -1,24 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, MessageSquare, Pill, FlaskConical, CreditCard,
+  MessageSquare, Pill, FlaskConical, CreditCard,
   ChevronRight, Star, ShieldCheck, Truck, Clock, 
-  MapPin, CheckCircle2, Video, ChevronDown, ChevronUp,
-  Percent, ThumbsUp, Building2, ShoppingBag, Plus, Sparkles
+  CheckCircle2, Video, ChevronDown, ChevronUp,
+  Percent, ThumbsUp, Building2, ShoppingBag, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { useLocationStore } from "@/store/locationStore";
 import LocationSelectorModal from "@/components/shared/LocationSelectorModal";
+import FuzzySearchBar from "@/components/shared/FuzzySearchBar";
+import SpecialistSection from "@/components/shared/SpecialistSection";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────
 
@@ -37,8 +38,6 @@ const SERVICES = [
     tTitleKey: "nav.medicines",
     tDescKey: "quick.descMedicines",
     tCtaKey: "quick.shopNow",
-    badge: "FLAT 18% OFF", 
-    badgeColor: "bg-red-500",
     icon: Pill, 
     href: "/medicines", 
     cta: "Shop Now",
@@ -52,8 +51,6 @@ const SERVICES = [
     tTitleKey: "nav.consult",
     tDescKey: "quick.descConsult",
     tCtaKey: "quick.consultNow",
-    badge: "24/7 ACTIVE", 
-    badgeColor: "bg-emerald-600",
     icon: MessageSquare, 
     href: "/consult", 
     cta: "Consult Now",
@@ -67,8 +64,6 @@ const SERVICES = [
     tTitleKey: "nav.labs",
     tDescKey: "quick.descLabs",
     tCtaKey: "quick.bookTest",
-    badge: "UP TO 60% OFF", 
-    badgeColor: "bg-amber-500",
     icon: FlaskConical, 
     href: "/labs", 
     cta: "Book Test",
@@ -77,215 +72,65 @@ const SERVICES = [
     iconColor: "text-[#D97706]"
   },
   { 
-    title: "About Us", 
-    desc: "Learn more about Altruist Wellness and our mission.", 
-    tTitleKey: "nav.about",
-    tDescKey: "about.desc",
-    tCtaKey: "quick.learnMore",
-    badge: "KNOW MORE", 
-    badgeColor: "bg-blue-500",
-    icon: Building2, 
-    href: "/about", 
-    cta: "Learn More",
-    gradient: "from-[#EFF6FF] to-[#DBEAFE]",
-    iconBg: "bg-[#DBEAFE]",
-    iconColor: "text-[#2563EB]"
+    title: "Health Insurance", 
+    desc: "Affordable health plans for individuals, families, and enterprises.", 
+    tTitleKey: "quick.healthInsuranceTitle",
+    tDescKey: "quick.healthInsuranceDesc",
+    tCtaKey: "quick.getInsurance",
+    icon: ShieldCheck, 
+    href: "/insurance", 
+    cta: "Get Insurance",
+    gradient: "from-[#EEF2FF] to-[#E0E7FF]",
+    iconBg: "bg-[#E0E7FF]",
+    iconColor: "text-indigo-600"
   }
 ];
 
 const PROMO_CARDS = [
   {
-    title: "First Consultation FREE 🩺",
+    title: "Start Your Consultation",
     desc: "Get free medical advice from our trusted panel of General Physicians.",
-    tTitleKey: "promo.promo1Title",
-    tDescKey: "promo.promo1Desc",
-    coupon: "ALTRUISTNEW",
-    bg: "bg-gradient-to-br from-[#0D9373] via-[#0A7A5F] to-[#08614C]",
-    textColor: "text-white",
-    btnColor: "bg-[#E8593C] hover:bg-[#D14A30] text-white",
     href: "/consult",
-    img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&h=300&fit=crop&q=80"
+    cta: "Start Now",
+    icon: MessageSquare,
+    gradient: "from-[#E7F4F1] to-[#F3FAF8]",
+    iconBg: "bg-[#E7F4F1]",
+    iconColor: "text-[#0D9373]"
   },
   {
-    title: "Comprehensive Health Screen 🧪",
+    title: "Comprehensive Health Screen",
     desc: "Identify early health warning signs with comprehensive blood & urine parameters.",
-    tTitleKey: "promo.promo2Title",
-    tDescKey: "promo.promo2Desc",
-    tag: "NABL ACCREDITED",
-    bg: "bg-gradient-to-br from-[#E8593C] via-[#D14A30] to-[#992211]",
-    textColor: "text-white",
-    btnColor: "bg-[#0D9373] hover:bg-[#0A7A5F] text-white",
     href: "/labs",
-    img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=300&fit=crop&q=80"
+    cta: "Start Now",
+    icon: FlaskConical,
+    gradient: "from-[#FFFBEB] to-[#FEF3C7]",
+    iconBg: "bg-[#FEF3C7]",
+    iconColor: "text-[#D97706]"
   },
   {
-    title: "Upload Prescription & Order 💊",
+    title: "Order Genuine Medicine",
     desc: "Let our verified pharmacists read your prescription & prepare your cart.",
-    tTitleKey: "promo.promo3Title",
-    tDescKey: "promo.promo3Desc",
-    tag: "SAVE 18%",
-    bg: "bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#020617]",
-    textColor: "text-white",
-    btnColor: "bg-white text-slate-900 hover:bg-slate-100",
-    href: "/medicines",
-    img: "https://images.unsplash.com/photo-1587854692152-cbe660dbbab9?w=300&h=300&fit=crop&q=80"
+    href: "/pharmacy",
+    cta: "Start Now",
+    icon: Pill,
+    gradient: "from-[#FCEBE7] to-[#FFF5F2]",
+    iconBg: "bg-[#FCEBE7]",
+    iconColor: "text-[#E8593C]"
+  },
+  {
+    title: "Affordable Health Insurance",
+    desc: "Choose from best health insurance plans and term plans tailored for you and your family.",
+    href: "/insurance",
+    cta: "Start Now",
+    icon: ShieldCheck,
+    gradient: "from-[#EEF2FF] to-[#E0E7FF]",
+    iconBg: "bg-[#E0E7FF]",
+    iconColor: "text-indigo-600"
   }
 ];
 
-const DOCTOR_SPECIALTIES = [
-  { 
-    name: "General Physician", 
-    count: "42 Doctors", 
-    img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=General%20Physician" 
-  },
-  { 
-    name: "Pediatrician", 
-    count: "18 Doctors", 
-    img: "https://images.unsplash.com/photo-1502740479091-635887520276?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=Pediatrician" 
-  },
-  { 
-    name: "Cardiologist", 
-    count: "12 Doctors", 
-    img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=Cardiologist" 
-  },
-  { 
-    name: "Dermatologist", 
-    count: "21 Doctors", 
-    img: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=Dermatologist" 
-  },
-  { 
-    name: "Neurologist", 
-    count: "9 Doctors", 
-    img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=Neurologist" 
-  },
-  { 
-    name: "Gynaecologist", 
-    count: "15 Doctors", 
-    img: "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=300&h=300&fit=crop&q=80",
-    href: "/consult?specialty=Gynaecologist" 
-  }
-];
 
-const LAB_PACKAGES = [
-  {
-    title: "Comprehensive Gold Full Body Checkup",
-    testsCount: 84,
-    img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=300&h=200&fit=crop&q=80",
-    parameters: ["HbA1c (Diabetes)", "Thyroid Profile (TSH)", "Lipid Profile (Cholesterol)", "Liver Function Test", "Kidney Function Test", "Complete Hemogram (CBC)"],
-    originalPrice: 1999,
-    discountPrice: 799,
-    discountText: "60% OFF",
-    duration: "Reports in 24 Hrs",
-    features: ["Free Home Collection", "Free Doctor Consultation"],
-    badge: "BEST SELLER"
-  },
-  {
-    title: "Active Fitness & Joint Screen",
-    testsCount: 45,
-    img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&h=400&fit=crop&q=80",
-    parameters: ["Vitamin D3 (Immunity)", "Vitamin B12 (Nerves)", "Calcium (Bone Health)", "Uric Acid", "Rheumatoid Factor", "Complete Urine Analysis"],
-    originalPrice: 1499,
-    discountPrice: 599,
-    discountText: "60% OFF",
-    duration: "Reports in 24 Hrs",
-    features: ["Free Home Collection"],
-    badge: "POPULAR"
-  },
-  {
-    title: "Diabetes Care Assessment",
-    testsCount: 28,
-    img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&h=400&fit=crop&q=80",
-    parameters: ["HbA1c", "Fasting Blood Sugar", "Post-Prandial Sugar", "Microalbumin", "Average Blood Glucose"],
-    originalPrice: 999,
-    discountPrice: 399,
-    discountText: "60% OFF",
-    duration: "Reports in 12 Hrs",
-    features: ["Free Home Collection"],
-    badge: "HEALTH TRACK"
-  }
-];
-
-const BEST_SELLERS = [
-  {
-    id: "prod-cetaphil",
-    name: "Cetaphil Gentle Skin Cleanser (250ml)",
-    brand: "Galderma",
-    category: "Skin Care",
-    img: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=200&h=200&fit=crop&q=80",
-    originalPrice: 499,
-    discountPrice: 399,
-    discountText: "20% OFF",
-    requiresPrescription: false
-  },
-  {
-    id: "prod-himalaya-neem",
-    name: "Himalaya Purifying Neem Face Wash (150ml)",
-    brand: "Himalaya",
-    category: "Personal Care",
-    img: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=200&h=200&fit=crop&q=80",
-    originalPrice: 250,
-    discountPrice: 199,
-    discountText: "20% OFF",
-    requiresPrescription: false
-  },
-  {
-    id: "prod-revital",
-    name: "Revital H Daily Health Supplement (30 Caps)",
-    brand: "Sun Pharma",
-    category: "Vitamins & Supplements",
-    img: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400&h=400&fit=crop&q=80",
-    originalPrice: 370,
-    discountPrice: 299,
-    discountText: "19% OFF",
-    requiresPrescription: false
-  },
-  {
-    id: "prod-dettol",
-    name: "Dettol Antiseptic Disinfectant Liquid (500ml)",
-    brand: "Reckitt",
-    category: "Personal Care",
-    img: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=200&h=200&fit=crop&q=80",
-    originalPrice: 199,
-    discountPrice: 159,
-    discountText: "20% OFF",
-    requiresPrescription: false
-  },
-  {
-    id: "prod-tulsi-tea",
-    name: "Organic India Tulsi Green Tea (25 Infusion Bags)",
-    brand: "Organic India",
-    category: "Vitamins & Supplements",
-    img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200&h=200&fit=crop&q=80",
-    originalPrice: 180,
-    discountPrice: 149,
-    discountText: "17% OFF",
-    requiresPrescription: false
-  }
-];
-
-const TOP_DOCTORS = [
-  { id: 1, name: "Dr. Sarah Jenkins", spec: "Cardiologist", exp: "15+ Yrs Exp", fee: 500, rating: 4.9, reviews: 120, img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&q=80" },
-  { id: 2, name: "Dr. Michael Chen", spec: "Neurologist", exp: "12+ Yrs Exp", fee: 600, rating: 4.8, reviews: 95, img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&q=80" },
-  { id: 3, name: "Dr. Emily Roberts", spec: "Pediatrician", exp: "8+ Yrs Exp", fee: 400, rating: 4.9, reviews: 210, img: "https://images.unsplash.com/photo-1594824436967-6a2c2b1f09c2?w=150&h=150&fit=crop&q=80" },
-  { id: 4, name: "Dr. Amit Patel", spec: "Dermatologist", exp: "10+ Yrs Exp", fee: 450, rating: 4.7, reviews: 80, img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&h=150&fit=crop&q=80" },
-  { id: 5, name: "Dr. Lisa Wong", spec: "General Physician", exp: "20+ Yrs Exp", fee: 350, rating: 4.9, reviews: 300, img: "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=150&h=150&fit=crop&q=80" }
-];
-
-const WELLNESS_BRANDS = [
-  { name: "Himalaya Wellness", img: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=120&h=120&fit=crop&q=80", tag: "Himalaya" },
-  { name: "Dabur Products", img: "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=120&h=120&fit=crop&q=80", tag: "Dabur" },
-  { name: "Organic India", img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=120&h=120&fit=crop&q=80", tag: "Organic India" },
-  { name: "Cetaphil Skin", img: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=120&h=120&fit=crop&q=80", tag: "Cetaphil" },
-  { name: "Nivea Care", img: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=120&h=120&fit=crop&q=80", tag: "Nivea" },
-  { name: "Dettol Antiseptic", img: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=120&h=120&fit=crop&q=80", tag: "Dettol" }
-];
-
-const TESTIMONIALS = [
+const FALLBACK_TESTIMONIALS = [
   {
     text: "Saved almost 40% on my father's chronic diabetes medications, and they were delivered in just 2 hours! The customer support is absolutely elite.",
     tKey: "testimonials.sunilVermaText",
@@ -326,32 +171,113 @@ const FAQS = [
     a: "Absolutely. Altruist enforces a zero-exception verification policy. Every doctor registered on our platform holds certified medical degrees (MBBS, MD, MS, DM) from recognized national/international universities and is verified through the National Medical Commission (NMC) or State Medical Councils. We perform thorough credentials checks before licensing."
   },
   {
-    q: "Is Altruist safe and HIPAA-compliant for my records?",
+    q: "Is Altruist safe and secure for my records?",
     a: "Yes. Security is our paramount non-negotiable rule. Your patient PII, consulting chats, and digital prescriptions are encrypted both in transit and at rest. We utilize Supabase Row Level Security (RLS) policies to ensure that absolutely no one except you and your authorized practitioner can view your private medical history."
   }
 ];
 
 export default function RedesignedHomePage() {
   const { t } = useLanguage();
-  const [searchTerm, setSearchTerm] = useState("");
   const [faqOpenIndex, setFaqOpenIndex] = useState<number | null>(null);
-  const { selectedCity } = useLocationStore();
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const { addItem } = useCartStore();
+  const requireAuth = useRequireAuth();
+
+  const [medicines, setMedicines] = useState<any[]>([]);
+  const [medicinesLoading, setMedicinesLoading] = useState(true);
+  const [labPackages, setLabPackages] = useState<any[]>([]);
+  const [labPackagesLoading, setLabPackagesLoading] = useState(true);
+  const [topDoctors, setTopDoctors] = useState<any[]>([]);
+  const [doctorsLoading, setDoctorsLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  useEffect(() => {
+    // 1. Fetch medicines
+    const fetchMedicines = async () => {
+      try {
+        const res = await fetch("/api/medicines?page=0&size=5");
+        if (res.ok) {
+          const data = await res.json();
+          setMedicines(data.content || data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch medicines", err);
+      } finally {
+        setMedicinesLoading(false);
+      }
+    };
+
+    // 2. Fetch lab packages
+    const fetchLabPackages = async () => {
+      try {
+        const res = await fetch("/api/lab-packages");
+        if (res.ok) {
+          const data = await res.json();
+          setLabPackages(data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch lab packages", err);
+      } finally {
+        setLabPackagesLoading(false);
+      }
+    };
+
+    // 3. Fetch top doctors
+    const fetchTopDoctors = async () => {
+      try {
+        const res = await fetch("/api/doctors?size=5");
+        if (res.ok) {
+          const data = await res.json();
+          setTopDoctors(data.content || data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch top doctors", err);
+      } finally {
+        setDoctorsLoading(false);
+      }
+    };
+
+    // 4. Fetch testimonials
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch("/api/testimonials?featured=true&limit=3");
+        if (res.ok) {
+          const data = await res.json();
+          setTestimonials(data || []);
+        } else {
+          setTestimonials([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch testimonials", err);
+        setTestimonials([]);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    fetchMedicines();
+    fetchLabPackages();
+    fetchTopDoctors();
+    fetchTestimonials();
+  }, []);
 
   const handleAddProduct = (prod: any) => {
+    const originalPrice = prod.price !== undefined ? prod.price : prod.originalPrice;
+    const discountedPrice = prod.discountedPrice !== undefined ? prod.discountedPrice : prod.discountPrice;
+    const brandName = prod.manufacturer || prod.brand;
     addItem({
       id: prod.id,
       name: prod.name,
-      manufacturer: prod.brand,
-      price: prod.originalPrice,
-      discountedPrice: prod.discountPrice,
+      manufacturer: brandName,
+      price: originalPrice,
+      discountedPrice: discountedPrice,
       requiresPrescription: prod.requiresPrescription,
       quantity: 1
     });
     toast.success(`${prod.name} added to cart successfully! 🛒`, {
-      description: `Manufacturer: ${prod.brand} • Saved ₹${prod.originalPrice - prod.discountPrice}`
+      description: `Manufacturer: ${brandName} • Saved ₹${originalPrice - discountedPrice}`
     });
   };
 
@@ -368,16 +294,9 @@ export default function RedesignedHomePage() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
         <div className="absolute top-[-50px] right-[-100px] w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-30 flex flex-col lg:flex-row items-center justify-between gap-12">
           {/* Hero Left Content */}
           <div className="w-full lg:w-3/5 space-y-6 text-left">
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold tracking-wider uppercase flex items-center gap-1.5">
-                <Sparkles size={12} className="text-emerald-300" /> {t("hero.sparkleTag")}
-              </span>
-            </div>
-            
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight">
               {t("hero.title1")} <br className="hidden md:block" />
               <span className="text-emerald-300">{t("hero.title2")}</span>
@@ -387,37 +306,13 @@ export default function RedesignedHomePage() {
               {t("hero.desc")}
             </p>
             
-            {/* Mega Search Bar */}
-            <div className="w-full max-w-2xl bg-white p-2 rounded-2xl shadow-xl flex flex-col md:flex-row items-center gap-2 border border-slate-100">
-              {/* Geolocation selector (reads like active professional apps) */}
-              <div 
-                onClick={() => setIsLocationOpen(true)}
-                className="flex items-center w-full md:w-auto px-3 border-b md:border-b-0 md:border-r border-slate-100 py-2 md:py-0 select-none cursor-pointer hover:bg-slate-50 rounded-xl transition-all"
-              >
-                <MapPin className="w-5 h-5 text-[#0D9373] shrink-0 mr-2" />
-                <span className="text-sm font-bold text-slate-800 shrink-0 truncate max-w-[100px]">{selectedCity}</span>
-                <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
-              </div>
+            {/* Fuzzy Search Bar — Fuse.js powered */}
+            <FuzzySearchBar
+              placeholder={t("hero.placeholder")}
+              showLocationSelector={true}
+              onLocationClick={() => setIsLocationOpen(true)}
+            />
 
-              
-              <div className="flex items-center flex-1 w-full relative">
-                <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
-                <Input 
-                  type="text"
-                  placeholder={t("hero.placeholder")} 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1 h-11 text-slate-900 border-none shadow-none focus-visible:ring-0 text-base placeholder:text-slate-400"
-                />
-              </div>
-              
-              <Link href={searchTerm ? `/medicines?search=${encodeURIComponent(searchTerm)}` : '/medicines'} className="w-full md:w-auto shrink-0">
-                <Button className="w-full md:w-auto h-11 px-8 rounded-xl font-extrabold text-base bg-[#E8593C] text-white hover:bg-[#D14A30] shadow-md hover:shadow-lg transition-all active:scale-95 border-none">
-                  {t("hero.search")}
-                </Button>
-              </Link>
-            </div>
-            
             {/* Quick searches */}
             <div className="flex flex-wrap gap-2 items-center text-xs text-slate-100 font-semibold pt-1">
               <span className="opacity-75">{t("hero.commonSearches")}</span>
@@ -452,55 +347,37 @@ export default function RedesignedHomePage() {
         </div>
       </section>
 
-      {/* 2. DYNAMIC PROMO CARDS ( tata 1mg / apollo styled ) */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 -mt-10 relative z-20 mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      {/* 2. DYNAMIC PROMO CARDS */}
+      <section className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 mb-16 mt-16 md:mt-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {PROMO_CARDS.map((card, i) => (
-            <motion.div 
-              key={i}
-              whileHover={{ y: -4 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className={`rounded-3xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between h-full border-none ${card.bg} ${card.textColor}`}
-            >
-              {card.img && (
-                <img 
-                  src={card.img} 
-                  className="absolute right-[-10px] bottom-[-10px] h-32 w-auto opacity-35 object-contain pointer-events-none z-0" 
-                  alt=""
-                />
-              )}
-              {/* Abs decoration circles */}
-              <div className="absolute right-[-20px] bottom-[-20px] w-24 h-24 rounded-full bg-white/5 pointer-events-none z-0" />
-              
-              <div className="space-y-3 relative z-10 flex-1 flex flex-col justify-start">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  {card.coupon && (
-                    <Badge className="bg-[#E8593C] text-white border-none py-1 px-2.5 font-black text-[10px] tracking-wider rounded-lg shadow-sm">
-                      USE: {card.coupon}
-                    </Badge>
-                  )}
-                  {card.tag && (
-                    <Badge className="bg-[#0D9373] text-white border-none py-1 px-2.5 font-bold text-[10px] rounded-lg shadow-sm">
-                      {card.tag}
-                    </Badge>
-                  )}
-                </div>
-                <h3 className="font-extrabold text-xl leading-snug tracking-tight max-w-[200px] text-ellipsis overflow-hidden">
-                  {t(card.tTitleKey)}
-                </h3>
-                <p className="text-sm font-medium leading-relaxed opacity-95 max-w-[240px] line-clamp-2 md:line-clamp-none text-ellipsis overflow-hidden">
-                  {t(card.tDescKey)}
-                </p>
-              </div>
-              
-              <div className="pt-4 flex items-center relative z-10">
-                <Link href={card.href}>
-                  <Button className={`font-extrabold text-xs sm:text-sm px-6 py-2 h-9 rounded-full shadow hover:shadow-lg transition-all border-none ${card.btnColor}`}>
-                    {t("promo.claimOffer")} <ChevronRight className="w-3.5 h-3.5 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
+            <Link key={i} href={card.href} className="h-full block">
+              <Card className="border-none shadow-md hover:shadow-2xl transition-all cursor-pointer group bg-white rounded-3xl h-full overflow-hidden flex flex-col justify-between">
+                <CardContent className={`p-6 bg-gradient-to-b ${card.gradient} h-full flex flex-col justify-between`}>
+                  <div className="space-y-4">
+                    <div className={`w-12 h-12 rounded-2xl ${card.iconBg} ${card.iconColor} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
+                      <card.icon className="w-6 h-6" strokeWidth={2.5} />
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-black text-slate-900 text-lg mb-1 group-hover:text-[#0D9373] transition-colors">
+                        {card.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                        {card.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 flex items-center justify-between text-sm font-extrabold text-slate-700">
+                    <span className="group-hover:text-[#0D9373] transition-colors">{card.cta}</span>
+                    <div className="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-[#0D9373] group-hover:text-white transition-colors">
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
@@ -522,13 +399,8 @@ export default function RedesignedHomePage() {
               <Card className="border-none shadow-md hover:shadow-2xl transition-all cursor-pointer group bg-white rounded-3xl h-full overflow-hidden flex flex-col justify-between">
                 <CardContent className={`p-6 bg-gradient-to-b ${serv.gradient} h-full flex flex-col justify-between`}>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div className={`w-12 h-12 rounded-2xl ${serv.iconBg} ${serv.iconColor} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
-                        <serv.icon className="w-6 h-6" strokeWidth={2.5} />
-                      </div>
-                      <Badge className={`${serv.badgeColor} text-white border-none px-2 py-0.5 text-[9px] font-black tracking-widest rounded-md`}>
-                        {serv.badge}
-                      </Badge>
+                    <div className={`w-12 h-12 rounded-2xl ${serv.iconBg} ${serv.iconColor} flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
+                      <serv.icon className="w-6 h-6" strokeWidth={2.5} />
                     </div>
                     
                     <div>
@@ -554,209 +426,232 @@ export default function RedesignedHomePage() {
         </div>
       </section>
 
-      {/* 4. SHOP BY SPECIALTY ( tata 1mg / apollo styled ) WITH PREMIUM DOCTOR IMAGES */}
-      <section className="py-16 bg-white border-y border-slate-100 mb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+      {/* 4. CONSULT TOP SPECIALISTS — live data from /api/doctors/specialties */}
+      <SpecialistSection />
+
+      {/* 5. BEST SELLERS IN MEDICINES & HEALTH PRODUCTS (DYNAMIC ADD TO CART!) */}
+      {!medicinesLoading && medicines.length === 0 ? null : (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {t("specialty.title")}
+              <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <ShoppingBag className="text-[#E8593C]" /> {t("bestSellers.title")}
               </h2>
               <p className="text-slate-500 text-sm font-semibold mt-1">
-                {t("specialty.subtitle")}
+                {t("bestSellers.subtitle")}
               </p>
             </div>
-            <Link href="/consult">
-              <Button className="bg-[#E7F4F1] hover:bg-[#0D9373] text-[#0D9373] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
-                {t("specialty.viewAll")} <ChevronRight className="w-4 h-4 ml-1" />
+            <Link href="/medicines">
+              <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+                {t("bestSellers.exploreStore")} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {DOCTOR_SPECIALTIES.map((spec, i) => (
-              <Link key={i} href={spec.href}>
-                <div className="bg-white border-none shadow-md hover:shadow-2xl hover:bg-emerald-50/10 transition-all cursor-pointer text-center p-4 rounded-3xl group flex flex-col items-center gap-3">
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-500/10 shadow-inner group-hover:scale-105 transition-transform flex-shrink-0">
-                    <img 
-                      src={spec.img} 
-                      alt={spec.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#0D9373] transition-colors leading-tight">
-                      {spec.name}
-                    </h3>
-                    <p className="text-xs text-[#0D9373] font-bold mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                      {spec.count}
-                    </p>
-                  </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {medicinesLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 h-[280px] flex flex-col animate-pulse">
+                  <div className="h-36 bg-slate-100 rounded-2xl mb-4" />
+                  <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+              ))
+            ) : (
+              medicines.map((prod) => {
+                const originalPrice = prod.price !== undefined ? prod.price : prod.originalPrice;
+                const discountedPrice = prod.discountedPrice !== undefined ? prod.discountedPrice : prod.discountPrice;
+                const brandName = prod.manufacturer || prod.brand;
+                const imageUrl = prod.imageUrl || prod.img;
+                const discountPercent = prod.discountPercent || 
+                  (originalPrice && discountedPrice && originalPrice > discountedPrice
+                    ? Math.round((1 - (discountedPrice / originalPrice)) * 100)
+                    : 0);
 
-      {/* 5. BEST SELLERS IN MEDICINES & HEALTH PRODUCTS (DYNAMIC ADD TO CART!) */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <ShoppingBag className="text-[#E8593C]" /> {t("bestSellers.title")}
-            </h2>
-            <p className="text-slate-500 text-sm font-semibold mt-1">
-              {t("bestSellers.subtitle")}
-            </p>
-          </div>
-          <Link href="/medicines">
-            <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
-              {t("bestSellers.exploreStore")} <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
+                return (
+                  <Card key={prod.id} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
+                    <div className="p-4 flex flex-col gap-3">
+                      {/* Product Image */}
+                      <div className="h-36 w-full rounded-2xl overflow-hidden bg-slate-50 relative flex items-center justify-center flex-shrink-0">
+                        <img 
+                          src={imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=400&h=400&fit=crop&q=80"} 
+                          alt={prod.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {discountPercent > 0 && (
+                          <Badge className="absolute top-2 left-2 bg-red-500 text-white border-none py-0.5 px-2 font-bold text-[9px] rounded">
+                            {discountPercent}% OFF
+                          </Badge>
+                        )}
+                      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {BEST_SELLERS.map((prod) => (
-            <Card key={prod.id} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
-              <div className="p-4 flex flex-col gap-3">
-                {/* Product Image */}
-                <div className="h-36 w-full rounded-2xl overflow-hidden bg-slate-50 relative flex items-center justify-center flex-shrink-0">
-                  <img 
-                    src={prod.img} 
-                    alt={prod.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Badge className="absolute top-2 left-2 bg-red-500 text-white border-none py-0.5 px-2 font-bold text-[9px] rounded">
-                    {prod.discountText}
-                  </Badge>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
-                    {prod.brand}
-                  </span>
-                  <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug h-10 group-hover:text-[#E8593C] transition-colors">
-                    {prod.name}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Price & Add to Cart */}
-              <div className="px-4 pb-4 pt-2 border-t border-slate-50 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-slate-400 line-through block font-medium leading-none">₹{prod.originalPrice}</span>
-                  <span className="text-base font-black text-slate-900 leading-none">₹{prod.discountPrice}</span>
-                </div>
-
-                <Button 
-                  onClick={() => handleAddProduct(prod)}
-                  size="sm"
-                  className="h-8 px-3 rounded-full bg-[#E7F4F1] hover:bg-[#0D9373] text-[#0D9373] hover:text-white font-extrabold flex items-center gap-1 shadow-inner border-none transition-colors"
-                >
-                  <Plus size={14} /> {t("bestSellers.add")}
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* 6. FEATURED LAB TESTS ( tata 1mg styled ) WITH PREMIUM LAB IMAGES */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t("labPackages.title")}
-            </h2>
-            <p className="text-slate-500 text-sm font-semibold mt-1">
-              {t("labPackages.subtitle")}
-            </p>
-          </div>
-          <Link href="/labs">
-            <Button className="bg-[#FFFBEB] hover:bg-amber-500 text-amber-700 hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
-              {t("labPackages.exploreTests")} <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {LAB_PACKAGES.map((pkg, i) => (
-            <Card key={i} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between group">
-              {/* Card Banner Image */}
-              <div className="h-40 w-full overflow-hidden bg-slate-100 relative">
-                <img 
-                  src={pkg.img} 
-                  alt={pkg.title} 
-                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <Badge className="absolute top-4 left-4 bg-emerald-500 text-white border-none px-3 py-1 font-black text-xs tracking-wider rounded-lg">
-                  {pkg.badge}
-                </Badge>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="font-black text-lg text-white leading-tight drop-shadow-md">
-                    {pkg.title}
-                  </h3>
-                </div>
-              </div>
-
-              <CardContent className="p-6 flex flex-col h-full justify-between gap-6">
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs font-black text-[#0D9373] bg-[#E7F4F1] px-2.5 py-0.5 rounded-full">
-                      {pkg.testsCount} {t("labPackages.testParameters")}
-                    </span>
-                    <span className="text-xs text-slate-400 font-bold flex items-center">
-                      <Clock className="w-3.5 h-3.5 mr-1" /> {pkg.duration}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("labPackages.includesChecks")}</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {pkg.parameters.map((p, pIdx) => (
-                        <span key={pIdx} className="bg-slate-50 text-slate-600 font-semibold px-2 py-1 rounded-md text-[10px] border border-slate-100">
-                          {p}
+                      <div className="space-y-1">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                          {brandName}
                         </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <div className="flex items-center gap-3">
-                    {pkg.features.map((feat, fIdx) => (
-                      <span key={fIdx} className="inline-flex items-center text-xs font-bold text-emerald-600">
-                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> {feat}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-slate-400 line-through">₹{pkg.originalPrice}</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-2xl font-black text-slate-900">₹{pkg.discountPrice}</span>
-                        <Badge className="bg-red-500 text-white border-none font-extrabold text-[10px] rounded px-1.5 py-0.5">
-                          {pkg.discountText}
-                        </Badge>
+                        <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug h-10 group-hover:text-[#E8593C] transition-colors">
+                          {prod.name}
+                        </h3>
                       </div>
                     </div>
 
-                    <Link href="/labs">
-                      <Button className="bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-extrabold rounded-full px-6 shadow-sm border-none">
-                        {t("labPackages.bookNow")}
+                    {/* Price & Add to Cart */}
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-50 flex items-center justify-between">
+                      <div>
+                        {originalPrice > discountedPrice && (
+                          <span className="text-[10px] text-slate-400 line-through block font-medium leading-none">₹{originalPrice}</span>
+                        )}
+                        <span className="text-base font-black text-slate-900 leading-none">₹{discountedPrice}</span>
+                      </div>
+
+                      <Button 
+                        onClick={() => requireAuth(() => handleAddProduct(prod), "/")}
+                        size="sm"
+                        className="h-8 px-3 rounded-full bg-[#E7F4F1] hover:bg-[#0D9373] text-[#0D9373] hover:text-white font-extrabold flex items-center gap-1 shadow-inner border-none transition-colors"
+                      >
+                        <Plus size={14} /> {t("bestSellers.add")}
                       </Button>
-                    </Link>
-                  </div>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 6. FEATURED LAB TESTS ( tata 1mg styled ) WITH PREMIUM LAB IMAGES */}
+      {!labPackagesLoading && labPackages.length === 0 ? null : (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                {t("labPackages.title")}
+              </h2>
+              <p className="text-slate-500 text-sm font-semibold mt-1">
+                {t("labPackages.subtitle")}
+              </p>
+            </div>
+            <Link href="/labs">
+              <Button className="bg-[#FFFBEB] hover:bg-amber-500 text-amber-700 hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+                {t("labPackages.exploreTests")} <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {labPackagesLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 h-[340px] flex flex-col animate-pulse">
+                  <div className="h-40 bg-slate-100 rounded-2xl mb-4" />
+                  <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              ))
+            ) : (
+              labPackages.map((pkg, i) => {
+                const title = pkg.name;
+                const testsCount = pkg.includesTestCount;
+                const parameters = pkg.testNames || [];
+                const originalPrice = pkg.originalPrice;
+                const discountPrice = pkg.discountedPrice || pkg.originalPrice;
+                const discountText = pkg.discountPercent ? `${pkg.discountPercent}% OFF` : "";
+                const duration = "Reports in 24 Hrs";
+                const features = pkg.smartReportIncluded ? ["Free Home Collection", "Smart Report Included"] : ["Free Home Collection"];
+                const badge = pkg.discountPercent && pkg.discountPercent >= 50 ? "BEST SELLER" : "POPULAR";
+
+                let img = "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=300&h=200&fit=crop&q=80";
+                if (title && title.toLowerCase().includes("diabetes")) {
+                  img = "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&h=400&fit=crop&q=80";
+                } else if (title && (title.toLowerCase().includes("fitness") || title.toLowerCase().includes("joint"))) {
+                  img = "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&h=400&fit=crop&q=80";
+                }
+
+                return (
+                  <Card key={pkg.id || i} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between group">
+                    {/* Card Banner Image */}
+                    <div className="h-40 w-full overflow-hidden bg-slate-100 relative">
+                      <img 
+                        src={img} 
+                        alt={title} 
+                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <Badge className="absolute top-4 left-4 bg-emerald-500 text-white border-none px-3 py-1 font-black text-xs tracking-wider rounded-lg">
+                        {badge}
+                      </Badge>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <h3 className="font-black text-lg text-white leading-tight drop-shadow-md">
+                          {title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <CardContent className="p-6 flex flex-col h-full justify-between gap-6">
+                      <div>
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-xs font-black text-[#0D9373] bg-[#E7F4F1] px-2.5 py-0.5 rounded-full">
+                            {testsCount} {t("labPackages.testParameters")}
+                          </span>
+                          <span className="text-xs text-slate-400 font-bold flex items-center">
+                            <Clock className="w-3.5 h-3.5 mr-1" /> {duration}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t("labPackages.includesChecks")}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {parameters.map((p: string, pIdx: number) => (
+                              <span key={pIdx} className="bg-slate-50 text-slate-600 font-semibold px-2 py-1 rounded-md text-[10px] border border-slate-100">
+                                {p}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 pt-4 border-t border-slate-100">
+                        <div className="flex items-center gap-3">
+                          {features.map((feat: string, fIdx: number) => (
+                            <span key={fIdx} className="inline-flex items-center text-xs font-bold text-emerald-600">
+                              <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> {feat}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            {originalPrice > discountPrice && (
+                              <span className="text-xs font-bold text-slate-400 line-through">₹{originalPrice}</span>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-2xl font-black text-slate-900">₹{discountPrice}</span>
+                              {discountText && (
+                                <Badge className="bg-red-500 text-white border-none font-extrabold text-[10px] rounded px-1.5 py-0.5">
+                                  {discountText}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <Button 
+                            onClick={() => requireAuth(() => toast.success(`Booking initiated for ${title}! Our representative will contact you shortly.`, { icon: "🧪" }), "/")}
+                            className="bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-extrabold rounded-full px-6 shadow-sm border-none"
+                          >
+                            {t("labPackages.bookNow")}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 7. TRUSTED BRAND BLOCK */}
       <section className="py-16 bg-[#0F172A] text-white mb-16 relative overflow-hidden">
@@ -818,138 +713,147 @@ export default function RedesignedHomePage() {
       </section>
 
       {/* 8. TOP DOCTORS ( CAROUSEL / GRID ) */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-          <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t("topDoctors.title")}
-            </h2>
-            <p className="text-slate-500 text-sm font-semibold mt-1">
-              {t("topDoctors.subtitle")}
-            </p>
-          </div>
-          <Link href="/consult">
-            <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
-              {t("topDoctors.consultDoctor")} <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-
-        <div className="flex overflow-x-auto gap-6 pb-6 snap-x scrollbar-thin scrollbar-thumb-emerald-600 scrollbar-track-slate-100">
-          {TOP_DOCTORS.map((doc) => (
-            <Card key={doc.id} className="min-w-[280px] md:min-w-[320px] border-none shadow-md snap-start shrink-0 hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between">
-              <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
-                <div className="flex gap-4 items-start">
-                  <Avatar className="w-16 h-16 border-2 border-emerald-500/10 shadow-inner shrink-0">
-                    <AvatarImage src={doc.img} alt={doc.name} className="object-cover" />
-                    <AvatarFallback className="bg-[#E7F4F1] text-[#0D9373] font-bold">
-                      {doc.name.split(" ").slice(-1)[0]?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-black text-base text-slate-900 leading-tight">{doc.name}</h3>
-                    <p className="text-xs text-slate-500 font-bold">{doc.spec}</p>
-                    <Badge className="mt-1 bg-slate-50 text-slate-600 border border-slate-100 hover:bg-slate-100 px-2 py-0.5 text-[10px] font-bold rounded-md">
-                      {doc.exp}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-1 text-sm font-bold text-slate-800">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" /> {doc.rating} 
-                  <span className="text-slate-400 font-normal ml-1">({doc.reviews} {t("topDoctors.reviews")})</span>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{t("topDoctors.fee")}</p>
-                    <p className="font-black text-lg text-slate-900">₹{doc.fee}</p>
-                  </div>
-                  <Link href="/consult">
-                    <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold rounded-full px-6 shadow-sm border-none">
-                      {t("topDoctors.consultNow")}
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* 9. DYNAMIC WELLNESS BRANDS ( TATA 1MG STYLE ) */}
-      <section className="py-16 bg-[#F8FAFC] border-y border-slate-100 mb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <div className="text-center md:text-left mb-8">
-            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t("brands.title")}
-            </h2>
-            <p className="text-slate-500 text-sm font-semibold mt-1">
-              {t("brands.subtitle")}
-            </p>
+      {!doctorsLoading && (topDoctors.length === 0 || !topDoctors.some(doc => (doc.rating || 0) > 0)) ? null : (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                {t("topDoctors.title")}
+              </h2>
+              <p className="text-slate-500 text-sm font-semibold mt-1">
+                {t("topDoctors.subtitle")}
+              </p>
+            </div>
+            <Link href="/consult">
+              <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+                {t("topDoctors.consultDoctor")} <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {WELLNESS_BRANDS.map((brand, i) => (
-              <Link key={i} href={`/medicines?search=${encodeURIComponent(brand.tag)}`}>
-                <div className="bg-white border-none shadow-md hover:shadow-xl transition-all rounded-2xl p-4 flex flex-col items-center justify-between text-center cursor-pointer group h-full gap-4">
-                  <div className="h-24 w-24 overflow-hidden rounded-xl bg-slate-50 flex items-center justify-center">
-                    <img 
-                      src={brand.img} 
-                      alt={brand.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    />
+          <div className="flex overflow-x-auto gap-6 pb-6 snap-x scrollbar-thin scrollbar-thumb-emerald-600 scrollbar-track-slate-100">
+            {doctorsLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[280px] md:min-w-[320px] bg-white border border-slate-200 p-5 rounded-3xl animate-pulse flex flex-col gap-4">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 shrink-0" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-slate-100 rounded w-3/4" />
+                      <div className="h-3 bg-slate-100 rounded w-1/2" />
+                      <div className="h-4 bg-slate-100 rounded w-1/3" />
+                    </div>
                   </div>
-                  <h3 className="font-bold text-xs text-slate-800 group-hover:text-[#0D9373] transition-colors leading-tight">
-                    {brand.name}
-                  </h3>
+                  <div className="h-4 bg-slate-100 rounded w-1/4" />
+                  <div className="h-8 bg-slate-100 rounded w-full mt-4" />
                 </div>
-              </Link>
-            ))}
+              ))
+            ) : (
+              topDoctors.map((doc, idx) => {
+                const spec = doc.specialization || doc.spec;
+                const exp = doc.experienceYears !== undefined ? `${doc.experienceYears}+ Yrs Exp` : doc.exp;
+                const fee = doc.consultationFee !== undefined ? doc.consultationFee : doc.fee;
+                const img = doc.profilePictureUrl || doc.img;
+                const reviews = doc.totalConsultations !== undefined ? doc.totalConsultations : (doc.reviews || 120);
+
+                return (
+                  <Card key={doc.id || idx} className="min-w-[280px] md:min-w-[320px] border-none shadow-md snap-start shrink-0 hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between">
+                    <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
+                      <div className="flex gap-4 items-start">
+                        <Avatar className="w-16 h-16 border-2 border-emerald-500/10 shadow-inner shrink-0">
+                          <AvatarImage src={img} alt={doc.name} className="object-cover" />
+                          <AvatarFallback className="bg-[#E7F4F1] text-[#0D9373] font-bold">
+                            {doc.name ? doc.name.split(" ").slice(-1)[0]?.charAt(0) : "D"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-black text-base text-slate-900 leading-tight">{doc.name}</h3>
+                          <p className="text-xs text-slate-500 font-bold">{spec}</p>
+                          <Badge className="mt-1 bg-slate-50 text-slate-600 border border-slate-100 hover:bg-slate-100 px-2 py-0.5 text-[10px] font-bold rounded-md">
+                            {exp}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-sm font-bold text-slate-800">
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" /> {doc.rating} 
+                        <span className="text-slate-400 font-normal ml-1">({reviews} {t("topDoctors.reviews")})</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
+                        <div>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">{t("topDoctors.fee")}</p>
+                          <p className="font-black text-lg text-slate-900">₹{fee}</p>
+                        </div>
+                        <Link href="/consult">
+                          <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold rounded-full px-6 shadow-sm border-none">
+                            {t("topDoctors.consultNow")}
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
 
       {/* 10. TESTIMONIALS SLIDER SECTION */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {t("testimonials.title")}
-          </h2>
-          <p className="text-slate-500 text-sm font-semibold mt-1">
-            {t("testimonials.subtitle")}
-          </p>
-        </div>
+      {!testimonialsLoading && testimonials.length === 0 ? null : (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {t("testimonials.title")}
+            </h2>
+            <p className="text-slate-500 text-sm font-semibold mt-1">
+              {t("testimonials.subtitle")}
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((tItem, idx) => (
-            <Card key={idx} className="border-none shadow-md rounded-3xl bg-white flex flex-col justify-between">
-              <CardContent className="p-6 flex flex-col justify-between h-full gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(tItem.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed italic">
-                    "{t(tItem.tKey)}"
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonialsLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 h-[200px] flex flex-col animate-pulse space-y-4">
+                  <div className="h-4 bg-slate-100 rounded w-1/4" />
+                  <div className="h-3 bg-slate-100 rounded w-3/4" />
+                  <div className="h-3 bg-slate-100 rounded w-1/2" />
                 </div>
-                
-                <div className="flex items-center justify-between border-t border-slate-50 pt-4">
-                  <div>
-                    <h4 className="font-black text-sm text-slate-900">{tItem.user}</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{tItem.location}</p>
-                  </div>
-                  <Badge className="bg-emerald-50 text-[#0D9373] border-none px-2 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
-                    {tItem.tag}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              ))
+            ) : (
+              testimonials.map((tItem, idx) => (
+                <Card key={idx} className="border-none shadow-md rounded-3xl bg-white flex flex-col justify-between">
+                  <CardContent className="p-6 flex flex-col justify-between h-full gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(tItem.rating || 5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
+                        ))}
+                      </div>
+                      <p className="text-slate-600 text-sm font-medium leading-relaxed italic text-left">
+                        "{tItem.tKey ? t(tItem.tKey) : tItem.text}"
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+                      <div className="text-left">
+                        <h4 className="font-black text-sm text-slate-900">{tItem.user}</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{tItem.location}</p>
+                      </div>
+                      {tItem.tag && (
+                        <Badge className="bg-emerald-50 text-[#0D9373] border-none px-2 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
+                          {tItem.tag}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </section>
+      )}
 
       {/* 11. FAQS COMPONENT ( ACCORDION-STYLED ) */}
       <section className="max-w-4xl mx-auto px-6 md:px-8 mt-8">

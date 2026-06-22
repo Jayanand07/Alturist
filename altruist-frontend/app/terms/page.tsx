@@ -207,7 +207,7 @@ export default function TermsAndConditions() {
           <motion.section id="privacy" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-surface p-8 rounded-2xl shadow-sm border border-slate-100">
             <h2 className="text-2xl font-heading font-bold text-slate-900 mb-4">9. Privacy & Data Protection</h2>
             <div className="prose prose-slate max-w-none text-slate-600 space-y-4">
-              <p>Your privacy is our utmost priority. Altruist handles Personal Health Information (PHI) securely, drawing inspiration from HIPAA compliance standards. Our database utilizes Supabase Row Level Security (RLS) policies to ensure that your medical records, chat history, and prescriptions are absolutely invisible to unauthorized users.</p>
+              <p>Your privacy is our utmost priority. Altruist handles Personal Health Information (PHI) securely, drawing inspiration from high industry privacy standards. Our database utilizes Supabase Row Level Security (RLS) policies to ensure that your medical records, chat history, and prescriptions are absolutely invisible to unauthorized users.</p>
               <p>Chat consultations are end-to-end encrypted and are never recorded without explicit dual-consent from both the patient and the doctor. Please review our full Privacy Policy for detailed data practices.</p>
             </div>
           </motion.section>

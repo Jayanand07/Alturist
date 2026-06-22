@@ -45,6 +45,24 @@ spring:
     # in-memory simple provider so per-cache TTLs from CacheConfig are honoured.
     type: caffeine
 
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:placeholder}
+    password: ${SPRING_MAIL_PASSWORD:placeholder}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: ${SPRING_MAIL_HOST:smtp.gmail.com}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   # CORS configuration (also handled via WebConfig.java)
   # Allowed origin: http://localhost:3000
 

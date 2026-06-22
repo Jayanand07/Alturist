@@ -18,7 +18,9 @@ import {
   X,
   ShieldCheck,
   ChevronRight,
-  Home
+  Home,
+  FlaskConical,
+  Video
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -51,7 +53,9 @@ export default function AdminLayout({
     { title: "Doctors", href: "/admin/doctors", icon: UserRound },
     { title: "Patients", href: "/admin/patients", icon: Users },
     { title: "Medicines", href: "/admin/medicines", icon: Pill },
+    { title: "Lab Tests & Packages", href: "/admin/lab-management", icon: FlaskConical },
     { title: "Consultations", href: "/admin/consultations", icon: ClipboardList },
+    { title: "Vlogs", href: "/admin/vlogs", icon: Video },
     { title: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
     { title: "Support", href: "/admin/support", icon: LifeBuoy },
     { title: "Settings", href: "/admin/settings", icon: Settings },

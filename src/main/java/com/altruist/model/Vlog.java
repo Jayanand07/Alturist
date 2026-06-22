@@ -12,24 +12,24 @@ import java.util.UUID;
 
 @Entity
 @Table(
-    name = "doctor_vlogs",
+    name = "vlogs",
     indexes = {
-        @Index(name = "idx_vlog_doctor",    columnList = "doctor_id"),
-        @Index(name = "idx_vlog_published", columnList = "isPublished"),
+        @Index(name = "idx_vlog_author_doctor", columnList = "author_doctor_id"),
+        @Index(name = "idx_vlog_published", columnList = "is_published"),
         @Index(name = "idx_vlog_category",  columnList = "category")
     }
 )
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorVlog {
+public class Vlog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(name = "author_doctor_id", nullable = false)
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Doctor doctor;
 
@@ -37,24 +37,36 @@ public class DoctorVlog {
     private String title;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String excerpt;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "video_url")
     private String videoUrl;
 
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     private String category;
 
+    @Column(name = "is_published", nullable = false)
     private Boolean isPublished = false;
 
-    private Integer viewCount = 0;
+    @Column(name = "is_featured", nullable = false)
+    private Boolean isFeatured = false;
 
+    @Column(name = "views_count")
+    private Integer viewsCount = 0;
+
+    @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

@@ -69,6 +69,16 @@ export default function PatientDashboard() {
     retry: false
   });
 
+  const { data: manualSubs, isLoading: manualLoading } = useQuery({
+    queryKey: ["my-manual-subscriptions"],
+    queryFn: async () => {
+      try {
+        return (await api.get("/patient/subscriptions")).data;
+      } catch (e) { return []; }
+    },
+    enabled: !!authUser && userType === "PATIENT",
+  });
+
   const { data: tickets, isLoading: tickLoading } = useQuery({
     queryKey: ["recent-tickets"],
     queryFn: async () => {
@@ -301,6 +311,105 @@ export default function PatientDashboard() {
                   actionLabel="Find a Doctor" 
                   actionUrl="/consult" 
                 />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* My Subscriptions */}
+          <Card className="border border-border shadow-sm bg-surface rounded-3xl overflow-hidden">
+            <CardHeader className="border-b border-border py-5 px-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-xl font-bold text-foreground">My Subscriptions</CardTitle>
+                  <CardDescription className="font-medium mt-1">Manage your health coverage and offline activations</CardDescription>
+                </div>
+                <Badge className="bg-primary/10 text-primary border-none font-bold">
+                  {(manualSubs?.length || 0) + (sub?.status === "ACTIVE" ? 1 : 0)} Total
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {((sub && sub.status === "ACTIVE") || (manualSubs && manualSubs.length > 0)) ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Online sub (if active) */}
+                  {sub && sub.status === "ACTIVE" && (
+                    <div className="p-5 bg-gradient-to-br from-teal-50 to-emerald-50 border border-emerald-100 rounded-2xl space-y-3 relative group overflow-hidden">
+                      <div className="absolute right-3 top-3 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                        Online
+                      </div>
+                      <h4 className="font-black text-slate-800 text-lg leading-tight">{sub.planName}</h4>
+                      <p className="text-xs font-bold text-slate-500">
+                        Validity: {new Date(sub.startDate).toLocaleDateString()} - {new Date(sub.nextBillingDate).toLocaleDateString()}
+                      </p>
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-xs font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+                          Active
+                        </span>
+                        <span className="text-xs font-black text-slate-700">
+                          {Math.max(0, Math.ceil((new Date(sub.nextBillingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days remaining
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Manual / Offline subs */}
+                  {manualSubs && manualSubs.map((item: any) => {
+                    const remaining = Math.max(0, Math.ceil((new Date(item.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                    const isActive = item.status === "ACTIVE" && remaining > 0;
+                    return (
+                      <div key={item.id} className={cn(
+                        "p-5 border rounded-2xl space-y-3 relative overflow-hidden",
+                        isActive 
+                          ? "bg-gradient-to-br from-blue-50 to-indigo-50/50 border-blue-100" 
+                          : "bg-slate-50/50 border-slate-100 opacity-75"
+                      )}>
+                        <div className="absolute right-3 top-3 bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                          Offline / Manual
+                        </div>
+                        <h4 className="font-black text-slate-800 text-lg leading-tight">{item.planName}</h4>
+                        <p className="text-xs font-bold text-slate-500">
+                          Validity: {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
+                        </p>
+                        <div className="flex justify-between items-center pt-2">
+                          <span className={cn(
+                            "text-xs font-black px-2.5 py-1 rounded-full",
+                            isActive 
+                              ? "bg-blue-100 text-blue-700 border border-blue-200" 
+                              : "bg-slate-200 text-slate-600"
+                          )}>
+                            {isActive ? "Active" : "Expired"}
+                          </span>
+                          {isActive ? (
+                            <span className="text-xs font-black text-slate-700">
+                              {remaining} days remaining
+                            </span>
+                          ) : (
+                            <span className="text-xs font-semibold text-slate-400">
+                              Ended
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full border border-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                    <CreditCard size={28} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-700">No Active Coverage</h4>
+                    <p className="text-xs font-bold text-slate-400 max-w-xs mx-auto mt-1 leading-relaxed">
+                      You are not currently subscribed to any health plan. Unlock free consults and diagnostic discounts today.
+                    </p>
+                  </div>
+                  <Link href="/plans">
+                    <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold px-6 rounded-xl shadow border-none transition-all active:scale-95 text-xs h-10">
+                      Explore Health Plans
+                    </Button>
+                  </Link>
+                </div>
               )}
             </CardContent>
           </Card>

@@ -12,11 +12,17 @@ import type { NextRequest } from 'next/server';
 
 /** Protected routes that require ANY authenticated user (role doesn't matter). */
 const AUTH_REQUIRED_PREFIXES = [
-  '/support',
+  '/orders',
+  '/my-orders',
+  '/my-appointments',
+  '/my-subscriptions',
+  '/messages',
+  '/notifications',
   '/settings',
-  '/cart',
+  '/profile',
   '/checkout',
   '/consultation',
+  '/support',
   '/download',
 ];
 
@@ -67,7 +73,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ── 2. Generic auth-required routes ─────────────────────────────────────
-  if (AUTH_REQUIRED_PREFIXES.some((p) => pathname.startsWith(p))) {
+  if (AUTH_REQUIRED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
     if (!token) {
       const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', pathname);
@@ -77,7 +83,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ── 3. Role-guarded routes ───────────────────────────────────────────────
-  const matchedRule = ROLE_RULES.find(({ prefix }) => pathname.startsWith(prefix));
+  const matchedRule = ROLE_RULES.find(({ prefix }) => pathname === prefix || pathname.startsWith(prefix + '/'));
 
   if (matchedRule) {
     // 3a. Not logged in → /login

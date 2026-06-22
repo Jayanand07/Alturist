@@ -159,7 +159,8 @@ public class SupportService {
                 ticket.getId(), ticket.getSubject(), ticket.getStatus(),
                 ticket.getPriority(), ticket.getCategory(),
                 ticket.getCreatedAt(), ticket.getUpdatedAt(), unreadCount,
-                ticket.getPatient().getFullName()
+                ticket.getPatient().getFullName(),
+                ticket.getPatient().getEmail()
         );
     }
 

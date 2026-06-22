@@ -7,7 +7,7 @@ import {
   MapPin, Search, ShoppingCart, User, Menu, ChevronDown, LogOut,
   Settings, ClipboardList, Package, LayoutDashboard, HeartPulse, X,
   Globe, Video, Bell, Stethoscope, FlaskConical, Pill, CreditCard,
-  Building2, MessageSquare, Calendar,
+  Building2, MessageSquare, Calendar, ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -36,12 +36,13 @@ const SERVICES = [
   { label: "Order Medicines",  href: "/medicines",   icon: Pill,        desc: "Delivered to your door", tKey: "nav.medicines"       },
   { label: "Diagnostic Tests", href: "/labs",        icon: FlaskConical,desc: "Lab reports in 24h", tKey: "nav.labs"           },
   { label: "Health Plans",     href: "/plans",       icon: CreditCard,  desc: "Affordable subscriptions", tKey: "nav.plans"     },
+  { label: "Health Insurance", href: "/insurance",   icon: ShieldCheck,  desc: "Hospicash & Health Plans", tKey: "quick.healthInsuranceTitle" },
 ];
 
 // ── Top-level nav links (non-Services) ────────────────────────────────────
 const NAV_LINKS = [
   { title: "Plans",    href: "/plans", tKey: "nav.plans" },
-  { title: "About Us", href: "/about", tKey: "nav.about" },
+  { title: "Insurance",href: "/insurance", tKey: "quick.healthInsuranceTitle" },
 ];
 
 const RESOURCES = [
@@ -51,7 +52,7 @@ const RESOURCES = [
 export default function Header() {
   const pathname          = usePathname();
   const { language, setLanguage, t } = useLanguage();
-  const { user, signOut } = useAuth();
+  const { user, userType, signOut } = useAuth();
   const [isSticky,       setIsSticky]       = useState(false);
   const [isSearchOpen,   setIsSearchOpen]   = useState(false);
   const [servicesOpen,   setServicesOpen]   = useState(false);
@@ -158,8 +159,6 @@ export default function Header() {
     ...NAV_LINKS,
   ];
 
-  // User type helper
-  const userType = (user as any)?.userType as string | undefined;
 
   return (
     <header className="w-full flex flex-col font-sans">

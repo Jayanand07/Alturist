@@ -59,6 +59,52 @@ public final class DoctorMapper {
                 .build();
     }
 
+    public static PublicDoctorDTO toPublicListDTO(Doctor doctor) {
+        if (doctor == null) return null;
+
+        User user = doctor.getUser();
+        return PublicDoctorDTO.builder()
+                .id(doctor.getId())
+                .name(user != null ? user.getFullName() : null)
+                .specialization(doctor.getSpecialization())
+                .experienceYears(doctor.getExperienceYears())
+                .consultationFee(doctor.getConsultationFee())
+                .rating(doctor.getRating())
+                .profilePictureUrl(doctor.getProfilePictureUrl() != null ? doctor.getProfilePictureUrl() : (user != null ? user.getProfilePictureUrl() : null))
+                .totalConsultations(doctor.getTotalConsultations())
+                .isAvailable(doctor.getIsAvailable())
+                .city(doctor.getCity())
+                .clinicName(doctor.getClinicName())
+                .isVerified(doctor.getIsVerified())
+                .bio(doctor.getBio())
+                .languages(doctor.getLanguages())
+                .build();
+    }
+
+    public static PublicDoctorDetailDTO toPublicDetailDTO(Doctor doctor) {
+        if (doctor == null) return null;
+
+        User user = doctor.getUser();
+        return PublicDoctorDetailDTO.builder()
+                .id(doctor.getId())
+                .name(user != null ? user.getFullName() : null)
+                .specialization(doctor.getSpecialization())
+                .qualification(doctor.getQualification())
+                .experienceYears(doctor.getExperienceYears())
+                .consultationFee(doctor.getConsultationFee())
+                .isAvailable(doctor.getIsAvailable())
+                .rating(doctor.getRating())
+                .totalConsultations(doctor.getTotalConsultations())
+                .profilePictureUrl(doctor.getProfilePictureUrl() != null ? doctor.getProfilePictureUrl() : (user != null ? user.getProfilePictureUrl() : null))
+                .city(doctor.getCity())
+                .clinicName(doctor.getClinicName())
+                .clinicAddress(doctor.getClinicAddress())
+                .isVerified(doctor.getIsVerified())
+                .bio(doctor.getBio())
+                .languages(doctor.getLanguages())
+                .build();
+    }
+
     public static void updateDoctorFromRequest(Doctor doctor, AdminDoctorRequestDTO dto) {
         if (doctor == null || dto == null) return;
         

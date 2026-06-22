@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useRequireAuth } from "@/hooks/useRequireAuth"
 import {
   Search, ShoppingCart, Plus, Minus, AlertCircle, Pill, Package,
   SlidersHorizontal, X, ChevronDown, ArrowUpDown, FileText,
@@ -85,6 +87,8 @@ const CONDITIONS = [
 
 export default function MedicinesPage() {
   const { t } = useLanguage()
+  const router = useRouter()
+  const requireAuth = useRequireAuth()
   const [medicines,  setMedicines]  = useState<Medicine[]>([])
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState("")
@@ -137,12 +141,14 @@ export default function MedicinesPage() {
   useEffect(() => { setPage(0) }, [debouncedSearch, category, rxOnly, maxPrice, sortBy])
 
   const handleAdd = (med: Medicine) => {
-    addItem({
-      id: med.id, name: med.name, manufacturer: med.manufacturer,
-      price: med.price, discountedPrice: med.discountedPrice,
-      requiresPrescription: med.requiresPrescription, quantity: 1,
-    })
-    toast.success(`${med.name} added to cart`, { icon: "🛒" })
+    requireAuth(() => {
+      addItem({
+        id: med.id, name: med.name, manufacturer: med.manufacturer,
+        price: med.price, discountedPrice: med.discountedPrice,
+        requiresPrescription: med.requiresPrescription, quantity: 1,
+      })
+      toast.success(`${med.name} added to cart`, { icon: "🛒" })
+    }, "/medicines")
   }
 
   const clearFilters = () => {
@@ -159,7 +165,7 @@ export default function MedicinesPage() {
       {/* ── Sub Navigation ── */}
       <div className="bg-[#0b5e39] text-white">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex gap-6 overflow-x-auto whitespace-nowrap hide-scrollbar font-medium text-sm">
-          <span className="cursor-pointer hover:font-bold">Apollo Products</span>
+          <span className="cursor-pointer hover:font-bold">Wellness Products</span>
           <span className="cursor-pointer hover:font-bold">Baby Care</span>
           <span className="cursor-pointer hover:font-bold">Nutritional Drinks</span>
           <span className="cursor-pointer hover:font-bold">Women Care</span>
@@ -225,15 +231,35 @@ export default function MedicinesPage() {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
 
-        {/* ── Apollo Quick Action Cards ── */}
+        {/* ── Quick Action Cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             {[
-              { title: t("medicines.uploadPresc"), sub: t("medicines.get20Off"), img: "📝" },
-              { title: t("medicines.docAppt"), sub: t("medicines.startingPrice"), img: "👨‍⚕️" },
-              { title: t("medicines.healthIns"), sub: t("medicines.protectFamily"), img: "🛡️" },
-              { title: t("medicines.labTests"), sub: t("medicines.freeHomeSample"), img: "💉" }
+              { 
+                title: t("medicines.uploadPresc"), 
+                sub: t("medicines.get20Off"), 
+                img: "📝",
+                action: () => requireAuth(() => toast.success("Prescription upload system coming soon!"), "/medicines")
+              },
+              { 
+                title: t("medicines.docAppt"), 
+                sub: t("medicines.startingPrice"), 
+                img: "👨‍⚕️",
+                action: () => router.push("/consult")
+              },
+              { 
+                title: t("medicines.healthIns"), 
+                sub: t("medicines.protectFamily"), 
+                img: "🛡️",
+                action: () => router.push("/insurance")
+              },
+              { 
+                title: t("medicines.labTests"), 
+                sub: t("medicines.freeHomeSample"), 
+                img: "💉",
+                action: () => router.push("/labs")
+              }
             ].map((p, i) => (
-              <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-[#E8593C] transition-colors group">
+              <div key={i} onClick={p.action} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-[#E8593C] transition-colors group">
                  <div>
                     <p className="font-bold text-slate-900 group-hover:text-[#E8593C] transition-colors line-clamp-1">{p.title}</p>
                     <p className="text-xs text-slate-500 font-medium">{p.sub}</p>
@@ -439,14 +465,14 @@ export default function MedicinesPage() {
                              <div className="flex items-center justify-between bg-[#FCEBE7] rounded-md p-0.5 border border-[#E8593C]/20">
                                <Button variant="ghost" size="icon"
                                  className="h-8 w-8 text-[#E8593C] hover:bg-white rounded-md"
-                                 onClick={() => updateQuantity(med.id, qty - 1)}>
-                                 <Minus className="h-3 w-3" />
+                                 onClick={() => requireAuth(() => updateQuantity(med.id, qty - 1), "/medicines")}>
+                                 <Minus className="h-3.5 w-3.5" />
                                </Button>
                                <span className="font-bold text-[#E8593C] text-sm min-w-[24px] text-center">{qty}</span>
                                <Button variant="ghost" size="icon"
                                  className="h-8 w-8 text-[#E8593C] hover:bg-white rounded-md"
-                                 onClick={() => updateQuantity(med.id, qty + 1)}>
-                                 <Plus className="h-3 w-3" />
+                                 onClick={() => requireAuth(() => updateQuantity(med.id, qty + 1), "/medicines")}>
+                                 <Plus className="h-3.5 w-3.5" />
                                </Button>
                              </div>
                            ) : (

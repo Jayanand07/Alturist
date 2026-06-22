@@ -20,4 +20,5 @@ public class SupportTicketDTO {
     private LocalDateTime updatedAt;
     private Long unreadCount;
     private String patientName;
+    private String patientEmail;
 }

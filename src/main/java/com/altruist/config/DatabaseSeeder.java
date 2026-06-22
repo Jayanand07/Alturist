@@ -1,14 +1,7 @@
 package com.altruist.config;
 
-import com.altruist.model.Medicine;
-import com.altruist.model.User;
-import com.altruist.model.Doctor;
-import com.altruist.model.DoctorVlog;
-import com.altruist.model.UserType;
-import com.altruist.repository.MedicineRepository;
-import com.altruist.repository.UserRepository;
-import com.altruist.repository.DoctorRepository;
-import com.altruist.repository.DoctorVlogRepository;
+import com.altruist.model.*;
+import com.altruist.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -28,7 +21,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final MedicineRepository medicineRepository;
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
-    private final DoctorVlogRepository doctorVlogRepository;
+    private final VlogRepository vlogRepository;
+    private final LabTestRepository labTestRepository;
+    private final LabPackageRepository labPackageRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -185,8 +180,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         }
 
         // 2. Seed Users & Doctors
-        if (doctorRepository.count() == 0) {
-            log.info("Database is empty of doctors. Seeding realistic doctor profiles...");
+        if (!userRepository.existsByEmail("sarah.jenkins@altruistwellness.com")) {
+            log.info("Database is empty of seeded doctors. Seeding realistic doctor profiles...");
 
             // Doctor 1 (Sarah Jenkins - Cardiologist in Amritsar)
             seedDoctor(
@@ -307,6 +302,79 @@ public class DatabaseSeeder implements CommandLineRunner {
         } else {
             log.info("Doctors are already present in the catalog. Skipping doctor seeding.");
         }
+
+        // 3. Seed Lab Tests
+        if (labTestRepository.count() == 0) {
+            log.info("Database is empty of lab tests. Seeding realistic featured lab tests...");
+            List<LabTest> initialTests = Arrays.asList(
+                LabTest.builder()
+                    .name("Complete Blood Count (CBC)")
+                    .description("Measures red and white blood cells, platelets, and hemoglobin. Useful for detecting anemia or infections.")
+                    .category("Blood Studies")
+                    .price(new BigDecimal("300.00"))
+                    .discountedPrice(new BigDecimal("150.00"))
+                    .discountPercent(50)
+                    .includesCount(24)
+                    .isFeatured(true)
+                    .isActive(true)
+                    .build(),
+                LabTest.builder()
+                    .name("HbA1c (Glycated Haemoglobin)")
+                    .description("Average blood sugar level over the past 2-3 months. Standard test for diabetes monitoring.")
+                    .category("Diabetes")
+                    .price(new BigDecimal("400.00"))
+                    .discountedPrice(new BigDecimal("299.00"))
+                    .discountPercent(25)
+                    .includesCount(1)
+                    .isFeatured(true)
+                    .isActive(true)
+                    .build(),
+                LabTest.builder()
+                    .name("Lipid Profile")
+                    .description("Measures cholesterol levels (HDL, LDL, triglycerides) to assess cardiovascular risk.")
+                    .category("Heart")
+                    .price(new BigDecimal("600.00"))
+                    .discountedPrice(new BigDecimal("399.00"))
+                    .discountPercent(33)
+                    .includesCount(8)
+                    .isFeatured(true)
+                    .isActive(true)
+                    .build()
+            );
+            labTestRepository.saveAll(initialTests);
+            log.info("Seeded featured lab tests successfully!");
+        }
+
+        // 4. Seed Lab Packages
+        if (labPackageRepository.count() == 0) {
+            log.info("Database is empty of lab packages. Seeding realistic packages...");
+            List<LabPackage> initialPackages = Arrays.asList(
+                LabPackage.builder()
+                    .name("Full Body Active Health Package")
+                    .description("Comprehensive health screening package covering all major organs and metabolic markers.")
+                    .includesTestCount(64)
+                    .testNames(new String[]{"Complete Blood Count", "Lipid Profile", "Liver Function Test", "Kidney Function Test", "Thyroid Profile", "HbA1c"})
+                    .originalPrice(new BigDecimal("1999.00"))
+                    .discountedPrice(new BigDecimal("999.00"))
+                    .discountPercent(50)
+                    .smartReportIncluded(true)
+                    .isActive(true)
+                    .build(),
+                LabPackage.builder()
+                    .name("Advanced Diabetes Care Package")
+                    .description("Specialized package for diabetic patients, assessing glycemic control and associated organ functions.")
+                    .includesTestCount(12)
+                    .testNames(new String[]{"HbA1c", "Fasting Blood Sugar", "Urine Microalbumin", "Lipid Profile"})
+                    .originalPrice(new BigDecimal("1200.00"))
+                    .discountedPrice(new BigDecimal("699.00"))
+                    .discountPercent(41)
+                    .smartReportIncluded(true)
+                    .isActive(true)
+                    .build()
+            );
+            labPackageRepository.saveAll(initialPackages);
+            log.info("Seeded lab packages successfully!");
+        }
     }
 
     private void seedDoctor(
@@ -413,16 +481,18 @@ public class DatabaseSeeder implements CommandLineRunner {
         Doctor doctor, String title, String description,
         String videoUrl, String thumbnailUrl, String category, int views
     ) {
-        DoctorVlog vlog = new DoctorVlog();
+        Vlog vlog = new Vlog();
         vlog.setDoctor(doctor);
         vlog.setTitle(title);
-        vlog.setDescription(description);
+        vlog.setExcerpt(description);
+        vlog.setContent(description);
         vlog.setVideoUrl(videoUrl);
         vlog.setThumbnailUrl(thumbnailUrl);
         vlog.setCategory(category);
-        vlog.setViewCount(views);
+        vlog.setViewsCount(views);
         vlog.setIsPublished(true);
+        vlog.setIsFeatured(false);
         vlog.setPublishedAt(java.time.LocalDateTime.now());
-        doctorVlogRepository.save(vlog);
+        vlogRepository.save(vlog);
     }
 }

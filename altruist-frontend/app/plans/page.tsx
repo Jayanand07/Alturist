@@ -1,18 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import { 
-  CheckCircle2, Stethoscope, FlaskConical, Pill, 
-  Mail, ShieldCheck, Sparkles, Star, ChevronRight, 
-  ArrowRight, Award, GraduationCap, Briefcase
+  CheckCircle2, Mail, ChevronRight, 
+  GraduationCap, Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/context/LanguageContext";
+import { motion } from "framer-motion";
 
 // ── DATA STRUCTURES ──────────────────────────────────────────────────────
 
@@ -61,41 +58,32 @@ const ANCESTOR_PLANS = [
   }
 ];
 
-const LAB_TEST_PACKAGES = [
-  {
-    title: "Basic Health Checkup",
-    price: "₹499 – ₹699",
-    img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=300&h=200&fit=crop&q=80",
-    icon: FlaskConical,
-    desc: "Essential parameters to monitor your metabolic baseline.",
-    parameters: ["Blood Sugar Profile", "Complete Blood Count (CBC)", "Basic Screening Urine Analysis"]
-  },
-  {
-    title: "Advanced Health Package",
-    price: "₹1199 – ₹1499",
-    img: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&h=400&fit=crop&q=80",
-    icon: Award,
-    desc: "Complete head-to-toe screening for full system assessment.",
-    parameters: ["Full Body Checkup (84 tests)", "Comprehensive Liver Tests", "Kidney Function Analysis", "Thyroid Profile (T3, T4, TSH)", "Detailed Clinical Health Report"]
-  },
-  {
-    title: "Combo Offer 🎯",
-    price: "Starting at ₹1199",
-    img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&h=400&fit=crop&q=80",
-    icon: Sparkles,
-    desc: "Best for quick diagnosis & treatment. Combined Doctor + Lab checks.",
-    parameters: ["Annual Doctor Consultation Subscription", "Basic Health Screening Tests Included", "2Hr Pharmacy Priority Shipping"],
-    highlight: "MOST RECOMMENDED"
-  }
-];
+const getPlanMailtoLink = (planName: string) => {
+  const subject = `Plan Subscription Request — ${planName}`;
+  const body = `Hi Altruist Support Team,
+
+I am interested in subscribing to the ${planName}.
+
+Please find my details below:
+Name: 
+Email: 
+Phone: 
+City: 
+
+Kindly process my subscription and get in touch with me.
+
+Thank you.`;
+
+  return `mailto:support@altruistwellness.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+};
 
 export default function RedesignedPlansPage() {
-  const router = useRouter();
   const { t } = useLanguage();
+  const [isMounted, setIsMounted] = useState(false);
 
-  const handleSubscribe = (planName: string) => {
-    router.push(`/checkout?plan=${planName.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}`);
-  };
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-900 pb-20">
@@ -121,7 +109,7 @@ export default function RedesignedPlansPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 space-y-24">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16">
 
         {/* 2. DOCTOR CONSULTATION ANNUAL PLANS */}
         <section className="space-y-12">
@@ -188,7 +176,11 @@ export default function RedesignedPlansPage() {
 
                   <div className="pt-8">
                     <Button 
-                      onClick={() => handleSubscribe(plan.name)}
+                      onClick={() => {
+                        if (isMounted) {
+                          window.location.href = getPlanMailtoLink(plan.name);
+                        }
+                      }}
                       className={`w-full h-12 rounded-2xl font-black text-base transition-all border-none ${
                         plan.isPopular
                           ? "bg-[#E8593C] hover:bg-[#D14A30] text-white shadow-md shadow-orange-500/20"
@@ -197,6 +189,9 @@ export default function RedesignedPlansPage() {
                     >
                       {plan.type === 'STUDENT' ? t('plans.studentButton') : t('plans.adultButton')} <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
+                    <p className="text-xs text-slate-500 mt-2 text-center font-bold">
+                      Opens your email app to contact our team
+                    </p>
                   </div>
                 </motion.div>
               );
@@ -211,7 +206,7 @@ export default function RedesignedPlansPage() {
                 <Badge className="bg-emerald-500 text-white border-none px-2.5 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
                   {t('plans.enterpriseBadge')}
                 </Badge>
-                <h3 className="font-extrabold text-xl">{t('plans.enterpriseTitle')}</h3>
+                <h3 className="font-extrabold text-xl !text-white" style={{ color: '#ffffff' }}>{t('plans.enterpriseTitle')}</h3>
                 <p className="text-sm font-semibold text-slate-200 leading-relaxed">
                   {t('plans.enterpriseDesc')}
                 </p>
@@ -221,155 +216,6 @@ export default function RedesignedPlansPage() {
                   <Mail size={16} /> {t('plans.enterpriseButton')}
                 </Button>
               </a>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. LAB TEST PACKAGES GRID */}
-        <section className="space-y-12 bg-white border border-slate-100 p-8 sm:p-12 rounded-3xl shadow-sm">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <Badge className="bg-[#FEF3C7] text-[#D97706] hover:bg-[#FEF3C7] border-none font-bold text-xs px-3 py-1 rounded-md uppercase">
-              {t('plans.labsBadge')}
-            </Badge>
-            <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              {t('plans.labsTitle')}
-            </h2>
-            <p className="text-slate-500 text-sm font-semibold">
-              {t('plans.labsDesc')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {LAB_TEST_PACKAGES.map((pkg, idx) => (
-              <Card key={idx} className="border border-slate-100 hover:border-emerald-100 shadow-md hover:shadow-xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
-                <div className="relative h-44 w-full overflow-hidden bg-slate-50">
-                  <img 
-                    src={pkg.img} 
-                    alt={pkg.title} 
-                    className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  
-                  {pkg.highlight && (
-                    <Badge className="absolute top-4 left-4 bg-[#E8593C] text-white border-none px-3 py-1 font-black text-xs tracking-wider rounded-lg shadow">
-                      {pkg.highlight}
-                    </Badge>
-                  )}
-
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="font-black text-lg text-white drop-shadow-md leading-tight">
-                      {pkg.title}
-                    </h3>
-                  </div>
-                </div>
-
-                <CardContent className="p-6 flex flex-col justify-between flex-1 gap-6">
-                  <div className="space-y-4 text-left">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">{t('plans.priceRange')}</span>
-                      <span className="text-xl font-black text-slate-900 ml-1">{pkg.price}</span>
-                    </div>
-
-                    <p className="text-xs font-semibold text-slate-500 leading-relaxed">
-                      {pkg.desc}
-                    </p>
-
-                    <div className="space-y-2 pt-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{t('plans.parameters')}</span>
-                      <div className="flex flex-col gap-2">
-                        {pkg.parameters.map((param, pIdx) => (
-                          <div key={pIdx} className="flex items-start gap-2.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#0D9373] mt-1.5 shrink-0" />
-                            <span className="text-xs font-bold text-slate-600 leading-tight">{param}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 border-t border-slate-50">
-                    <Link href="/labs">
-                      <Button className="w-full h-11 rounded-2xl bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-extrabold text-sm border-none shadow-sm flex items-center justify-center gap-1">
-                        {t('plans.bookDiagnostic')} <ArrowRight size={14} />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. MEDICINES & PHARMACY PROMOTION CARD */}
-        <section className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] rounded-3xl p-8 sm:p-12 text-white border border-slate-800 shadow-xl relative overflow-hidden">
-          <div className="absolute right-[-50px] top-[-50px] w-96 h-96 rounded-full bg-[#E8593C]/5 blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 text-left">
-            <div className="space-y-6 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 bg-[#E8593C]/10 border border-[#E8593C]/20 rounded-full px-3 py-1 text-[#E8593C] text-xs font-black tracking-widest uppercase">
-                <Pill size={12} /> {t('plans.medicinesBadge')}
-              </div>
-              <h2 className="font-heading text-3xl font-black leading-tight tracking-tight">
-                💊 {t('plans.medicinesTitle')}
-              </h2>
-              <p className="text-slate-200 font-semibold text-sm leading-relaxed">
-                {t('plans.medicinesDesc')}
-              </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-800 pt-6">
-                <div>
-                  <span className="block text-2xl font-black text-[#E8593C]">{t('plans.discountTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.discountDesc')}</span>
-                </div>
-                <div>
-                  <span className="block text-2xl font-black text-emerald-400">{t('plans.genuineTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.genuineDesc')}</span>
-                </div>
-                <div>
-                  <span className="block text-2xl font-black text-blue-400">{t('plans.expressTitle')}</span>
-                  <span className="text-[10px] uppercase font-bold text-slate-300 tracking-wider">{t('plans.expressDesc')}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-full lg:w-auto shrink-0 flex flex-col gap-3 min-w-[240px]">
-              <Link href="/medicines" className="w-full">
-                <Button className="w-full h-12 rounded-2xl bg-[#E8593C] hover:bg-[#D14A30] text-white font-black text-sm border-none shadow-md">
-                  {t('plans.orderNow')}
-                </Button>
-              </Link>
-              <Link href="/support" className="w-full">
-                <Button className="w-full h-12 rounded-2xl bg-transparent hover:bg-white/5 border border-white/25 text-white font-bold text-sm">
-                  {t('plans.talkPharmacist')}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* 5. GET STARTED TODAY BANNER (CTA) */}
-        <section className="bg-gradient-to-br from-[#0D9373] via-[#0A7A5F] to-[#08614C] rounded-3xl p-8 sm:p-12 text-center text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 left-0 right-0 bottom-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-          
-          <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <span className="text-4xl">🚀</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-extrabold tracking-tight">
-              {t('plans.getStartedTitle')}
-            </h2>
-            <p className="text-emerald-100 font-semibold text-base leading-relaxed opacity-95">
-              {t('plans.getStartedDesc')}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Link href="/register">
-                <Button className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-white text-[#0D9373] hover:bg-slate-50 font-black text-sm border-none shadow-lg active:scale-95 transition-all">
-                  {t('plans.signUpButton')}
-                </Button>
-              </Link>
-              <Link href="/">
-                <Button className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-[#E8593C] hover:bg-[#D14A30] text-white font-black text-sm border-none shadow-lg active:scale-95 transition-all">
-                  {t('plans.dashboardButton')}
-                </Button>
-              </Link>
             </div>
           </div>
         </section>

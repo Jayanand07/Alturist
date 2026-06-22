@@ -1,5 +1,6 @@
 package com.altruist.repository;
 
+import com.altruist.dto.SpecialtySummaryDTO;
 import com.altruist.model.Doctor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,18 @@ import java.util.UUID;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, UUID> {
+
+    /**
+     * Groups verified doctors by specialization and returns a count per specialty.
+     * Only specialties with at least one verified doctor are returned.
+     */
+    @Query("SELECT new com.altruist.dto.SpecialtySummaryDTO(d.specialization, COUNT(d)) " +
+           "FROM Doctor d " +
+           "WHERE d.isVerified = true AND d.specialization IS NOT NULL AND d.specialization != '' " +
+           "GROUP BY d.specialization " +
+           "ORDER BY COUNT(d) DESC")
+    List<SpecialtySummaryDTO> findSpecialtySummaries();
+
 
     Optional<Doctor> findByUserId(UUID userId);
 

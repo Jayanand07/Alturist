@@ -43,7 +43,7 @@ public class PatientService {
         long totalConsultations = consultationRepository.findByPatientId(patientId).size();
         long upcomingAppointments = consultationRepository.findByPatientId(patientId).stream()
                 .filter(c -> (c.getStatus() == ConsultationStatus.PENDING || c.getStatus() == ConsultationStatus.ONGOING) 
-                          && c.getScheduledAt().isAfter(now))
+                          && c.getScheduledAt() != null && c.getScheduledAt().isAfter(now))
                 .count();
         // Since prescriptions are currently stored as string in diagnosis
         long activePrescriptions = consultationRepository.findByPatientIdAndStatus(patientId, ConsultationStatus.COMPLETED).stream()
@@ -100,7 +100,7 @@ public class PatientService {
                 .collect(Collectors.toList());
 
         // 4. Random health tips (using cached list)
-        List<String> randomTips = getHealthTips();
+        List<String> randomTips = new java.util.ArrayList<>(getHealthTips());
         Collections.shuffle(randomTips);
 
         return PatientDashboardDTO.builder()

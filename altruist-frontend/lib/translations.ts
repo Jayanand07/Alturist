@@ -14,27 +14,29 @@ export const translations = {
     "nav.resources": "Resources",
     
     // Hero Section
-    "hero.sparkleTag": "HIPAA-Compliant Healthcare",
-    "hero.title1": "India's Modern,",
-    "hero.title2": "Trusted Health Care.",
-    "hero.desc": "Instant specialist consultations online, genuine medicines delivered to your doorstep in 2 hours, and hygienic diagnostic lab tests booked at home.",
+    "hero.sparkleTag": "Trusted Online Healthcare",
+    "hero.title1": "Trusted Healthcare",
+    "hero.title2": "for Individuals & Enterprises",
+    "hero.desc": "Instant specialist consultations online and through OPD, genuine medicines, hygienic diagnostic lab tests booked at home, affordable health insurance.",
     "hero.placeholder": "Search medicines, specialist doctors, diagnostic tests...",
     "hero.search": "Search",
     "hero.commonSearches": "Common Searches:",
     "hero.qualityTag": "100% Quality Assured",
-    "hero.qualityDesc": "NABL & HIPAA Licensed Platform",
+    "hero.qualityDesc": "NABL Licensed Platform",
     "hero.happyPatients": "Happy Patients",
     "hero.expertDoctors": "Expert Doctors",
     "hero.deliveryInfo": "Express 2Hr medicine delivery running in Punjab",
     
     // Promo Cards
-    "promo.promo1Title": "First Consultation FREE 🩺",
+    "promo.promo1Title": "Start Your Consultation",
     "promo.promo1Desc": "Get free medical advice from our trusted panel of General Physicians.",
     "promo.promo2Title": "Comprehensive Health Screen 🧪",
     "promo.promo2Desc": "Identify early health warning signs with comprehensive blood & urine parameters.",
-    "promo.promo3Title": "Upload Prescription & Order 💊",
+    "promo.promo3Title": "Order Genuine Medicine",
     "promo.promo3Desc": "Let our verified pharmacists read your prescription & prepare your cart.",
-    "promo.claimOffer": "Claim Offer",
+    "promo.promo4Title": "Affordable Health Insurance",
+    "promo.promo4Desc": "Choose from best health insurance plans and term plans tailored for you and your family.",
+    "promo.claimOffer": "Start Now",
     
     // Quick Actions
     "quick.title": "Consult, Order & Manage",
@@ -43,6 +45,9 @@ export const translations = {
     "quick.learnMore": "Learn More",
     "quick.consultNow": "Consult Now",
     "quick.bookTest": "Book Test",
+    "quick.healthInsuranceTitle": "Health Insurance",
+    "quick.healthInsuranceDesc": "Affordable health plans for individuals, families, and enterprises.",
+    "quick.getInsurance": "Get Insurance",
     "quick.findClinics": "Find Clinics",
     "quick.descMedicines": "100% Genuine. Free Delivery in 2 Hours.",
     "quick.descConsult": "Chat online with verified doctors in 10 mins.",
@@ -55,7 +60,7 @@ export const translations = {
     "specialty.viewAll": "View All Specialists",
     
     // Best Sellers
-    "bestSellers.title": "Best Sellers in Wellness & Care",
+    "bestSellers.title": "Best Sellers in Pharmacy Store",
     "bestSellers.subtitle": "Top selling healthcare products, supplements, and skin diagnostics",
     "bestSellers.exploreStore": "Explore Pharmacy Store",
     "bestSellers.add": "ADD",
@@ -78,8 +83,8 @@ export const translations = {
     "trust.card2Desc": "Get high priority medicine deliveries from local licensed pharmacy nodes within two hours of validation.",
     "trust.card3Title": "Verified Specialists",
     "trust.card3Desc": "Virtual consults with board-licensed MD/MS doctors. Fully private end-to-end encrypted chats.",
-    "trust.card4Title": "HIPAA RLS Secured",
-    "trust.card4Desc": "Protected Health Information is encrypted with Supabase Row Level Security. Data is never shared.",
+    "trust.card4Title": "Secure RLS Protected",
+    "trust.card4Desc": "Health Information is encrypted with Supabase Row Level Security. Data is never shared.",
     
     // Top Rated Doctors
     "topDoctors.title": "Top Rated Doctors on Platform",
@@ -177,7 +182,7 @@ export const translations = {
     "plans.orderNow": "Order Medicines Now",
     "plans.talkPharmacist": "Talk to a Pharmacist",
     "plans.getStartedTitle": "Get Started Today",
-    "plans.getStartedDesc": "Book your professional consultation, order NMC-verified medicines, or schedule laboratory diagnostic tests — all from one united, secure, HIPAA-compliant platform.",
+    "plans.getStartedDesc": "Book your professional consultation, order NMC-verified medicines, or schedule laboratory diagnostic tests — all from one united, secure platform.",
     "plans.signUpButton": "Sign Up & Consult Now",
     "plans.dashboardButton": "Go to Dashboard",
 
@@ -318,27 +323,29 @@ export const translations = {
     "nav.resources": "संसाधन",
     
     // Hero Section
-    "hero.sparkleTag": "HIPAA-अनुपालन स्वास्थ्य सेवा",
-    "hero.title1": "भारत की आधुनिक,",
-    "hero.title2": "विश्वसनीय स्वास्थ्य सेवा।",
-    "hero.desc": "विशेषज्ञों से तुरंत ऑनलाइन परामर्श लें, असली दवाएं 2 घंटे में अपने घर पाएं, और सुरक्षित लैब टेस्ट घर पर ही बुक करें।",
+    "hero.sparkleTag": "विश्वसनीय ऑनलाइन स्वास्थ्य सेवा",
+    "hero.title1": "विश्वसनीय स्वास्थ्य सेवा",
+    "hero.title2": "व्यक्तियों और उद्यमों के लिए",
+    "hero.desc": "ऑनलाइन और ओपीडी के माध्यम से तत्काल विशेषज्ञ परामर्श, वास्तविक दवाएं, घर पर बुक किए गए स्वच्छ नैदानिक लैब परीक्षण, किफायती स्वास्थ्य बीमा।",
     "hero.placeholder": "दवाएं, विशेषज्ञ डॉक्टर, लैब टेस्ट खोजें...",
     "hero.search": "खोजें",
     "hero.commonSearches": "लोकप्रिय खोजें:",
     "hero.qualityTag": "100% गुणवत्ता सुनिश्चित",
-    "hero.qualityDesc": "NABL और HIPAA लाइसेंस प्राप्त प्लेटफॉर्म",
+    "hero.qualityDesc": "NABL लाइसेंस प्राप्त प्लेटफॉर्म",
     "hero.happyPatients": "संतुष्ट मरीज",
     "hero.expertDoctors": "विशेषज्ञ डॉक्टर",
     "hero.deliveryInfo": "पंजाब में 2 घंटे में दवाइयों की एक्सप्रेस डिलीवरी चालू है",
     
     // Promo Cards
-    "promo.promo1Title": "पहला परामर्श बिल्कुल मुफ्त 🩺",
+    "promo.promo1Title": "अपना परामर्श शुरू करें",
     "promo.promo1Desc": "हमारे विश्वसनीय सामान्य चिकित्सकों के पैनल से मुफ्त चिकित्सा सलाह प्राप्त करें।",
     "promo.promo2Title": "व्यापक स्वास्थ्य जांच 🧪",
     "promo.promo2Desc": "स्वास्थ्य समस्याओं के शुरुआती संकेतों को व्यापक रक्त और मूत्र परीक्षणों से पहचानें।",
-    "promo.promo3Title": "पर्चा अपलोड करें और ऑर्डर करें 💊",
+    "promo.promo3Title": "असली दवाएं ऑर्डर करें",
     "promo.promo3Desc": "हमारे प्रमाणित फार्मासिस्टों को अपना पर्चा पढ़ने दें और अपनी कार्ट तैयार करने दें।",
-    "promo.claimOffer": "ऑफर का लाभ उठाएं",
+    "promo.promo4Title": "किफायती स्वास्थ्य बीमा",
+    "promo.promo4Desc": "अपने और अपने परिवार के लिए सर्वोत्तम स्वास्थ्य बीमा और टर्म प्लान चुनें।",
+    "promo.claimOffer": "अभी शुरू करें",
     
     // Quick Actions
     "quick.title": "परामर्श, ऑर्डर और प्रबंधन",
@@ -348,6 +355,9 @@ export const translations = {
     "quick.consultNow": "अभी परामर्श करें",
     "quick.bookTest": "टेस्ट बुक करें",
     "quick.findClinics": "क्लिनिक खोजें",
+    "quick.healthInsuranceTitle": "स्वास्थ्य बीमा",
+    "quick.healthInsuranceDesc": "व्यक्तियों, परिवारों और उद्यमों के लिए किफायती स्वास्थ्य योजनाएं।",
+    "quick.getInsurance": "बीमा प्राप्त करें",
     "quick.descMedicines": "100% असली। 2 घंटे में घर पर मुफ्त डिलीवरी।",
     "quick.descConsult": "10 मिनट में प्रमाणित डॉक्टरों से ऑनलाइन चैट करें।",
     "quick.descLabs": "घर से मुफ्त और स्वच्छ सैंपल कलेक्शन की सुविधा।",
@@ -359,7 +369,7 @@ export const translations = {
     "specialty.viewAll": "सभी विशेषज्ञ देखें",
     
     // Best Sellers
-    "bestSellers.title": "वेलनेस और केयर में बेस्ट सेलर्स",
+    "bestSellers.title": "फार्मेसी स्टोर में बेस्ट सेलर्स",
     "bestSellers.subtitle": "सबसे अधिक बिकने वाले स्वास्थ्य उत्पाद, सप्लीमेंट्स और त्वचा रोग निदान",
     "bestSellers.exploreStore": "फार्मेसी स्टोर पर जाएं",
     "bestSellers.add": "जोड़ें",
@@ -382,7 +392,7 @@ export const translations = {
     "trust.card2Desc": "सत्यापन के दो घंटे के भीतर स्थानीय लाइसेंस प्राप्त फार्मेसी नोड्स से उच्च प्राथमिकता वाली दवाएं प्राप्त करें।",
     "trust.card3Title": "सत्यापित विशेषज्ञ",
     "trust.card3Desc": "बोर्ड-लाइसेंस प्राप्त MD/MS डॉक्टरों से ऑनलाइन परामर्श। पूरी तरह से निजी और सुरक्षित चैट।",
-    "trust.card4Title": "HIPAA RLS सुरक्षित",
+    "trust.card4Title": "सुरक्षित RLS संरक्षित",
     "trust.card4Desc": "व्यक्तिगत स्वास्थ्य जानकारी Supabase रो लेवल सिक्योरिटी द्वारा एन्क्रिप्टेड है। डेटा कभी साझा नहीं किया जाता।",
     
     // Top Rated Doctors
@@ -481,7 +491,7 @@ export const translations = {
     "plans.orderNow": "दवाइयां अभी ऑर्डर करें",
     "plans.talkPharmacist": "फार्मासिस्ट से बात करें",
     "plans.getStartedTitle": "आज ही शुरू करें",
-    "plans.getStartedDesc": "एक संयुक्त, सुरक्षित, HIPAA-अनुपालक प्लेटफॉर्म से अपना पेशेवर परामर्श बुक करें, NMC-सत्यापित दवाएं ऑर्डर करें, या प्रयोगशाला परीक्षण शेड्यूल करें।",
+    "plans.getStartedDesc": "एक संयुक्त, सुरक्षित प्लेटफॉर्म से अपना पेशेवर परामर्श बुक करें, NMC-सत्यापित दवाएं ऑर्डर करें, या प्रयोगशाला परीक्षण शेड्यूल करें।",
     "plans.signUpButton": "साइन अप करें और अभी परामर्श करें",
     "plans.dashboardButton": "डैशबोर्ड पर जाएं",
 
@@ -622,27 +632,29 @@ export const translations = {
     "nav.resources": "ਸਰੋਤ",
     
     // Hero Section
-    "hero.sparkleTag": "HIPAA-ਅਨੁਕੂਲ ਸਿਹਤ ਸੇਵਾ",
-    "hero.title1": "ਭਾਰਤ ਦੀ ਆਧੁਨਿਕ,",
-    "hero.title2": "ਭਰੋਸੇਮੰਦ ਸਿਹਤ ਸੰਭਾਲ।",
-    "hero.desc": "ਮਾਹਰਾਂ ਤੋਂ ਤੁਰੰਤ ਔਨਲਾਈਨ ਸਲਾਹ ਲਓ, ਅਸਲੀ ਦਵਾਈਆਂ 2 ਘੰਟੇ ਵਿੱਚ ਆਪਣੇ ਘਰ ਪ੍ਰਾਪਤ ਕਰੋ, ਅਤੇ ਸੁਰੱਖਿਅਤ ਲੈਬ ਟੈਸਟ ਘਰ ਬੈਠੇ ਹੀ ਬੁੱਕ ਕਰੋ।",
+    "hero.sparkleTag": "ਭਰੋਸੇਮੰਦ ਔਨਲਾਈਨ ਸਿਹਤ ਸੰਭਾਲ",
+    "hero.title1": "ਭਰੋਸੇਮੰਦ ਸਿਹਤ ਸੰਭਾਲ",
+    "hero.title2": "ਵਿਅਕਤੀਆਂ ਅਤੇ ਉੱਦਮਾਂ ਲਈ",
+    "hero.desc": "ਔਨਲਾਈਨ ਅਤੇ ਓਪੀਡੀ ਰਾਹੀਂ ਤੁਰੰਤ ਮਾਹਰ ਡਾਕਟਰਾਂ ਦੀ ਸਲਾਹ, ਅਸਲੀ ਦਵਾਈਆਂ, ਘਰ ਬੈਠੇ ਬੁੱਕ ਕੀਤੇ ਸਵੱਛ ਲੈਬ ਟੈਸਟ, ਕਿਫਾਇਤੀ ਸਿਹਤ ਬੀਮਾ।",
     "hero.placeholder": "ਦਵਾਈਆਂ, ਮਾਹਰ ਡਾਕਟਰ, ਲੈਬ ਟੈਸਟ ਲੱਭੋ...",
     "hero.search": "ਖੋਜੋ",
     "hero.commonSearches": "ਪ੍ਰਸਿੱਧ ਖੋਜਾਂ:",
     "hero.qualityTag": "100% ਗੁਣਵੱਤਾ ਯਕੀਨੀ",
-    "hero.qualityDesc": "NABL ਅਤੇ HIPAA ਲਾਇਸੰਸਸ਼ੁਦਾ ਪਲੇਟਫਾਰਮ",
+    "hero.qualityDesc": "NABL ਲਾਇਸੰਸਸ਼ੁਦਾ ਪਲੇਟਫਾਰਮ",
     "hero.happyPatients": "ਸੰਤੁਸ਼ਟ ਮਰੀਜ਼",
     "hero.expertDoctors": "ਮਾਹਰ ਡਾਕਟਰ",
     "hero.deliveryInfo": "ਪੰਜਾਬ ਵਿੱਚ 2 ਘੰਟੇ ਵਿੱਚ ਦਵਾਈਆਂ ਦੀ ਐਕਸਪ੍ਰੈਸ ਡਿਲੀਵਰੀ ਚਾਲੂ ਹੈ",
     
     // Promo Cards
-    "promo.promo1Title": "ਪਹਿਲੀ ਸਲਾਹ ਬਿਲਕੁਲ ਮੁਫ਼ਤ 🩺",
-    "promo.promo1Desc": "ਸਾਡੇ ਭਰੋਸੇਮੰਦ ਜਨਰਲ ਫਿਜ਼ੀਸ਼ੀਅਨਾਂ ਦੇ ਪੈਨਲ ਤੋਂ ਮੁਫ਼ਤ ਡਾਕਟਰੀ ਸਲਾਹ ਪ੍ਰਾਪਤ ਕਰੋ।",
+    "promo.promo1Title": "ਆਪਣੀ ਸਲਾਹ ਸ਼ੁਰੂ ਕਰੋ",
+    "promo.promo1Desc": "ਸਾਡੇ ਭਰੋਸੇਮੰਦ ਜਨਰਲ ਫਿਜ਼ੀਸ਼ੀਅਨਾਂ ਦੇ ਪੈਨਲ ਤੋਂ ਮੁਫ਼ਤ ਡਾਕਟरी ਸਲਾਹ ਪ੍ਰਾਪਤ ਕਰੋ।",
     "promo.promo2Title": "ਵਿਆਪਕ ਸਿਹਤ ਜਾਂਚ 🧪",
     "promo.promo2Desc": "ਸਿਹਤ ਸਮੱਸਿਆਵਾਂ ਦੇ ਸ਼ੁਰੂਆਤੀ ਸੰਕੇਤਾਂ ਦੀ ਪਛਾਣ ਵਿਆਪਕ ਖੂਨ ਅਤੇ ਪਿਸ਼ਾਬ ਦੇ ਟੈਸਟਾਂ ਨਾਲ ਕਰੋ।",
-    "promo.promo3Title": "ਪਰਚੀ ਅੱਪਲੋਡ ਕਰੋ ਅਤੇ ਆਰਡਰ ਕਰੋ 💊",
+    "promo.promo3Title": "ਅਸਲੀ ਦਵਾਈਆਂ ਆਰਡਰ ਕਰੋ",
     "promo.promo3Desc": "ਸਾਡੇ ਪ੍ਰਮਾਣਿਤ ਫਾਰਮਾਸਿਸਟਾਂ ਨੂੰ ਆਪਣੀ ਪਰਚੀ ਪੜ੍ਹਨ ਦਿਓ ਅਤੇ ਤੁਹਾਡੀ ਕਾਰਟ ਤਿਆਰ ਕਰਨ ਦਿਓ।",
-    "promo.claimOffer": "ਆਫਰ ਦਾ ਲਾਭ ਉਠਾਓ",
+    "promo.promo4Title": "ਕਿਫਾਇਤੀ ਸਿਹਤ ਬੀਮਾ",
+    "promo.promo4Desc": "ਆਪਣੇ ਅਤੇ ਆਪਣੇ ਪਰਿਵਾਰ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਸਿਹਤ ਬੀਮਾ ਅਤੇ ਟਰਮ ਪਲਾਨ ਚੁਣੋ।",
+    "promo.claimOffer": "ਹੁਣੇ ਸ਼ੁਰੂ ਕਰੋ",
     
     // Quick Actions
     "quick.title": "ਸਲਾਹ, ਆਰਡਰ ਅਤੇ ਪ੍ਰਬੰਧਨ",
@@ -652,6 +664,9 @@ export const translations = {
     "quick.consultNow": "ਹੁਣੇ ਸਲਾਹ ਲਓ",
     "quick.bookTest": "ਟੈਸਟ ਬੁੱਕ ਕਰੋ",
     "quick.findClinics": "ਕਲੀਨਿਕ ਖੋਜੋ",
+    "quick.healthInsuranceTitle": "ਸਿਹਤ ਬੀਮਾ",
+    "quick.healthInsuranceDesc": "ਵਿਅਕਤੀਆਂ, ਪਰਿਵਾਰਾਂ ਅਤੇ ਉੱਦਮਾਂ ਲਈ ਕਿਫਾਇਤੀ ਸਿਹਤ ਯੋਜਨਾਵਾਂ।",
+    "quick.getInsurance": "ਬੀਮਾ ਪ੍ਰਾਪਤ ਕਰੋ",
     "quick.descMedicines": "100% ਅਸਲੀ। 2 ਘੰਟੇ ਵਿੱਚ ਮੁਫ਼ਤ ਹੋਮ ਡਿਲੀਵਰੀ।",
     "quick.descConsult": "10 ਮਿੰਟਾਂ ਵਿੱਚ ਪ੍ਰਮਾਣਿਤ ਡਾਕਟਰਾਂ ਨਾਲ ਔਨਲਾਈਨ ਚੈਟ ਕਰੋ।",
     "quick.descLabs": "ਘਰ ਤੋਂ ਮੁਫ਼ਤ ਅਤੇ ਸਾਫ਼-ਸੁਥਰਾ ਸੈਂਪਲ ਸੰਗ੍ਰਹਿ।",
@@ -663,7 +678,7 @@ export const translations = {
     "specialty.viewAll": "ਸਾਰੇ ਮਾਹਰ ਦੇਖੋ",
     
     // Best Sellers
-    "bestSellers.title": "ਵੈਲਨੈੱਸ ਅਤੇ ਕੇਅਰ ਵਿੱਚ ਸਭ ਤੋਂ ਵੱਧ ਵਿਕਣ ਵਾਲੇ",
+    "bestSellers.title": "ਫਾਰਮੇਸੀ ਸਟੋਰ ਵਿੱਚ ਸਭ ਤੋਂ ਵੱਧ ਵਿਕਣ ਵਾਲੇ",
     "bestSellers.subtitle": "ਸਭ ਤੋਂ ਵੱਧ ਵਿਕਣ ਵਾਲੇ ਸਿਹਤ ਉਤਪਾਦ, ਸਪਲੀਮੈਂਟਸ ਅਤੇ ਚਮੜੀ ਦੇ ਟੈਸਟ",
     "bestSellers.exploreStore": "ਫਾਰਮੇਸੀ ਸਟੋਰ 'ਤੇ ਜਾਓ",
     "bestSellers.add": "ਜੋੜੋ",
@@ -686,8 +701,8 @@ export const translations = {
     "trust.card2Desc": "ਪੁਸ਼ਟੀਕਰਨ ਦੇ ਦੋ ਘੰਟਿਆਂ ਦੇ ਅੰਦਰ ਸਥਾਨਕ ਲਾਇਸੰਸਸ਼ੁਦਾ ਫਾਰਮੇਸੀ ਨੋਡਸ ਤੋਂ ਉੱਚ ਤਰਜੀਹ ਵਾਲੀਆਂ ਦਵਾਈਆਂ ਦੀ ਡਿਲੀਵਰੀ ਪ੍ਰਾਪਤ ਕਰੋ।",
     "trust.card3Title": "ਪ੍ਰਮਾਣਿਤ ਮਾਹਰ",
     "trust.card3Desc": "ਬੋਰਡ-ਲਾਇਸੰਸਸ਼ੁਦਾ MD/MS ਡਾਕਟਰਾਂ ਨਾਲ ਔਨਲਾਈਨ ਸਲਾਹ। ਪੂਰੀ ਤਰ੍ਹਾਂ ਨਿੱਜੀ ਅਤੇ ਸੁਰੱਖਿਅਤ ਚੈਟ।",
-    "trust.card4Title": "HIPAA RLS ਸੁਰੱਖਿਅਤ",
-    "trust.card4Desc": "ਨਿੱਜੀ ਸਿਹਤ ਜਾਣਕਾਰੀ Supabase ਰੋ ਲੈਵਲ ਸਕਿਓਰਿਟੀ ਦੁਆਰਾ ਐਨਕ੍ਰਿਪਟਡ ਹੈ। ਡੇਟਾ ਕਦੇ ਸਾਂਝਾ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ।",
+    "trust.card4Title": "ਸੁਰੱਖਿਅਤ RLS ਸੁਰੱਖਿਅਤ",
+    "trust.card4Desc": "ਸਿਹਤ ਜਾਣਕਾਰੀ Supabase ਰੋ ਲੈਵਲ ਸਕਿਓਰਿਟੀ ਦੁਆਰਾ ਐਨਕ੍ਰਿਪਟਡ ਹੈ। ਡੇਟਾ ਕਦੇ ਸਾਂਝਾ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ।",
     
     // Top Rated Doctors
     "topDoctors.title": "ਪਲੇਟਫਾਰਮ 'ਤੇ ਚੋਟੀ ਦੇ ਰੇਟ ਕੀਤੇ ਡਾਕਟਰ",
@@ -781,7 +796,7 @@ export const translations = {
     "plans.orderNow": "ਦਵਾਈਆਂ ਹੁਣੇ ਆਰਡਰ ਕਰੋ",
     "plans.talkPharmacist": "ਫਾਰਮਾਸਿਸਟ ਨਾਲ ਗੱਲ ਕਰੋ",
     "plans.getStartedTitle": "ਅੱਜ ਹੀ ਸ਼ੁਰੂ ਕਰੋ",
-    "plans.getStartedDesc": "ਇੱਕ ਸੁਰੱਖਿਅਤ, HIPAA-ਅਨੁਕੂਲ ਪਲੇਟਫਾਰਮ ਤੋਂ ਆਪਣੀ ਪੇਸ਼ੇਵਰ ਸਲਾਹ ਬੁੱਕ ਕਰੋ, ਪ੍ਰਮਾਣਿਤ ਦਵਾਈਆਂ ਆਰਡਰ ਕਰੋ, ਜਾਂ ਲੈਬ ਟੈਸਟ ਸ਼ਡਿਊਲ ਕਰੋ।",
+    "plans.getStartedDesc": "ਇੱਕ ਸੁਰੱਖਿਅਤ ਪਲੇਟਫਾਰਮ ਤੋਂ ਆਪਣੀ ਪੇਸ਼ੇਵਰ ਸਲਾਹ ਬੁੱਕ ਕਰੋ, ਪ੍ਰਮਾਣਿਤ ਦਵਾਈਆਂ ਆਰਡਰ ਕਰੋ, ਜਾਂ ਲੈਬ ਟੈਸਟ ਸ਼ਡਿਊਲ ਕਰੋ।",
     "plans.signUpButton": "ਸਾਈਨ ਅੱਪ ਕਰੋ ਅਤੇ ਹੁਣੇ ਸਲਾਹ ਲਓ",
     "plans.dashboardButton": "ਡੈਸ਼ਬੋਰਡ 'ਤੇ ਜਾਓ",
 
@@ -922,27 +937,29 @@ export const translations = {
     "nav.resources": "রিসোর্স",
     
     // Hero Section
-    "hero.sparkleTag": "HIPAA-সম্মত স্বাস্থ্য পরিষেবা",
-    "hero.title1": "ভারতের আধুনিক,",
-    "hero.title2": "বিশ্বস্ত স্বাস্থ্য পরিষেবা।",
-    "hero.desc": "অনলাইনে মুহূর্তের মধ্যে विशेषज्ञ ডাক্তারের পরামর্শ নিন, মাত্র ২ ঘণ্টায় আসল ওষুধ ঘরে পান এবং নিরাপদে ল্যাব টেস্টের বুকিং করুন।",
+    "hero.sparkleTag": "বিশ্বস্ত অনলাইন স্বাস্থ্য পরিষেবা",
+    "hero.title1": "বিশ্বস্ত স্বাস্থ্য পরিষেবা",
+    "hero.title2": "ব্যক্তি এবং এন্টারপ্রাইজের জন্য",
+    "hero.desc": "অনলাইন এবং ওপিডি-র মাধ্যমে তাত্ক্ষণিক বিশেষজ্ঞ পরামর্শ, আসল ওষুধ, ঘরে বুক করা স্বাস্থ্যকর ল্যাব পরীক্ষা, সাশ্রয়ী মূল্যের স্বাস্থ্য বীমা।",
     "hero.placeholder": "ওষুধ, বিশেষজ্ঞ ডাক্তার বা ল্যাব টেস্ট খুঁজুন...",
     "hero.search": "খুঁজুন",
     "hero.commonSearches": "জনপ্রিয় অনুসন্ধান:",
     "hero.qualityTag": "১০০% গুণমান নিশ্চিত",
-    "hero.qualityDesc": "NABL এবং HIPAA লাইসেন্সপ্রাপ্ত প্ল্যাটফর্ম",
+    "hero.qualityDesc": "NABL লাইসেন্সপ্রাপ্ত প্ল্যাটফর্ম",
     "hero.happyPatients": "খুশি রোগী",
     "hero.expertDoctors": "বিশেষজ্ঞ ডাক্তার",
     "hero.deliveryInfo": "পাঞ্জাবে ২ ঘণ্টার এক্সপ্রেস ওষুধ ডেলিভারি চালু আছে",
     
     // Promo Cards
-    "promo.promo1Title": "প্রথম কনসাল্টেশন সম্পূর্ণ ফ্রি 🩺",
+    "promo.promo1Title": "আপনার কনসাল্টেশন শুরু করুন",
     "promo.promo1Desc": "আমাদের বিশ্বস্ত জেনারেল ফিজিশিয়ানদের থেকে বিনামূল্যে चिकित्सा পরামর্শ পান।",
     "promo.promo2Title": "সর্বাঙ্গীন স্বাস্থ্য পরীক্ষা 🧪",
     "promo.promo2Desc": "শরীরের প্রাথমিক সমস্যাগুলি ব্যাপক রক্ত ও মূত্র পরীক্ষার মাধ্যমে চিহ্নিত করুন।",
-    "promo.promo3Title": "প্রেসক্রিপশন আপলোড করে অর্ডার করুন 💊",
+    "promo.promo3Title": "আসল ওষুধ অর্ডার করুন",
     "promo.promo3Desc": "আমাদের প্রত্যয়িত ফার্মাসিস্টদের প্রেসক্রিপশন পড়ে কার্ট প্রস্তুত করতে দিন।",
-    "promo.claimOffer": "অফার পান",
+    "promo.promo4Title": "সাশ্রয়ी মূল্যের স্বাস্থ্য বীমা",
+    "promo.promo4Desc": "আপনার এবং আপনার পরিবারের জন্য সেরা স্বাস্থ্য বীমা এবং টার্ম প্ল্যানগুলি বেছে নিন।",
+    "promo.claimOffer": "এখনই শুরু করুন",
     
     // Quick Actions
     "quick.title": "পরামর্শ, অর্ডার ও পরিচালনা",
@@ -952,6 +969,9 @@ export const translations = {
     "quick.consultNow": "পরামর্শ নিন",
     "quick.bookTest": "টেস্ট বুক করুন",
     "quick.findClinics": "ক্লিনিক খুঁজুন",
+    "quick.healthInsuranceTitle": "স্বাস্থ্য বীমা",
+    "quick.healthInsuranceDesc": "ব্যক্তি, পরিবার এবং এন্টারপ্রাইজের জন্য সাশ্রয়ী মূল্যের স্বাস্থ্য পরিকল্পনা।",
+    "quick.getInsurance": "বীমা পান",
     "quick.descMedicines": "১০০% খাঁটি ওষুধ। মাত্র ২ ঘণ্টায় ফ্রি হোম ডেলিভারি।",
     "quick.descConsult": "১০ মিনিটে যাচাইকৃত ডাক্তারদের সাথে চ্যাট করুন।",
     "quick.descLabs": "আপনার ঘর থেকে সম্পূর্ণ বিনামূল্যে ও স্বাস্থ্যকর উপায়ে নমুনা সংগ্রহ।",
@@ -963,7 +983,7 @@ export const translations = {
     "specialty.viewAll": "সব বিশেষজ্ঞ দেখুন",
     
     // Best Sellers
-    "bestSellers.title": "ওয়েলনেস ও কেয়ারে সেরা বিক্রেতা",
+    "bestSellers.title": "ফার্মেসি স্টোরে সেরা বিক্রেতা",
     "bestSellers.subtitle": "সবচেয়ে বেশি বিক্রি হওয়া স্বাস্থ্য পণ্য, সাপ্লিমেন্ট এবং স্কিন কেয়ার",
     "bestSellers.exploreStore": "ফার্মেসি স্টোরে যান",
     "bestSellers.add": "যুক্ত করুন",
@@ -986,8 +1006,8 @@ export const translations = {
     "trust.card2Desc": "যাচাইকরণের দুই ঘণ্টার মধ্যে স্থানীয় লাইসেন্সপ্রাপ্ত ফার্মেসি থেকে উচ্চ অগ্রাধিকারের ওষুধ সরবরাহ পান।",
     "trust.card3Title": "যাচাইকৃত विशेषज्ञ",
     "trust.card3Desc": "বোর্ড-লাইসেন্সপ্রাপ্ত MD/MS ডাক্তারদের সাথে অনলাইন পরামর্শ। সম্পূর্ণ গোপনীয় এবং সুরক্ষিত চ্যাট।",
-    "trust.card4Title": "HIPAA RLS সুরক্ষিত",
-    "trust.card4Desc": "ব্যক্তিগত স্বাস্থ্য তথ্য Supabase রো লেভেল সিকিউরিটি দ্বারা এনক্রিপ্ট করা হয়েছে। তথ্য কখনোই শেয়ার করা হয় না।",
+    "trust.card4Title": "সুরক্ষিত RLS সুরক্ষিত",
+    "trust.card4Desc": "স্বাস্থ্য তথ্য Supabase রো লেভেল সিকিউরিটি দ্বারা এনক্রিপ্ট করা হয়েছে। তথ্য কখনোই শেয়ার করা হয় না।",
 
     // Specialties List (Bengali)
     "specialty.General Physician": "জেনারেল ফিজিশিয়ান",
@@ -1062,7 +1082,7 @@ export const translations = {
     "plans.orderNow": "ওষুধ এখনই অর্ডার করুন",
     "plans.talkPharmacist": "ফার্মাসিস্টের সাথে কথা বলুন",
     "plans.getStartedTitle": "আজই শুরু করুন",
-    "plans.getStartedDesc": "একটি নিরাপদ, HIPAA-অনুগামী প্ল্যাটফর্ম থেকে পেশাদার ডাক্তারের পরামর্শ নিন, ওষুধ অর্ডার করুন বা ল্যাব টেস্টের সময় নির্ধারণ করুন।",
+    "plans.getStartedDesc": "একটি নিরাপদ প্ল্যাটফর্ম থেকে পেশাদার ডাক্তারের পরামর্শ নিন, ওষুধ অর্ডার করুন বা ল্যাব টেস্টের সময় নির্ধারণ করুন।",
     "plans.signUpButton": "সাইন আপ করুন এবং পরামর্শ নিন",
     "plans.dashboardButton": "ড্যাশবোর্ডে যান",
 
@@ -1203,27 +1223,29 @@ export const translations = {
     "nav.resources": "संसाधने",
     
     // Hero Section
-    "hero.sparkleTag": "HIPAA-सुसंगत आरोग्य सेवा",
-    "hero.title1": "भारताची आधुनिक,",
-    "hero.title2": "विश्वासार्ह आरोग्य सेवा.",
-    "hero.desc": "तज्ज्ञ डॉक्टरांचा त्वरित ऑनलाइन सल्ला घ्या, अस्सल औषधे २ तासांत घरपोच मिळवा आणि लॅब टेस्ट घरबसल्या बुक करा.",
+    "hero.sparkleTag": "विश्वासार्ह ऑनलाइन आरोग्य सेवा",
+    "hero.title1": "विश्वासार्ह आरोग्य सेवा",
+    "hero.title2": "व्यक्ती आणि उद्योगांसाठी",
+    "hero.desc": "ऑनलाइन आणि ओपीडीद्वारे त्वरित तज्ज्ञ सल्लामसलत, अस्सल औषधे, घरी बुक केलेल्या स्वच्छ लॅब चाचण्या, परवडणारे आरोग्य विमा।",
     "hero.placeholder": "औषधे, तज्ज्ञ डॉक्टर किंवा लॅब टेस्ट शोधा...",
     "hero.search": "शोधा",
     "hero.commonSearches": "लोकप्रिय शोध:",
     "hero.qualityTag": "१००% गुणवत्ता हमी",
-    "hero.qualityDesc": "NABL आणि HIPAA परवानाधारक प्लॅटफॉर्म",
+    "hero.qualityDesc": "NABL परवानाधारक प्लॅटफॉर्म",
     "hero.happyPatients": "आनंदी रुग्ण",
     "hero.expertDoctors": "तज्ज्ञ डॉक्टर",
     "hero.deliveryInfo": "पंजाबमध्ये औषधांची २ तासांची जलद डिलिव्हरी सुरू आहे",
     
     // Promo Cards
-    "promo.promo1Title": "पहिले कन्सल्टेशन पूर्णपणे मोफत 🩺",
+    "promo.promo1Title": "तुमचे कन्सल्टेशन सुरू करा",
     "promo.promo1Desc": "आमच्या विश्वासार्ह सामान्य डॉक्टरांच्या पॅनेलकडून मोफत वैद्यकीय सल्ला मिळवा.",
     "promo.promo2Title": "सर्वसमावेशक आरोग्य तपासणी 🧪",
     "promo.promo2Desc": "आरोग्य समस्यांची सुरुवातीची लक्षणे व्यापक रक्त आणि लघवी चाचण्यांनी ओळखा.",
-    "promo.promo3Title": "प्रिस्क्रिप्शन अपलोड करा आणि ऑर्डर करा 💊",
+    "promo.promo3Title": "अस्सल औषधे ऑर्डर करा",
     "promo.promo3Desc": "आमच्या प्रमाणित फार्मासिस्टना प्रिस्क्रिप्शन वाचू द्या आणि तुमची कार्ट तयार करू द्या.",
-    "promo.claimOffer": "ऑफर मिळवा",
+    "promo.promo4Title": "परवडणारे आरोग्य विमा",
+    "promo.promo4Desc": "तुमच्यासाठी आणि तुमच्या कुटुंबासाठी सर्वोत्तम आरोग्य विमा आणि टर्म प्लॅन्स निवडा।",
+    "promo.claimOffer": "आत्ताच सुरू करा",
     
     // Quick Actions
     "quick.title": "सल्ला, ऑर्डर आणि व्यवस्थापन",
@@ -1233,6 +1255,9 @@ export const translations = {
     "quick.consultNow": "सल्ला घ्या",
     "quick.bookTest": "टेस्ट बुक करा",
     "quick.findClinics": "क्लिनिक शोधा",
+    "quick.healthInsuranceTitle": "आरोग्य विमा",
+    "quick.healthInsuranceDesc": "व्यक्ती, कुटुंबे आणि उद्योगांसाठी परवडणाऱ्या आरोग्य योजना।",
+    "quick.getInsurance": "विमा मिळवा",
     "quick.descMedicines": "१००% अस्सल औषधे. २ तासांत मोफत होम डिलिव्हरी.",
     "quick.descConsult": "१० मिनिटांत सत्यापित डॉक्टरांशी ऑनलाइन चॅट करा.",
     "quick.descLabs": "घरातून मोफत आणि स्वच्छ सँपल कलेक्शन सुविधा.",
@@ -1244,7 +1269,7 @@ export const translations = {
     "specialty.viewAll": "सर्व तज्ज्ञ पहा",
     
     // Best Sellers
-    "bestSellers.title": "वेलनेस आणि केअर मधील बेस्ट सेलर्स",
+    "bestSellers.title": "फार्मसी स्टोअर मधील बेस्ट सेलर्स",
     "bestSellers.subtitle": "सर्वाधिक विकली जाणारी आरोग्य उत्पादने, सप्लीमेंट्स आणि स्किन केअर",
     "bestSellers.exploreStore": "फार्मसी स्टोअरला भेट द्या",
     "bestSellers.add": "जोडा",
@@ -1267,8 +1292,8 @@ export const translations = {
     "trust.card2Desc": "स्थानिक परवानाधारक फार्मसीमधून दोन तासांच्या आत प्राधान्याने औषधांची डिलिव्हरी मिळवा.",
     "trust.card3Title": "सत्यापित तज्ज्ञ",
     "trust.card3Desc": "बोर्ड-परवानाधारक MD/MS डॉक्टरांशी ऑनलाइन सल्लामसलत. पूर्णपणे खाजगी आणि सुरक्षित चॅट.",
-    "trust.card4Title": "HIPAA RLS सुरक्षित",
-    "trust.card4Desc": "वैयक्तिक आरोग्य माहिती Supabase रो लेव्हल सिक्युरिटीद्वारे सुरक्षित केली आहे. डेटा कधीही शेअर केला जात नाही।",
+    "trust.card4Title": "सुरक्षित RLS सुरक्षित",
+    "trust.card4Desc": "आरोग्य माहिती Supabase रो लेव्हल सिक्युरिटीद्वारे सुरक्षित केली आहे. डेटा कधीही शेअर केला जात नाही।",
 
     // Specialties List (Marathi)
     "specialty.General Physician": "जनरल फिजिशियन",
@@ -1343,7 +1368,7 @@ export const translations = {
     "plans.orderNow": "औषधे आता ऑर्डर करा",
     "plans.talkPharmacist": "फार्मासिस्टशी बोला",
     "plans.getStartedTitle": "आजच सुरुवात करा",
-    "plans.getStartedDesc": "एकाच सुरक्षित, HIPAA-सुसंगत प्लॅटफॉर्मवरून तुमचे डॉक्टर कन्सल्टेशन बुक करा, औषधे ऑर्डर करा किंवा लॅब टेस्ट निश्चित करा.",
+    "plans.getStartedDesc": "एकाच सुरक्षित प्लॅटफॉर्मवरून तुमचे डॉक्टर कन्सल्टेशन बुक करा, औषधे ऑर्डर करा किंवा लॅब टेस्ट निश्चित करा.",
     "plans.signUpButton": "साइन अप करा आणि सल्ला घ्या",
     "plans.dashboardButton": "डॅशबोर्डवर जा",
 

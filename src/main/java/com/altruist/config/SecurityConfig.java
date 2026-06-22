@@ -37,8 +37,10 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
 
                         // Public doctor discovery
+                        .requestMatchers(HttpMethod.GET, "/api/doctors").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/doctors/available").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/doctors/cities").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/specialties").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/doctors/{id}").permitAll()
 
                         // Public subscription plans listing
@@ -52,8 +54,20 @@ public class SecurityConfig {
                         // Public medicines catalog
                         .requestMatchers(HttpMethod.GET, "/api/medicines", "/api/medicines/**").permitAll()
 
+                        // Public lab tests & packages
+                        .requestMatchers(HttpMethod.GET, "/api/lab-tests/featured").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/lab-packages").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/lab-categories").permitAll()
+                        
+                        // Public lead callback capture
+                        .requestMatchers(HttpMethod.POST, "/api/contact/callback").permitAll()
+                        
+                        // Public testimonials
+                        .requestMatchers(HttpMethod.GET, "/api/testimonials").permitAll()
+
                         // ── PATIENT role ──────────────────────────────────────
                         .requestMatchers("/api/patients/**").hasRole("PATIENT")
+                        .requestMatchers("/api/patient/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/support/tickets", "/api/support/tickets/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN", "DOCTOR")
                         .requestMatchers("/api/subscriptions/my").hasAnyRole("PATIENT", "SUPER_ADMIN")
                         .requestMatchers("/api/subscriptions/subscribe").hasAnyRole("PATIENT", "SUPER_ADMIN")
@@ -72,8 +86,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/doctors/accept-instant/**").hasRole("DOCTOR")
                         .requestMatchers("/api/doctors/reschedule-requests").hasRole("DOCTOR")
 
-                        // Doctors list (admin or doctor view)
-                        .requestMatchers(HttpMethod.GET, "/api/doctors").hasAnyRole("ADMIN", "DOCTOR", "SUPER_ADMIN")
+                        // Doctors list (admin or doctor edit/delete)
                         .requestMatchers(HttpMethod.PUT, "/api/doctors/{id}").hasAnyRole("ADMIN", "DOCTOR", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/doctors/{id}").hasAnyRole("ADMIN", "SUPER_ADMIN")
 

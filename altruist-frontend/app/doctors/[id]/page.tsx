@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/axios";
 import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ export default function DoctorProfilePage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const requireAuth = useRequireAuth();
   const doctorId = params.id as string;
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -81,8 +83,9 @@ export default function DoctorProfilePage() {
   });
 
   const handleConsultClick = () => {
-    if (!user) { router.push("/login?redirect=/doctors/" + doctorId); return; }
-    setIsBookingOpen(true);
+    requireAuth(() => {
+      setIsBookingOpen(true);
+    }, "/doctors/" + doctorId);
   };
 
   const handleConfirmBooking = () => {
@@ -258,6 +261,48 @@ export default function DoctorProfilePage() {
                       <p className="font-bold text-foreground text-sm">{s.title}</p>
                       <p className="text-sm text-muted-foreground">{s.desc}</p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Patient Reviews */}
+            <div className="bg-surface rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="font-bold text-foreground text-lg flex items-center gap-2">
+                    <Star size={18} className="text-amber-500 fill-amber-500" />
+                    Patient Reviews
+                  </h2>
+                  <p className="text-xs text-muted-foreground font-medium mt-1">Based on recent consultations</p>
+                </div>
+                <Button 
+                  onClick={() => requireAuth(() => toast.success("Review system is coming soon! Thank you for sharing your feedback."), `/doctors/${doctorId}`)}
+                  variant="outline" 
+                  className="rounded-xl border-primary text-primary font-bold hover:bg-primary/10"
+                >
+                  Write a Review
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { name: "Amit K.", rating: 5, date: "2 days ago", comment: "Very patient doctor. Listened to all my concerns carefully and explained the treatment plan in detail." },
+                  { name: "Priya S.", rating: 4, date: "1 week ago", comment: "Good experience. The instant chat consultation was quick and the prescription was detailed." }
+                ].map((rev, idx) => (
+                  <div key={idx} className="border-b border-border last:border-none pb-4 last:pb-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-foreground">{rev.name}</span>
+                        <div className="flex gap-0.5">
+                          {[1,2,3,4,5].map(i => (
+                            <Star key={i} size={11} className={cn("fill-amber-400 text-amber-400", i > rev.rating && "fill-gray-200 text-gray-200")} />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium">{rev.date}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{rev.comment}</p>
                   </div>
                 ))}
               </div>

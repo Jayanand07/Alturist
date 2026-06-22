@@ -179,15 +179,15 @@ public class DoctorService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DoctorListDTO> getDoctorsPaginated(String city, String specialization, String language, String sortBy, Boolean available, int page, int size) {
-        List<DoctorListDTO> allList = getDoctors(city, specialization, language, sortBy, available);
+    public Page<PublicDoctorDTO> getDoctorsPaginated(String city, String specialization, String language, String sortBy, Boolean available, int page, int size) {
+        List<PublicDoctorDTO> allList = getDoctors(city, specialization, language, sortBy, available);
         int start = Math.min((int) PageRequest.of(page, size).getOffset(), allList.size());
         int end = Math.min((start + size), allList.size());
         return new org.springframework.data.domain.PageImpl<>(allList.subList(start, end), PageRequest.of(page, size), allList.size());
     }
 
     @Transactional(readOnly = true)
-    public List<DoctorListDTO> getDoctors(String city, String specialization, String language, String sortBy, Boolean available) {
+    public List<PublicDoctorDTO> getDoctors(String city, String specialization, String language, String sortBy, Boolean available) {
         List<Doctor> doctors;
         if (city != null && !city.trim().isEmpty() && specialization != null && !specialization.trim().isEmpty()) {
             doctors = doctorRepository.findByCityIgnoreCaseAndSpecializationAndIsVerifiedTrue(city, specialization);
@@ -229,7 +229,7 @@ public class DoctorService {
             }
         }
 
-        return doctors.stream().map(DoctorMapper::toListDTO).collect(Collectors.toList());
+        return doctors.stream().map(DoctorMapper::toPublicListDTO).collect(Collectors.toList());
     }
 
     @Cacheable(value = "doctorCities")
@@ -238,38 +238,20 @@ public class DoctorService {
     }
 
     /**
-     * Fetches a single doctor with full detail.
+     * Returns a list of verified doctor specialties with their doctor count.
+     * Only specialties that have at least one verified doctor are included.
+     * Used by the homepage specialist section — no auth required.
      */
     @Transactional(readOnly = true)
-    public DoctorDetailDTO findDoctorById(UUID id) {
+    public List<com.altruist.dto.SpecialtySummaryDTO> getSpecialtySummaries() {
+        return doctorRepository.findSpecialtySummaries();
+    }
+
+    @Transactional(readOnly = true)
+    public PublicDoctorDetailDTO findDoctorById(UUID id) {
         Doctor doctor = doctorRepository.findByIdWithUser(id)
                 .orElseThrow(() -> new DoctorNotFoundException(id));
-        DoctorDetailDTO dto = DoctorMapper.toDetailDTO(doctor);
-
-        try {
-            org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof User) {
-                User user = (User) auth.getPrincipal();
-                if (user.getUserType() == UserType.PATIENT) {
-                    dto.setLatitude(null);
-                    dto.setLongitude(null);
-                    dto.setClinicPhone(null);
-                    dto.setMedicalLicense(null);
-                }
-            } else {
-                dto.setLatitude(null);
-                dto.setLongitude(null);
-                dto.setClinicPhone(null);
-                dto.setMedicalLicense(null);
-            }
-        } catch (Exception e) {
-            dto.setLatitude(null);
-            dto.setLongitude(null);
-            dto.setClinicPhone(null);
-            dto.setMedicalLicense(null);
-        }
-
-        return dto;
+        return DoctorMapper.toPublicDetailDTO(doctor);
     }
 
     @Transactional(readOnly = true)
@@ -383,13 +365,13 @@ public class DoctorService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DoctorListDTO> getAllAdminDoctors(String search, String specialization, Boolean available, Pageable pageable) {
+    public Page<PublicDoctorDTO> getAllPublicDoctors(String search, String specialization, Boolean available, Pageable pageable) {
         return doctorRepository.findAdminDoctors(
                 search == null || search.trim().isEmpty() ? "" : search.trim(),
                 specialization == null || specialization.trim().isEmpty() ? "" : specialization, 
                 available, 
                 pageable)
-                .map(DoctorMapper::toListDTO);
+                .map(DoctorMapper::toPublicListDTO);
     }
 
     @Transactional

@@ -327,7 +327,7 @@ export default function AdminDoctorsPage() {
                     </div>
                     <div className="space-y-2">
                        <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Clinic Name</Label>
-                       <Input placeholder="Apollo Hospital" className="h-10 border-border rounded-xl font-semibold" value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} />
+                       <Input placeholder="General Hospital" className="h-10 border-border rounded-xl font-semibold" value={formData.clinicName} onChange={e => setFormData({...formData, clinicName: e.target.value})} />
                     </div>
                     <div className="space-y-2">
                        <Label className="text-xs font-black text-muted-foreground/70 uppercase tracking-widest px-1">Clinic Phone</Label>

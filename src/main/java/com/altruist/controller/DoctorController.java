@@ -3,6 +3,8 @@ package com.altruist.controller;
 import com.altruist.dto.DoctorDashboardDTO;
 import com.altruist.dto.DoctorDetailDTO;
 import com.altruist.dto.DoctorListDTO;
+import com.altruist.dto.PublicDoctorDTO;
+import com.altruist.dto.PublicDoctorDetailDTO;
 import com.altruist.model.User;
 import com.altruist.model.UserType;
 import com.altruist.service.DoctorService;
@@ -33,7 +35,7 @@ public class DoctorController {
      * Public endpoint — returns paginated list of available doctors.
      */
     @GetMapping("/available")
-    public ResponseEntity<Page<com.altruist.dto.DoctorListDTO>> getAvailableDoctors(
+    public ResponseEntity<Page<PublicDoctorDTO>> getAvailableDoctors(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String specialization,
             @RequestParam(required = false) String language,
@@ -51,10 +53,20 @@ public class DoctorController {
     }
 
     /**
+     * Public endpoint — returns live specialty categories with doctor counts.
+     * Only specialties with at least one verified doctor are included.
+     * Used by the homepage specialist section; no authentication required.
+     */
+    @GetMapping("/specialties")
+    public ResponseEntity<List<com.altruist.dto.SpecialtySummaryDTO>> getSpecialties() {
+        return ResponseEntity.ok(doctorService.getSpecialtySummaries());
+    }
+
+    /**
      * Public endpoint — returns full doctor profile by ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<DoctorDetailDTO> getDoctorById(@PathVariable UUID id) {
+    public ResponseEntity<PublicDoctorDetailDTO> getDoctorById(@PathVariable UUID id) {
         return ResponseEntity.ok(doctorService.findDoctorById(id));
     }
 
@@ -80,15 +92,14 @@ public class DoctorController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'SUPER_ADMIN')")
-    public ResponseEntity<Page<com.altruist.dto.DoctorListDTO>> getAllDoctors(
+    public ResponseEntity<Page<PublicDoctorDTO>> getAllDoctors(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String specialization,
             @RequestParam(required = false) Boolean available,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-        return ResponseEntity.ok(doctorService.getAllAdminDoctors(search, specialization, available, pageable));
+        return ResponseEntity.ok(doctorService.getAllPublicDoctors(search, specialization, available, pageable));
     }
 
     /**

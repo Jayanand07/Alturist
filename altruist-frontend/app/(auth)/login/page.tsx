@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -70,9 +70,15 @@ const getAuthErrorMessage = (error: any) => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect');
   const { user, userType, loading: authLoading, syncing } = useAuth();
   
   const redirectAfterLogin = (role: string | null) => {
+    if (callbackUrl) {
+      router.push(callbackUrl);
+      return;
+    }
     switch(role) {
       case 'ADMIN':
       case 'SUPER_ADMIN':
@@ -241,7 +247,7 @@ export default function LoginPage() {
               { icon: MessageSquare, title: "Chat Consults", desc: "Private & encrypted" },
               { icon: Pill, title: "Genuine Medicines", desc: "Verified pharmacies" },
               { icon: TestTube, title: "Lab Reports", desc: "Stored securely" },
-              { icon: Lock, title: "Data Privacy", desc: "HIPAA compliant" }
+              { icon: Lock, title: "Data Privacy", desc: "Strictly secure" }
             ].map((feature, i) => (
               <div key={i} className="flex gap-4 items-start bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-border">
                 <div className="bg-accent/10 p-3 rounded-xl text-accent shrink-0">

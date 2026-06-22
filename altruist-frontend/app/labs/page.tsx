@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Search, ShieldCheck, Clock, Activity, Target, 
   Microscope, Heart, Syringe, Brain, Bone, Baby, 
-  Pill, FileText, ChevronRight, PhoneCall, Plus 
+  Pill, FileText, ChevronRight, Plus 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import api from "@/lib/axios";
+import { toast } from "sonner";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 const CATEGORIES = [
   "All", "Full Body Checkup", "Diabetes", "Heart", "Blood Studies", "Vitamin", "Thyroid"
@@ -30,26 +32,97 @@ const HEALTH_CHECKS = [
   { name: "Allergy", icon: <Microscope className="text-emerald-500" size={32} />, color: "bg-emerald-50" }
 ];
 
-const TOP_TESTS = [
-  { name: "Complete Blood Count (CBC)", includes: 24, originalPrice: 400, price: 300, discount: 25 },
-  { name: "HbA1c (Glycosylated Hemoglobin)", includes: 1, originalPrice: 500, price: 350, discount: 30 },
-  { name: "Fasting Blood Sugar (FBS)", includes: 1, originalPrice: 150, price: 100, discount: 33 },
-  { name: "Lipid Profile", includes: 8, originalPrice: 800, price: 600, discount: 25 },
-  { name: "Vitamin D (25-OH)", includes: 1, originalPrice: 1200, price: 800, discount: 33 },
-  { name: "Thyroid Profile (T3, T4, TSH)", includes: 3, originalPrice: 600, price: 450, discount: 25 }
-];
+interface LabTest {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number; // Original Price
+  discountedPrice: number; // Discounted Price
+  discountPercent: number;
+  includesCount: number;
+  isFeatured: boolean;
+  isActive: boolean;
+}
 
-const POPULAR_PACKAGES = [
-  { name: "Aarogyam C Pro", tests: 91, originalPrice: 3500, price: 1499, discount: 57, isSmart: true },
-  { name: "Comprehensive Full Body Checkup", tests: 75, originalPrice: 2800, price: 1299, discount: 53, isSmart: true },
-  { name: "Basic Heart Health Package", tests: 45, originalPrice: 1500, price: 999, discount: 33, isSmart: false },
-  { name: "Advanced Diabetic Profile", tests: 52, originalPrice: 2200, price: 1199, discount: 45, isSmart: true }
-];
+interface LabPackage {
+  id: string;
+  name: string;
+  description: string;
+  includesTestCount: number;
+  testNames: string[]; // text[] from backend serialized as json array
+  originalPrice: number;
+  discountedPrice: number;
+  discountPercent: number;
+  smartReportIncluded: boolean;
+  isActive: boolean;
+}
 
 export default function LabsPage() {
   const router = useRouter();
+  const requireAuth = useRequireAuth();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const [topTests, setTopTests] = useState<LabTest[]>([]);
+  const [topTestsLoading, setTopTestsLoading] = useState(true);
+  const [topTestsShowEmpty, setTopTestsShowEmpty] = useState(false);
+
+  const [packages, setPackages] = useState<LabPackage[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
+  const [packagesError, setPackagesError] = useState(false);
+
+  useEffect(() => {
+    // 8-second timeout fallback for featured tests
+    const timer = setTimeout(() => {
+      setTopTestsShowEmpty(true);
+      setTopTestsLoading(false);
+    }, 8000);
+
+    const fetchTopTests = async () => {
+      try {
+        const res = await api.get("/lab-tests/featured");
+        const data = res.data ?? [];
+        setTopTests(data);
+        if (data.length === 0) {
+          setTopTestsShowEmpty(true);
+        }
+      } catch (err) {
+        console.error("Failed to fetch featured lab tests:", err);
+        setTopTestsShowEmpty(true);
+      } finally {
+        setTopTestsLoading(false);
+        clearTimeout(timer);
+      }
+    };
+
+    fetchTopTests();
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const res = await api.get("/lab-packages");
+        setPackages(res.data ?? []);
+        setPackagesError(false);
+      } catch (err) {
+        console.error("Failed to fetch lab packages:", err);
+        setPackagesError(true);
+      } finally {
+        setPackagesLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
+
+
+
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -150,28 +223,55 @@ export default function LabsPage() {
             <button className="text-[#e8593c] font-bold text-sm hover:underline">View All</button>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
-            {TOP_TESTS.map((test, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 min-w-[280px] max-w-[280px] flex flex-col snap-start hover:shadow-md transition-all">
-                <div className="flex-1">
-                  <h3 className="font-bold text-[#0F172A] text-lg leading-tight mb-2">{test.name}</h3>
-                  <div className="text-xs font-bold text-[#0d5c3a] bg-emerald-50 border border-emerald-100 px-2 py-1 rounded inline-block mb-4">
-                    Includes {test.includes} Test{test.includes > 1 ? 's' : ''}
+            {!isMounted || topTestsLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 min-w-[280px] max-w-[280px] flex flex-col snap-start animate-pulse h-[180px]">
+                  <div className="flex-1">
+                    <div className="h-6 bg-slate-100 rounded-md w-3/4 mb-2" />
+                    <div className="h-5 bg-slate-100 rounded-md w-1/3 mb-4" />
                   </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs text-slate-400 line-through">₹{test.originalPrice}</span>
-                      <span className="text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded">{test.discount}% OFF</span>
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between">
+                    <div className="space-y-1">
+                      <div className="h-3 bg-slate-100 rounded w-16" />
+                      <div className="h-6 bg-slate-100 rounded w-12" />
                     </div>
-                    <p className="text-xl font-black text-[#0F172A]">₹{test.price}</p>
+                    <div className="h-9 bg-slate-100 rounded-lg w-16" />
                   </div>
-                  <Button size="sm" className="bg-[#0d5c3a] hover:bg-[#0b5e39] text-white font-bold h-9 px-4 rounded-lg">
-                    Add
-                  </Button>
                 </div>
+              ))
+            ) : topTestsShowEmpty || topTests.length === 0 ? (
+              <div className="py-8 text-center text-slate-500 font-medium w-full">
+                Tests will be available soon
               </div>
-            ))}
+            ) : (
+              topTests.map((test) => (
+                <div key={test.id} className="bg-white rounded-2xl border border-slate-200 p-5 min-w-[280px] max-w-[280px] flex flex-col snap-start hover:shadow-md transition-all">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-[#0F172A] text-lg leading-tight mb-2">{test.name}</h3>
+                    <div className="text-xs font-bold text-[#0d5c3a] bg-emerald-50 border border-emerald-100 px-2 py-1 rounded inline-block mb-4">
+                      Includes {test.includesCount} Test{test.includesCount > 1 ? 's' : ''}
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between">
+                    <div>
+                      {test.discountPercent > 0 && (
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-xs text-slate-400 line-through">₹{test.price}</span>
+                          <span className="text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded">{test.discountPercent}% OFF</span>
+                        </div>
+                      )}
+                      <p className="text-xl font-black text-[#0F172A]">₹{test.discountedPrice}</p>
+                    </div>
+                    <Button 
+                      onClick={() => requireAuth(() => toast.success(`Booking initiated for ${test.name}! Our representative will contact you shortly.`, { icon: "🧪" }), "/labs")}
+                      className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-xl text-xs active:scale-95 transition-all"
+                    >
+                      Book Now
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -179,61 +279,68 @@ export default function LabsPage() {
         <div className="mb-16">
           <h2 className="text-2xl font-black text-[#0F172A] mb-6">Popular Health Checkup Packages</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {POPULAR_PACKAGES.map((pkg, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col hover:shadow-lg transition-all relative overflow-hidden group">
-                <div className="absolute top-0 right-0 bg-[#e8593c] text-white text-[10px] font-black px-3 py-1 rounded-bl-xl tracking-wider z-10 shadow-sm">
-                  PACKAGE
-                </div>
-                <div className="flex-1 mb-6 mt-2">
-                  <h3 className="font-bold text-[#0F172A] text-lg leading-tight mb-2 pr-8">{pkg.name}</h3>
-                  <p className="text-xs text-slate-500 font-medium mb-3">Includes {pkg.tests} Tests (Cholesterol, Thyroid, CBC & more)</p>
-                  {pkg.isSmart && (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-max border border-blue-100">
-                      <FileText size={12} /> Smart Report Included
+            {!isMounted || packagesLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col hover:shadow-lg transition-all relative overflow-hidden group animate-pulse h-[220px]">
+                  <div className="absolute top-0 right-0 h-6 bg-slate-100 w-16 rounded-bl-xl" />
+                  <div className="flex-1 mb-6 mt-2 space-y-3">
+                    <div className="h-6 bg-slate-100 rounded-md w-3/4" />
+                    <div className="h-4 bg-slate-100 rounded-md w-5/6" />
+                    <div className="h-5 bg-slate-100 rounded-md w-1/2" />
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="h-3 bg-slate-100 rounded w-20" />
+                      <div className="h-7 bg-slate-100 rounded w-16" />
                     </div>
-                  )}
+                    <div className="h-10 bg-slate-100 rounded-lg w-20" />
+                  </div>
                 </div>
-                <div className="mt-auto pt-4 border-t border-slate-100">
-                   <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-slate-400 line-through font-semibold">₹{pkg.originalPrice}</span>
-                      <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Save {pkg.discount}%</span>
-                   </div>
-                   <div className="flex items-center justify-between">
-                      <p className="text-2xl font-black text-[#0F172A]">₹{pkg.price}</p>
-                      <Button className="bg-white border-2 border-[#0d5c3a] text-[#0d5c3a] hover:bg-[#0d5c3a] hover:text-white font-bold h-10 px-6 rounded-lg transition-colors">
-                        Add <Plus size={16} className="ml-1" />
-                      </Button>
-                   </div>
-                </div>
+              ))
+            ) : packagesError || packages.length === 0 ? (
+              <div className="col-span-full py-12 text-center text-slate-500 font-medium">
+                No health packages available at the moment. Check back soon.
               </div>
-            ))}
+            ) : (
+              packages.map((pkg) => (
+                <div key={pkg.id} className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col hover:shadow-lg transition-all relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-[#e8593c] text-white text-[10px] font-black px-3 py-1 rounded-bl-xl tracking-wider z-10 shadow-sm">
+                    PACKAGE
+                  </div>
+                  <div className="flex-1 mb-6 mt-2">
+                    <h3 className="font-bold text-[#0F172A] text-lg leading-tight mb-2 pr-8">{pkg.name}</h3>
+                    <p className="text-xs text-slate-500 font-medium mb-3">
+                      Includes {pkg.includesTestCount} Tests ({pkg.testNames && pkg.testNames.length > 0 ? pkg.testNames.slice(0, 3).join(", ") + (pkg.testNames.length > 3 ? " & more" : "") : "Complete checkup"})
+                    </p>
+                    {pkg.smartReportIncluded && (
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-max border border-blue-100">
+                        <FileText size={12} /> Smart Report Included
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-slate-100">
+                     <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs text-slate-400 line-through font-semibold">₹{pkg.originalPrice}</span>
+                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">Save {pkg.discountPercent}%</span>
+                     </div>
+                     <div className="flex items-center justify-between">
+                        <p className="text-2xl font-black text-[#0F172A]">₹{pkg.discountedPrice}</p>
+                        <Button 
+                          onClick={() => requireAuth(() => toast.success(`Booking initiated for ${pkg.name}! Our representative will contact you shortly.`, { icon: "🧪" }), "/labs")}
+                          className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-xl text-xs active:scale-95 transition-all"
+                        >
+                          Book Now
+                        </Button>
+                     </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-
       </div>
 
-      {/* Footer CTA Banner */}
-      <div className="max-w-[1400px] mx-auto px-6 mb-12">
-        <div className="bg-[#fff7ed] border border-orange-100 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-sm">
-          <div className="relative z-10 flex items-center gap-6">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
-              <PhoneCall size={32} className="text-[#e8593c]" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-black text-[#0F172A] mb-1">Need Assistance?</h3>
-              <p className="text-orange-900 font-medium">Call our health advisor to book your tests.</p>
-            </div>
-          </div>
-          <div className="relative z-10 flex w-full md:w-auto max-w-md gap-3">
-             <input type="text" placeholder="Enter Mobile Number" className="flex-1 h-12 rounded-xl border border-orange-200 px-4 font-medium outline-none focus:ring-2 focus:ring-orange-200" />
-             <Button className="bg-[#e8593c] hover:bg-[#d6482e] text-white font-bold h-12 px-6 rounded-xl shadow-md whitespace-nowrap">
-               Request Callback
-             </Button>
-          </div>
-          {/* Bg graphic */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/50 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        </div>
-      </div>
+
 
     </div>
   );

@@ -3,6 +3,8 @@ package com.altruist.service;
 import com.altruist.dto.*;
 import com.altruist.model.Doctor;
 import com.altruist.model.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserRecord;
 import com.altruist.model.ConsultationStatus;
 import com.altruist.model.UserType;
 import com.altruist.repository.ConsultationRepository;
@@ -35,6 +37,7 @@ public class AdminService {
     private final ConsultationRepository consultationRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final com.altruist.repository.MedicineRepository medicineRepository;
+    private final FirebaseAuth firebaseAuth;
 
     @Transactional(readOnly = true)
     public AdminDashboardDTO getDashboardStats() {
@@ -405,6 +408,64 @@ public class AdminService {
     }
 
     @Transactional
+    public Map<String, Object> promotePatientToDoctor(UUID patientId, AdminPromoteDoctorRequestDTO dto) {
+        User user = userRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getUserType() == UserType.DOCTOR) {
+            throw new RuntimeException("User is already a Doctor");
+        }
+
+        // 1. Update User info if edited/supplied
+        if (dto.getFullName() != null && !dto.getFullName().isBlank()) {
+            user.setFullName(dto.getFullName());
+        }
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            user.setEmail(dto.getEmail());
+        }
+        if (dto.getPhone() != null && !dto.getPhone().isBlank()) {
+            user.setPhone(dto.getPhone());
+        }
+
+        // Promote to DOCTOR role
+        user.setUserType(UserType.DOCTOR);
+        userRepository.save(user);
+
+        // 2. Create corresponding Doctor profile
+        java.util.Optional<Doctor> existingDoctorOpt = doctorRepository.findByUserId(user.getId());
+        Doctor doctor;
+        if (existingDoctorOpt.isPresent()) {
+            doctor = existingDoctorOpt.get();
+        } else {
+            doctor = new Doctor();
+            doctor.setUser(user);
+        }
+
+        doctor.setSpecialization(dto.getSpecialization());
+        doctor.setQualification(dto.getQualification());
+        doctor.setExperienceYears(dto.getExperienceYears());
+        doctor.setConsultationFee(dto.getConsultationFee());
+        doctor.setClinicName(dto.getClinicName());
+        doctor.setClinicAddress(dto.getClinicAddress());
+        doctor.setClinicPhone(dto.getClinicPhone());
+        doctor.setCity(dto.getCity());
+        doctor.setBio(dto.getBio());
+        doctor.setLanguages(dto.getLanguages() != null ? dto.getLanguages() : "English, Hindi");
+        doctor.setIsVerified(dto.getIsVerified() != null ? dto.getIsVerified() : true);
+        doctor.setIsAvailable(true);
+        doctor.setRating(5.0);
+        doctor.setTotalConsultations(0);
+        
+        doctorRepository.save(doctor);
+
+        return Map.of(
+            "userId", user.getId(),
+            "role", user.getUserType().name(),
+            "doctorId", doctor.getId()
+        );
+    }
+
+    @Transactional
     public void adminUpdateSuperAdmin(UUID userId, Map<String,Object> changes) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
@@ -413,5 +474,53 @@ public class AdminService {
             user.setUserType(UserType.valueOf((String) changes.get("userType")));
         }
         userRepository.save(user);
+    }
+
+    @Transactional
+    public PatientListDTO createPatient(CreatePatientDTO dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("User with this email already exists");
+        }
+
+        // 1. Generate temp password
+        String tempPassword = UUID.randomUUID().toString().substring(0, 12);
+
+        // 2. Create user in Firebase Auth
+        String firebaseUid;
+        try {
+            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                    .setEmail(dto.getEmail())
+                    .setPassword(tempPassword)
+                    .setDisplayName(dto.getFullName());
+            UserRecord userRecord = firebaseAuth.createUser(request);
+            firebaseUid = userRecord.getUid();
+        } catch (com.google.firebase.auth.FirebaseAuthException e) {
+            throw new RuntimeException("Failed to create Firebase user: " + e.getMessage(), e);
+        }
+
+        // 3. Create local User entity
+        User user = new User();
+        user.setFirebaseUid(firebaseUid);
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setDateOfBirth(java.time.LocalDate.parse(dto.getDateOfBirth()));
+        user.setGender(dto.getGender());
+        user.setBloodGroup(dto.getBloodGroup());
+        user.setUserType(UserType.PATIENT);
+
+        User savedUser = userRepository.save(user);
+
+        // 4. Return PatientListDTO
+        return PatientListDTO.builder()
+                .id(savedUser.getId())
+                .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .gender(savedUser.getGender())
+                .dateOfBirth(savedUser.getDateOfBirth())
+                .createdAt(savedUser.getCreatedAt())
+                .totalConsultations(0L)
+                .build();
     }
 }

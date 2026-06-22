@@ -23,6 +23,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final EmailService emailService;
+
+    private User sendWelcomeEmailIfNecessary(User user) {
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty() && !Boolean.TRUE.equals(user.getWelcomeEmailSent())) {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+            user.setWelcomeEmailSent(true);
+            return userRepository.save(user);
+        }
+        return user;
+    }
 
     @Transactional
     public User findOrCreateUserByFirebaseUid(String firebaseUid, String email, String phone) {
@@ -47,9 +57,9 @@ public class UserService {
             }
 
             if (updated) {
-                return userRepository.save(user);
+                user = userRepository.save(user);
             }
-            return user;
+            return sendWelcomeEmailIfNecessary(user);
         }
 
         User newUser = new User();
@@ -70,7 +80,8 @@ public class UserService {
             newUser.setUserType(UserType.PATIENT);
         }
 
-        return userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+        return sendWelcomeEmailIfNecessary(savedUser);
     }
 
     @Transactional
@@ -97,14 +108,6 @@ public class UserService {
                 // Ignore invalid date formats
             } catch (IllegalArgumentException e) {
                 throw e; // Re-throw validation errors
-            }
-        }
-        if (request.getUserType() != null) {
-            try {
-                user.setUserType(UserType.valueOf(request.getUserType().toUpperCase()));
-                updated = true;
-            } catch (Exception e) {
-                // Ignore invalid user types
             }
         }
 
@@ -149,6 +152,6 @@ public class UserService {
             }
         }
 
-        return user;
+        return sendWelcomeEmailIfNecessary(user);
     }
 }

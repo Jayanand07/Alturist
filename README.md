@@ -6,13 +6,13 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Database-blueviolet.svg?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-Auth-yellow.svg?style=for-the-badge&logo=firebase&logoColor=white)](https://firebase.google.com/)
 
-Altruist Wellness is a premium, high-performance, **HIPAA-compliant** medical telemedicine platform. It bridges the gap between patient care and verified medical experts by offering instant online consultations, genuine medicine delivery, diagnostic lab tests, and secure electronic prescriptions. 
+Altruist Wellness is a premium, high-performance, **highly secure** medical telemedicine platform. It bridges the gap between patient care and verified medical experts by offering instant online consultations, genuine medicine delivery, diagnostic lab tests, and secure electronic prescriptions. 
 
 ---
 
 ## 🌟 Key Features
 
-*   **🔒 Strict HIPAA-Compliant Security**: Secure data structures utilizing Supabase Row-Level Security (RLS) and custom HMAC-SHA256 JWT tokens.
+*   **🔒 Strict Security & Privacy**: Secure data structures utilizing Supabase Row-Level Security (RLS) and custom HMAC-SHA256 JWT tokens.
 *   **🩺 Comprehensive Telemedicine Portal**: Digital-first online doctor consulting, matching clients with top specialists across multiple branches (Cardiology, Pediatrics, Dermatology, etc.).
 *   **🧪 Diagnostic Lab packages**: Direct-to-home hygienic blood/urine sample collection packages with automated report access.
 *   **💊 express Medicine delivery**: Genuine medicine inventory and express prescription preparation with a fast, modern digital checkout cart.
@@ -152,7 +152,7 @@ For complete, highly detailed production configurations on **Vercel** (Frontend)
 
 ---
 
-## 🛡️ Security & HIPAA Policy
+## 🛡️ Security & Privacy Policy
 
 *   **No Sensitive Logs**: Zero stack traces or PII data (e.g., patient names, phone numbers) are logged server-side.
 *   **Input Sanitization**: Strong validation bounds using `jakarta.validation` to prevent parameter injection.

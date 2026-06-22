@@ -111,7 +111,7 @@ export default function DoctorVlogManagement() {
     setEditingVlog(vlog);
     setFormData({
       title: vlog.title || "",
-      description: vlog.description || "",
+      description: vlog.content || vlog.excerpt || "",
       videoUrl: vlog.videoUrl || "",
       thumbnailUrl: vlog.thumbnailUrl || "",
       category: vlog.category || "Health Tips"
@@ -125,7 +125,15 @@ export default function DoctorVlogManagement() {
       toast.error("Title and Video URL are required");
       return;
     }
-    saveMutation.mutate(formData);
+    const payload = {
+      title: formData.title,
+      excerpt: formData.description ? (formData.description.length > 200 ? formData.description.substring(0, 197) + "..." : formData.description) : "",
+      content: formData.description || "",
+      videoUrl: formData.videoUrl,
+      thumbnailUrl: formData.thumbnailUrl,
+      category: formData.category
+    };
+    saveMutation.mutate(payload);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -7,10 +7,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import com.altruist.model.User;
+import com.altruist.model.Subscription;
+import com.altruist.repository.SubscriptionRepository;
+import com.altruist.repository.UserRepository;
 import com.altruist.service.SubscriptionService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +32,8 @@ import java.util.UUID;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserRepository userRepository;
 
     // --- Public Endpoints ---
 
@@ -196,7 +202,93 @@ public class SubscriptionController {
         }
     }
 
+    // --- Manual Subscription Endpoints ---
+
+    @PostMapping("/admin/subscriptions")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> createManualSubscription(@Valid @RequestBody ManualSubscriptionRequest req) {
+        try {
+            Optional<User> patientOpt = userRepository.findById(req.getPatientId());
+            if (patientOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Patient not found"));
+            }
+
+            Subscription subscription = new Subscription();
+            subscription.setPatient(patientOpt.get());
+            subscription.setPlanName(req.getPlanName());
+            subscription.setPlanType(req.getPlanType());
+            subscription.setStartDate(req.getStartDate());
+            subscription.setEndDate(req.getEndDate());
+            subscription.setAmountPaid(req.getAmountPaid());
+            subscription.setPaymentMethod(req.getPaymentMethod());
+            subscription.setStatus(req.getStatus() != null ? req.getStatus() : "ACTIVE");
+            subscription.setNotes(req.getNotes());
+            subscription.setCreatedByAdmin(true);
+
+            Subscription saved = subscriptionRepository.save(subscription);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            log.error("Failed to create manual subscription", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Failed to create subscription: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/patient/subscriptions")
+    @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> getPatientSubscriptions(@AuthenticationPrincipal User user) {
+        try {
+            List<Subscription> subs = subscriptionRepository.findByPatientIdOrderByStartDateDesc(user.getId());
+            return ResponseEntity.ok(subs);
+        } catch (Exception e) {
+            log.error("Failed to fetch patient subscriptions", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch subscriptions."));
+        }
+    }
+
+    @GetMapping("/admin/subscriptions/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> getSubscriptionsForPatient(@PathVariable UUID patientId) {
+        try {
+            List<Subscription> subs = subscriptionRepository.findByPatientIdOrderByStartDateDesc(patientId);
+            return ResponseEntity.ok(subs);
+        } catch (Exception e) {
+            log.error("Failed to fetch patient subscriptions for admin", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch subscriptions."));
+        }
+    }
+
     // --- Request DTOs ---
+
+    @Data
+    public static class ManualSubscriptionRequest {
+        @NotNull(message = "Patient ID is required")
+        private UUID patientId;
+
+        @NotBlank(message = "Plan name is required")
+        private String planName;
+
+        @NotBlank(message = "Plan type is required")
+        private String planType;
+
+        @NotNull(message = "Start date is required")
+        private java.time.LocalDate startDate;
+
+        @NotNull(message = "End date is required")
+        private java.time.LocalDate endDate;
+
+        @NotNull(message = "Amount paid is required")
+        private java.math.BigDecimal amountPaid;
+
+        @NotBlank(message = "Payment method is required")
+        private String paymentMethod;
+
+        private String status;
+        private String notes;
+    }
 
     @Data
     public static class SubscribeRequest {

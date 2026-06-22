@@ -31,7 +31,7 @@ export default function AboutPage() {
     },
     {
       title: "Absolute Integrity",
-      desc: "100% genuine medicines sourced directly from authorized manufacturers and standard compliance under HIPAA regulations.",
+      desc: "100% genuine medicines sourced directly from authorized manufacturers and standard compliance under strict safety regulations.",
       icon: Shield,
       color: "text-blue-500",
       bg: "bg-blue-50",
@@ -45,17 +45,6 @@ export default function AboutPage() {
     },
   ];
 
-  const timeline = [
-    { year: "2023", title: "Altruist Founded", desc: "Started with a clear mission to make quality healthcare accessible to every Indian household." },
-    { year: "2024", title: "Nationwide Expansion", desc: "Launched rapid online consultations and 2-hour medicine delivery services across primary regions." },
-    { year: "2025", title: "Telemedicine Platform", desc: "Reimagined the healthcare experience with our advanced, secure digital-only ecosystem." },
-  ];
-
-  const team = [
-    { name: "Jayanand Anand", role: "Co-Founder & CEO", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&q=80" },
-    { name: "Dr. Sarah Jenkins", role: "Medical Director", img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop&q=80" },
-    { name: "Vikram Malhotra", role: "Chief Technology Officer", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&q=80" },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50/50 font-sans">
@@ -128,61 +117,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4. Timeline Timeline */}
-      <section className="py-20 px-6 md:px-12 bg-slate-50/50">
-        <div className="container mx-auto max-w-4xl space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-heading text-3xl font-extrabold text-foreground tracking-tight">Our Journey</h2>
-            <p className="text-muted-foreground font-medium max-w-xl mx-auto text-sm">
-              From a small digital vision in Punjab to India's premier online telemedicine portal.
-            </p>
-          </div>
-
-          <div className="relative border-l border-emerald-200 ml-4 md:ml-32 space-y-12 pt-4">
-            {timeline.map((item, i) => (
-              <div key={i} className="relative pl-8 md:pl-12">
-                <div className="absolute -left-3.5 top-0 w-7 h-7 rounded-full bg-white border-4 border-emerald-500 flex items-center justify-center shadow-sm" />
-                <div className="absolute left-[-80px] top-0 hidden md:block text-right">
-                  <span className="text-xl font-heading font-black text-emerald-600">{item.year}</span>
-                </div>
-                <div className="space-y-1 bg-white p-6 rounded-2xl border border-border shadow-sm">
-                  <span className="text-xs font-bold text-emerald-600 md:hidden">{item.year}</span>
-                  <h3 className="font-heading text-base font-bold text-foreground">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm font-medium leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Team Section */}
-      <section className="py-20 px-6 md:px-12 bg-white">
-        <div className="container mx-auto max-w-5xl space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-heading text-3xl font-extrabold text-foreground tracking-tight">Our Leadership Team</h2>
-            <p className="text-muted-foreground font-medium max-w-xl mx-auto text-sm">
-              The clinical and engineering minds building the future of care.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-4">
-            {team.map((member, i) => (
-              <div key={i} className="flex flex-col items-center text-center space-y-4">
-                <img 
-                  src={member.img} 
-                  alt={member.name} 
-                  className="w-36 h-36 rounded-full object-cover border-4 border-slate-100 shadow-md hover:scale-105 transition-transform duration-300" 
-                />
-                <div>
-                  <h4 className="font-heading text-base font-bold text-slate-900">{member.name}</h4>
-                  <p className="text-xs font-semibold text-emerald-600 uppercase tracking-widest mt-0.5">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 6. CTA Footer Section */}
       <section className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white py-16 px-6 md:px-12 text-center">
@@ -191,7 +125,7 @@ export default function AboutPage() {
             Ready to Take Control of Your Health?
           </h2>
           <p className="text-slate-200 text-base max-w-xl mx-auto font-medium leading-relaxed">
-            Experience modern, HIPAA-compliant digital consulting with our panel of experts today. First consult is completely free!
+            Experience modern, secure digital consulting with our panel of experts today. First consult is completely free!
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <Link href="/consult">

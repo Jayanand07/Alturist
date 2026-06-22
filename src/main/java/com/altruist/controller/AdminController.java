@@ -4,6 +4,7 @@ import com.altruist.dto.*;
 import com.altruist.model.ConsultationStatus;
 import com.altruist.service.AdminService;
 import com.altruist.service.OrderService;
+import com.altruist.service.LabService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,6 +29,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final OrderService orderService;
+    private final LabService labService;
 
     @GetMapping("/dashboard")
     public ResponseEntity<AdminDashboardDTO> getDashboardStats() {
@@ -169,11 +172,71 @@ public class AdminController {
         return ResponseEntity.ok(adminService.adminPromoteUser(req.getUserId(), req.getNewRole()));
     }
 
+    @PostMapping("/patients/{id}/promote-to-doctor")
+    public ResponseEntity<Map<String, Object>> promotePatientToDoctor(
+            @PathVariable UUID id,
+            @Valid @RequestBody AdminPromoteDoctorRequestDTO request) {
+        return ResponseEntity.ok(adminService.promotePatientToDoctor(id, request));
+    }
+
     @PutMapping("/admins/{adminId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Void> adminUpdateSuperAdmin(@PathVariable UUID adminId, @RequestBody Map<String, Object> changes) {
         adminService.adminUpdateSuperAdmin(adminId, changes);
         return ResponseEntity.ok().build();
+    }
+
+    // --- LAB TESTS CRUD ENDPOINTS ---
+
+    @GetMapping("/lab-tests")
+    public ResponseEntity<List<LabTestDTO>> getAdminLabTests() {
+        return ResponseEntity.ok(labService.getAllTests());
+    }
+
+    @PostMapping("/lab-tests")
+    public ResponseEntity<LabTestDTO> createLabTest(@Valid @RequestBody LabTestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(labService.createLabTest(dto));
+    }
+
+    @PutMapping("/lab-tests/{id}")
+    public ResponseEntity<LabTestDTO> updateLabTest(@PathVariable UUID id, @Valid @RequestBody LabTestDTO dto) {
+        return ResponseEntity.ok(labService.updateLabTest(id, dto));
+    }
+
+    @DeleteMapping("/lab-tests/{id}")
+    public ResponseEntity<Void> deleteLabTest(@PathVariable UUID id) {
+        labService.deleteLabTest(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // --- LAB PACKAGES CRUD ENDPOINTS ---
+
+    @GetMapping("/lab-packages")
+    public ResponseEntity<List<LabPackageDTO>> getAdminLabPackages() {
+        return ResponseEntity.ok(labService.getAllPackages());
+    }
+
+    @PostMapping("/lab-packages")
+    public ResponseEntity<LabPackageDTO> createLabPackage(@Valid @RequestBody LabPackageDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(labService.createLabPackage(dto));
+    }
+
+    @PutMapping("/lab-packages/{id}")
+    public ResponseEntity<LabPackageDTO> updateLabPackage(@PathVariable UUID id, @Valid @RequestBody LabPackageDTO dto) {
+        return ResponseEntity.ok(labService.updateLabPackage(id, dto));
+    }
+
+    @DeleteMapping("/lab-packages/{id}")
+    public ResponseEntity<Void> deleteLabPackage(@PathVariable UUID id) {
+        labService.deleteLabPackage(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // --- MANUAL PATIENT CREATION ENDPOINT ---
+
+    @PostMapping("/patients")
+    public ResponseEntity<PatientListDTO> createPatient(@Valid @RequestBody CreatePatientDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminService.createPatient(dto));
     }
 
     @lombok.Data

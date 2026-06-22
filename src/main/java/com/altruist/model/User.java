@@ -65,6 +65,9 @@ public class User {
     @Column(nullable = false)
     private UserType userType;
 
+    @Column(name = "welcome_email_sent", nullable = false)
+    private Boolean welcomeEmailSent = false;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

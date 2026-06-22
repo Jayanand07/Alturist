@@ -56,26 +56,13 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   dateOfBirth: z.string().min(1, "Date of birth is required"),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]),
-  userType: z.enum(["PATIENT", "DOCTOR"]),
+  userType: z.literal("PATIENT").default("PATIENT"),
   termsAccepted: z.boolean().refine(val => val === true, {
     message: "You must accept the terms and conditions"
   }),
-  // Doctor fields
-  specialization: z.string().optional(),
-  medicalLicense: z.string().optional(),
-  experienceYears: z.coerce.number().optional(),
-  consultationFee: z.coerce.number().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
-}).refine((data) => {
-  if (data.userType === "DOCTOR") {
-    return !!data.specialization && !!data.medicalLicense;
-  }
-  return true;
-}, {
-  message: "Medical details are required for doctors",
-  path: ["medicalLicense"],
 });
 
 type RegisterValues = z.infer<typeof registerSchema>;
@@ -135,11 +122,6 @@ export default function RegisterPage() {
     mode: "onChange"
   });
 
-  const selectedUserType = useWatch({
-    control: form.control,
-    name: "userType"
-  });
-
   const password = useWatch({
     control: form.control,
     name: "password"
@@ -172,13 +154,8 @@ export default function RegisterPage() {
         fullName: data.fullName,
         dateOfBirth: data.dateOfBirth,
         gender: data.gender,
-        userType: data.userType,
-        doctorInfo: data.userType === "DOCTOR" ? {
-          specialization: data.specialization,
-          medicalLicense: data.medicalLicense,
-          experienceYears: data.experienceYears,
-          consultationFee: data.consultationFee
-        } : null
+        userType: "PATIENT",
+        doctorInfo: null
       });
 
       toast.success("Registration successful! Check your inbox to verify your email.");
@@ -260,37 +237,6 @@ export default function RegisterPage() {
             <CardContent className="p-8">
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
-                {/* User Type Selection */}
-                <div className="space-y-3">
-                   <Label className="text-foreground font-bold">I am registering as a:</Label>
-                   <RadioGroup 
-                     defaultValue="PATIENT" 
-                     className="grid grid-cols-2 gap-4"
-                     onValueChange={(val) => form.setValue("userType", val as any)}
-                   >
-                      <div>
-                        <RadioGroupItem value="PATIENT" id="patient" className="peer sr-only" />
-                        <Label 
-                          htmlFor="patient" 
-                          className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-border bg-surface-muted/30 p-5 hover:bg-surface-muted peer-data-[state=checked]:border-accent peer-data-[state=checked]:bg-accent/5 [&_svg]:peer-data-[state=checked]:text-accent transition-all cursor-pointer shadow-sm"
-                        >
-                          <UserIcon className="h-8 w-8 text-muted-foreground transition-colors" />
-                          <span className="font-bold text-foreground">Patient</span>
-                        </Label>
-                      </div>
-                      <div>
-                        <RadioGroupItem value="DOCTOR" id="doctor" className="peer sr-only" />
-                        <Label 
-                          htmlFor="doctor" 
-                          className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-border bg-surface-muted/30 p-5 hover:bg-surface-muted peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&_svg]:peer-data-[state=checked]:text-primary transition-all cursor-pointer shadow-sm"
-                        >
-                          <Stethoscope className="h-8 w-8 text-muted-foreground transition-colors" />
-                          <span className="font-bold text-foreground">Doctor</span>
-                        </Label>
-                      </div>
-                   </RadioGroup>
-                </div>
-
                 {/* Basic Info */}
                 <div className="space-y-4 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -367,66 +313,6 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Conditional Doctor Fields */}
-                {selectedUserType === "DOCTOR" && (
-                  <div className="space-y-4 border-t border-border pt-6 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Stethoscope className="w-5 h-5 text-primary" />
-                      <h3 className="font-bold text-foreground">Professional Details</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-bold text-sm">Specialization</Label>
-                        <Select onValueChange={(v) => form.setValue("specialization", (v as string) || undefined)}>
-                          <SelectTrigger className={cn("h-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all", form.formState.errors.specialization && "border-red-500")}>
-                            <SelectValue placeholder="Select specialty" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="General Physician">General Physician</SelectItem>
-                            <SelectItem value="Cardiologist">Cardiologist</SelectItem>
-                            <SelectItem value="Dermatologist">Dermatologist</SelectItem>
-                            <SelectItem value="Pediatrician">Pediatrician</SelectItem>
-                            <SelectItem value="Neurologist">Neurologist</SelectItem>
-                            <SelectItem value="Psychiatrist">Psychiatrist</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-bold text-sm">Medical License No.</Label>
-                        <Input 
-                          placeholder="MC-123456" 
-                          className={cn("h-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all", form.formState.errors.medicalLicense && "border-red-500")}
-                          {...form.register("medicalLicense")}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-bold text-sm">Experience (Years)</Label>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g. 5" 
-                          className="h-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all"
-                          {...form.register("experienceYears")}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-bold text-sm">Consultation Fee (₹)</Label>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g. 500" 
-                          className="h-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all"
-                          {...form.register("consultationFee")}
-                        />
-                      </div>
-                    </div>
-                    {form.formState.errors.medicalLicense && (
-                      <p className="text-sm text-red-500 font-bold px-1 bg-red-50 p-2 rounded-lg">{form.formState.errors.medicalLicense.message}</p>
-                    )}
-                  </div>
-                )}
 
                 {/* Password Section */}
                 <div className="space-y-4 border-t border-border pt-6">
@@ -506,10 +392,7 @@ export default function RegisterPage() {
 
                 <Button 
                   type="submit" 
-                  className={cn(
-                    "w-full h-14 text-base font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]",
-                    selectedUserType === "DOCTOR" ? "bg-primary hover:bg-primary/90 shadow-primary/20" : "bg-accent hover:bg-accent/90 shadow-accent/20"
-                  )}
+                  className="w-full h-14 text-base font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] bg-accent hover:bg-accent/90 shadow-accent/20"
                   disabled={isLoading || !form.formState.isValid}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Complete Registration"}

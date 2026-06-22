@@ -187,9 +187,11 @@ export default function AdminSupportPage() {
                   </div>
                   <div className="flex items-center gap-2 mb-3">
                     <Avatar className="w-5 h-5">
-                       <AvatarFallback className="text-[9px] bg-slate-200 font-bold">{ticket.patientName?.charAt(0) || 'P'}</AvatarFallback>
+                       <AvatarFallback className="text-[9px] bg-slate-200 font-bold">{(ticket.patientEmail || ticket.patientName || 'P').charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="text-xs font-bold text-slate-600">{ticket.patientName || "Unknown Patient"}</span>
+                    <span className="text-xs font-bold text-slate-600 truncate max-w-[180px]" title={ticket.patientEmail || ticket.patientName}>
+                      {ticket.patientEmail || ticket.patientName || "Unknown Patient"}
+                    </span>
                     <span className="text-[10px] text-slate-400 font-bold ml-auto">
                       {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(ticket.createdAt))}
                     </span>
@@ -225,7 +227,9 @@ export default function AdminSupportPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-slate-900 truncate pr-4">{selectedTicket?.subject}</h3>
                     <div className="flex items-center gap-2 text-xs font-bold mt-0.5">
-                      <span className="text-slate-500">Patient: {selectedTicket?.patientName}</span>
+                      <span className="text-slate-500">
+                        Patient: {selectedTicket?.patientName ? `${selectedTicket.patientName} (${selectedTicket.patientEmail || ''})` : (selectedTicket?.patientEmail || "Unknown Patient")}
+                      </span>
                       <span className="text-slate-300">•</span>
                       <span className="text-slate-400">ID: {selectedTicket?.id?.split('-')[0]}</span>
                     </div>
