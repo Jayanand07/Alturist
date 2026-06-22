@@ -92,10 +92,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/doctors/{id}").hasAnyRole("ADMIN", "SUPER_ADMIN")
 
                         // ── Consultations (authenticated) ────────────────────
-                        .requestMatchers("/api/consultations/**").authenticated()
-                        .requestMatchers("/api/orders/**").authenticated()
-                        .requestMatchers("/api/prescriptions/**").authenticated()
-                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/api/consultations", "/api/consultations/**").authenticated()
+                        .requestMatchers("/api/orders", "/api/orders/**").authenticated()
+                        .requestMatchers("/api/prescriptions", "/api/prescriptions/**").authenticated()
+                        .requestMatchers("/api/notifications", "/api/notifications/**").authenticated()
 
                         // ── Support ticket solver (Admins & Doctors) ──────────
                         .requestMatchers("/api/admin/support/tickets", "/api/admin/support/tickets/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "DOCTOR")
