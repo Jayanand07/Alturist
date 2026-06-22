@@ -127,4 +127,58 @@ public class EmailService {
             // Fail gracefully — the callback was already logged
         }
     }
+
+    @Async
+    public void sendLabBookingConfirmationEmail(String toEmail, String fullName, String bookingType, String itemName, String preferredDate, String preferredTimeSlot) {
+        log.info("Attempting to send lab booking confirmation email to: [{}]", toEmail);
+        
+        if (toEmail == null || toEmail.trim().isEmpty() || "placeholder".equalsIgnoreCase(fromEmail)) {
+            log.warn("SMTP mail sender username not configured properly or target email is empty. booking email simulation logged.");
+            return;
+        }
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("Lab Booking Request Received! \uD83D\uDD2C");
+            
+            String safeName = (fullName != null && !fullName.trim().isEmpty()) ? fullName : "Customer";
+            
+            String htmlContent = "<html>" +
+                    "<body style='font-family: Arial, sans-serif; color: #333333; line-height: 1.6;'>" +
+                    "<div style='max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;'>" +
+                    "<div style='background-color: #0D9373; padding: 24px; text-align: center;'>" +
+                    "<h1 style='color: #ffffff; margin: 0; font-size: 24px;'>Lab Booking Request Received!</h1>" +
+                    "</div>" +
+                    "<div style='padding: 30px;'>" +
+                    "<p style='font-size: 16px; font-weight: bold;'>Dear " + safeName + ",</p>" +
+                    "<p>Your lab " + bookingType.toLowerCase() + " booking is confirmed, our team will contact you to schedule sample collection.</p>" +
+                    "<p><strong>Booking Details:</strong></p>" +
+                    "<ul>" +
+                    "<li><strong>Item Name:</strong> " + itemName + "</li>" +
+                    "<li><strong>Preferred Date:</strong> " + preferredDate + "</li>" +
+                    "<li><strong>Preferred Time Slot:</strong> " + preferredTimeSlot + "</li>" +
+                    "</ul>" +
+                    "<p>Our medical representative will call you on the registered phone number to confirm the exact schedule and coordinate the home sample collection.</p>" +
+                    "<p>Thank you for choosing Altruist Wellness.</p>" +
+                    "<p>Stay healthy,<br/><strong>Team Altruist Wellness</strong></p>" +
+                    "</div>" +
+                    "<div style='background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;'>" +
+                    "\u00A9 2025 Altruist Wellness. Amritsar, Punjab, India." +
+                    "</div>" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>";
+            
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+            
+            log.info("Lab booking email sent successfully to: [{}]", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send booking email to: [{}]. Error: {}", toEmail, e.getMessage());
+        }
+    }
 }

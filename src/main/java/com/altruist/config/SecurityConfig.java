@@ -68,6 +68,7 @@ public class SecurityConfig {
                         // ── PATIENT role ──────────────────────────────────────
                         .requestMatchers("/api/patients/**").hasRole("PATIENT")
                         .requestMatchers("/api/patient/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/lab-bookings", "/api/lab-bookings/**").hasRole("PATIENT")
                         .requestMatchers("/api/support/tickets", "/api/support/tickets/**").hasAnyRole("PATIENT", "ADMIN", "SUPER_ADMIN", "DOCTOR")
                         .requestMatchers("/api/subscriptions/my").hasAnyRole("PATIENT", "SUPER_ADMIN")
                         .requestMatchers("/api/subscriptions/subscribe").hasAnyRole("PATIENT", "SUPER_ADMIN")

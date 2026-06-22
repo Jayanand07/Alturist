@@ -51,6 +51,9 @@ public class LabService {
                 .includesCount(dto.getIncludesCount())
                 .isFeatured(Boolean.TRUE.equals(dto.getIsFeatured()))
                 .isActive(dto.getIsActive() == null || Boolean.TRUE.equals(dto.getIsActive()))
+                .parametersIncluded(dto.getParametersIncluded())
+                .reportTimeHours(dto.getReportTimeHours())
+                .freeHomeCollection(Boolean.TRUE.equals(dto.getFreeHomeCollection()))
                 .build();
 
         return mapToTestDTO(labTestRepository.save(labTest));
@@ -68,6 +71,11 @@ public class LabService {
         labTest.setDiscountedPrice(dto.getDiscountedPrice());
         labTest.setDiscountPercent(dto.getDiscountPercent());
         labTest.setIncludesCount(dto.getIncludesCount());
+        labTest.setParametersIncluded(dto.getParametersIncluded());
+        labTest.setReportTimeHours(dto.getReportTimeHours());
+        if (dto.getFreeHomeCollection() != null) {
+            labTest.setFreeHomeCollection(dto.getFreeHomeCollection());
+        }
         if (dto.getIsFeatured() != null) {
             labTest.setIsFeatured(dto.getIsFeatured());
         }
@@ -165,6 +173,9 @@ public class LabService {
                 .includesCount(test.getIncludesCount())
                 .isFeatured(test.getIsFeatured())
                 .isActive(test.getIsActive())
+                .parametersIncluded(test.getParametersIncluded())
+                .reportTimeHours(test.getReportTimeHours())
+                .freeHomeCollection(test.getFreeHomeCollection())
                 .build();
     }
 

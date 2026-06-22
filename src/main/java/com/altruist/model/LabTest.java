@@ -55,6 +55,15 @@ public class LabTest {
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive = true;
 
+    @Column(name = "parameters_included", columnDefinition = "text[]")
+    private String[] parametersIncluded;
+
+    private Integer reportTimeHours;
+
+    @Builder.Default
+    @Column(columnDefinition = "boolean default false")
+    private Boolean freeHomeCollection = false;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

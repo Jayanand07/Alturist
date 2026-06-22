@@ -39,4 +39,8 @@ public class LabTestDTO {
 
     @Builder.Default
     private Boolean isActive = true;
+
+    private String[] parametersIncluded;
+    private Integer reportTimeHours;
+    private Boolean freeHomeCollection;
 }

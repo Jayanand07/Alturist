@@ -32,7 +32,6 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
-// --- Types ---
 interface LabTest {
   id?: string;
   name: string;
@@ -44,6 +43,9 @@ interface LabTest {
   includesCount: number;
   isFeatured: boolean;
   isActive: boolean;
+  parametersIncluded?: string[];
+  reportTimeHours?: number;
+  freeHomeCollection?: boolean;
 }
 
 interface LabPackage {
@@ -82,7 +84,8 @@ export default function AdminLabManagementPage() {
   const [testForm, setTestForm] = useState<LabTest>({
     name: "", description: "", category: "Full Body Checkup", 
     price: 0, discountedPrice: 0, discountPercent: 0, 
-    includesCount: 1, isFeatured: false, isActive: true
+    includesCount: 1, isFeatured: false, isActive: true,
+    parametersIncluded: [], reportTimeHours: 24, freeHomeCollection: true
   });
 
   const [packageForm, setPackageForm] = useState<{
@@ -100,6 +103,35 @@ export default function AdminLabManagementPage() {
     originalPrice: 0, discountedPrice: 0, discountPercent: 0,
     smartReportIncluded: false, isActive: true
   });
+
+  const [paramInput, setParamInput] = useState("");
+
+  const addParam = () => {
+    const val = paramInput.trim();
+    if (val) {
+      if (!testForm.parametersIncluded?.includes(val)) {
+        setTestForm(prev => ({
+          ...prev,
+          parametersIncluded: [...(prev.parametersIncluded || []), val]
+        }));
+      }
+      setParamInput("");
+    }
+  };
+
+  const handleAddParam = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addParam();
+    }
+  };
+
+  const handleRemoveParam = (index: number) => {
+    setTestForm(prev => ({
+      ...prev,
+      parametersIncluded: (prev.parametersIncluded || []).filter((_, idx) => idx !== index)
+    }));
+  };
 
   // Calculate discounts automatically
   useEffect(() => {
@@ -153,23 +185,45 @@ export default function AdminLabManagementPage() {
 
   const toggleTestFeaturedMutation = useMutation({
     mutationFn: async (test: LabTest) => {
+      if (!test.isFeatured) { // Trying to set isFeatured = true
+        if (!test.description || !test.description.trim()) {
+          throw new Error("Description is required before a test can be Featured");
+        }
+        if (!test.parametersIncluded || test.parametersIncluded.length === 0) {
+          throw new Error("Test Parameters are required before a test can be Featured");
+        }
+      }
       const updated = { ...test, isFeatured: !test.isFeatured };
       return (await api.put(`/admin/lab-tests/${test.id}`, updated)).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lab-tests"] });
       toast.success("Updated test preference");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update test preference");
     }
   });
 
   const toggleTestActiveMutation = useMutation({
     mutationFn: async (test: LabTest) => {
+      if (!test.isActive) { // Trying to set isActive = true
+        if (!test.description || !test.description.trim()) {
+          throw new Error("Description is required before a test can be Active");
+        }
+        if (!test.parametersIncluded || test.parametersIncluded.length === 0) {
+          throw new Error("Test Parameters are required before a test can be Active");
+        }
+      }
       const updated = { ...test, isActive: !test.isActive };
       return (await api.put(`/admin/lab-tests/${test.id}`, updated)).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-lab-tests"] });
       toast.success("Updated test visibility");
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update test visibility");
     }
   });
 
@@ -229,9 +283,11 @@ export default function AdminLabManagementPage() {
     setTestForm({
       name: "", description: "", category: "Full Body Checkup", 
       price: 0, discountedPrice: 0, discountPercent: 0, 
-      includesCount: 1, isFeatured: false, isActive: true
+      includesCount: 1, isFeatured: false, isActive: true,
+      parametersIncluded: [], reportTimeHours: 24, freeHomeCollection: true
     });
     setEditingTestId(null);
+    setParamInput("");
   };
 
   const resetPackageForm = () => {
@@ -275,6 +331,20 @@ export default function AdminLabManagementPage() {
     if (!testForm.name.trim()) return toast.error("Test name is required");
     if (testForm.price <= 0) return toast.error("Price must be greater than 0");
     if (testForm.discountedPrice > testForm.price) return toast.error("Discounted price cannot exceed original price");
+    
+    // Validation locks for Active/Featured tests
+    if (testForm.isActive || testForm.isFeatured) {
+      if (!testForm.description || !testForm.description.trim()) {
+        return toast.error("Description is required before a test can be marked Active or Featured");
+      }
+      if (!testForm.parametersIncluded || testForm.parametersIncluded.length === 0) {
+        return toast.error("At least one Test Parameter is required before a test can be marked Active or Featured");
+      }
+      if (!testForm.reportTimeHours || testForm.reportTimeHours <= 0) {
+        return toast.error("Report Time must be greater than 0 hours before a test can be marked Active or Featured");
+      }
+    }
+
     saveTestMutation.mutate(testForm);
   };
 
@@ -683,6 +753,74 @@ export default function AdminLabManagementPage() {
                 <span>{testForm.discountPercent}% OFF</span>
               </div>
             )}
+
+            {/* Test Parameters Chip Tag Input */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-slate-700">Test Parameters *</Label>
+              <div className="flex flex-wrap gap-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl min-h-[44px]">
+                {testForm.parametersIncluded && testForm.parametersIncluded.map((param, idx) => (
+                  <span key={idx} className="bg-slate-200 text-slate-700 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5">
+                    {param}
+                    <button 
+                      type="button" 
+                      onClick={() => handleRemoveParam(idx)} 
+                      className="text-slate-400 hover:text-slate-600 focus:outline-none"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+                {(!testForm.parametersIncluded || testForm.parametersIncluded.length === 0) && (
+                  <span className="text-slate-400 text-xs self-center px-1 font-semibold">No parameters added yet (minimum 1 required for active tests)</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={paramInput}
+                  onChange={(e) => setParamInput(e.target.value)}
+                  onKeyDown={handleAddParam}
+                  placeholder="Type parameter name and press Enter to add"
+                  className="rounded-xl border-slate-200"
+                />
+                <Button 
+                  type="button" 
+                  onClick={addParam}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 border-none font-bold rounded-xl px-4 text-xs h-10 shrink-0"
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            {/* Report Time & Home Collection Toggle Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="reportTimeHours" className="text-xs font-bold text-slate-700">Report Time (Hours) *</Label>
+                <Input
+                  id="reportTimeHours"
+                  type="number"
+                  min={1}
+                  required
+                  value={testForm.reportTimeHours || ""}
+                  onChange={(e) => setTestForm(prev => ({ ...prev, reportTimeHours: parseInt(e.target.value) || 0 }))}
+                  placeholder="e.g. 24"
+                  className="rounded-xl border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="freeHomeCollection" className="text-xs font-bold text-slate-700 block mb-2">Free Home Collection?</Label>
+                <div className="flex items-center h-10">
+                  <Switch 
+                    id="freeHomeCollection" 
+                    checked={testForm.freeHomeCollection || false} 
+                    onCheckedChange={(val) => setTestForm(prev => ({ ...prev, freeHomeCollection: val }))}
+                    className="data-[state=checked]:bg-[#0D9373]"
+                  />
+                  <Label htmlFor="freeHomeCollection" className="text-xs text-slate-500 font-bold ml-2 cursor-pointer">Yes, free pickup</Label>
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center gap-6 pt-2">
               <div className="flex items-center gap-2">

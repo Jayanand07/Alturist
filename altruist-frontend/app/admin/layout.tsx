@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Home,
   FlaskConical,
-  Video
+  Video,
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -54,6 +55,7 @@ export default function AdminLayout({
     { title: "Patients", href: "/admin/patients", icon: Users },
     { title: "Medicines", href: "/admin/medicines", icon: Pill },
     { title: "Lab Tests & Packages", href: "/admin/lab-management", icon: FlaskConical },
+    { title: "Lab Bookings", href: "/admin/lab-bookings", icon: Calendar },
     { title: "Consultations", href: "/admin/consultations", icon: ClipboardList },
     { title: "Vlogs", href: "/admin/vlogs", icon: Video },
     { title: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },

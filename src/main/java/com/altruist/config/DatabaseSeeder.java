@@ -317,6 +317,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .includesCount(24)
                     .isFeatured(true)
                     .isActive(true)
+                    .parametersIncluded(new String[]{"Hemoglobin", "WBC Count", "RBC Count", "Platelet Count", "MCV", "MCH"})
+                    .reportTimeHours(12)
+                    .freeHomeCollection(true)
                     .build(),
                 LabTest.builder()
                     .name("HbA1c (Glycated Haemoglobin)")
@@ -328,6 +331,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .includesCount(1)
                     .isFeatured(true)
                     .isActive(true)
+                    .parametersIncluded(new String[]{"HbA1c", "Estimated Average Glucose"})
+                    .reportTimeHours(24)
+                    .freeHomeCollection(true)
                     .build(),
                 LabTest.builder()
                     .name("Lipid Profile")
@@ -339,6 +345,9 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .includesCount(8)
                     .isFeatured(true)
                     .isActive(true)
+                    .parametersIncluded(new String[]{"Total Cholesterol", "HDL Cholesterol", "LDL Cholesterol", "Triglycerides", "VLDL Cholesterol"})
+                    .reportTimeHours(12)
+                    .freeHomeCollection(true)
                     .build()
             );
             labTestRepository.saveAll(initialTests);

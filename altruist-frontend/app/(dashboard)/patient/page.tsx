@@ -89,6 +89,16 @@ export default function PatientDashboard() {
     enabled: !!authUser && userType === "PATIENT",
   });
 
+  const { data: labBookings, isLoading: labBookingsLoading } = useQuery({
+    queryKey: ["my-lab-bookings"],
+    queryFn: async () => {
+      try {
+        return (await api.get("/patient/lab-bookings")).data;
+      } catch (e) { return []; }
+    },
+    enabled: !!authUser && userType === "PATIENT",
+  });
+
   const { data: history, isLoading: histLoading } = useQuery({
     queryKey: ["recent-history"],
     queryFn: async () => {
@@ -407,6 +417,99 @@ export default function PatientDashboard() {
                   <Link href="/plans">
                     <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold px-6 rounded-xl shadow border-none transition-all active:scale-95 text-xs h-10">
                       Explore Health Plans
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* My Lab Bookings */}
+          <Card className="border border-border shadow-sm bg-surface rounded-3xl overflow-hidden">
+            <CardHeader className="border-b border-border py-5 px-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="font-heading text-xl font-bold text-foreground">My Lab Bookings</CardTitle>
+                  <CardDescription className="font-medium mt-1">Track status of home sample collection and diagnostic testing</CardDescription>
+                </div>
+                <Badge className="bg-primary/10 text-primary border-none font-bold">
+                  {labBookings?.length || 0} Total
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {labBookingsLoading ? (
+                <div className="py-6 flex justify-center"><Loader2 className="animate-spin text-accent w-6 h-6" /></div>
+              ) : labBookings && labBookings.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {labBookings.map((booking: any) => {
+                    const itemName = booking.bookingType === "TEST" ? booking.labTestName : booking.labPackageName;
+                    const dateStr = booking.preferredDate;
+                    const isCompleted = booking.status === "REPORT_READY";
+                    
+                    return (
+                      <div key={booking.id} className={cn(
+                        "p-5 border rounded-2xl space-y-3 relative overflow-hidden bg-white",
+                        isCompleted 
+                          ? "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100" 
+                          : "border-slate-100 shadow-sm"
+                      )}>
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block leading-none">
+                              {booking.bookingType} BOOKING
+                            </span>
+                            <h4 className="font-bold text-slate-800 text-base leading-tight pr-6">{itemName}</h4>
+                          </div>
+                          <Badge className={cn(
+                            "text-[10px] font-bold border py-0.5 px-2 rounded-md uppercase tracking-wider",
+                            booking.status === "PENDING" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                            booking.status === "CONFIRMED" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                            booking.status === "SAMPLE_COLLECTED" ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
+                            booking.status === "REPORT_READY" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                            "bg-rose-50 text-rose-700 border-rose-200"
+                          )}>
+                            {booking.status === "SAMPLE_COLLECTED" ? "Sample Picked" :
+                             booking.status === "REPORT_READY" ? "Report Out" :
+                             booking.status.toLowerCase()}
+                          </Badge>
+                        </div>
+
+                        <div className="text-xs text-slate-500 font-semibold space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <Calendar size={13} className="text-slate-400" />
+                            <span>Pref Date: {dateStr} ({booking.preferredTimeSlot.split(" ").slice(1).join(" ")})</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <FlaskConical size={13} className="text-slate-400" />
+                            <span>Amount: <strong className="text-slate-800 font-extrabold">₹{booking.amount}</strong> ({booking.paymentStatus})</span>
+                          </div>
+                        </div>
+
+                        {booking.notes && (
+                          <div className="bg-slate-50 border border-slate-100/60 p-2.5 rounded-xl text-xs font-semibold text-slate-600 italic">
+                            <span className="font-bold not-italic block text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">Admin Remarks</span>
+                            "{booking.notes}"
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full border border-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                    <FlaskConical size={28} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-700">No Lab Bookings</h4>
+                    <p className="text-xs font-bold text-slate-400 max-w-xs mx-auto mt-1 leading-relaxed">
+                      You haven't booked any home diagnostic checks or body checkup packages yet.
+                    </p>
+                  </div>
+                  <Link href="/labs">
+                    <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold px-6 rounded-xl shadow border-none transition-all active:scale-95 text-xs h-10">
+                      Book a Lab Test
                     </Button>
                   </Link>
                 </div>

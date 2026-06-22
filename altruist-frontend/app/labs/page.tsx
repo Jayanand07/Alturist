@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { 
   Search, ShieldCheck, Clock, Activity, Target, 
   Microscope, Heart, Syringe, Brain, Bone, Baby, 
-  Pill, FileText, ChevronRight, Plus 
+  Pill, FileText, ChevronRight, Plus, CheckCircle2 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import LabBookingModal from "@/components/shared/LabBookingModal";
 
 const CATEGORIES = [
   "All", "Full Body Checkup", "Diabetes", "Heart", "Blood Studies", "Vitamin", "Thyroid"
@@ -43,6 +44,9 @@ interface LabTest {
   includesCount: number;
   isFeatured: boolean;
   isActive: boolean;
+  parametersIncluded?: string[];
+  reportTimeHours?: number;
+  freeHomeCollection?: boolean;
 }
 
 interface LabPackage {
@@ -121,8 +125,54 @@ export default function LabsPage() {
     fetchPackages();
   }, []);
 
+  const [selectedBookingItem, setSelectedBookingItem] = useState<{
+    id: string;
+    name: string;
+    price: number;
+    type: "TEST" | "PACKAGE";
+  } | null>(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
 
+  const handleBookClick = (item: { id: string; name: string; price: number; type: "TEST" | "PACKAGE" }) => {
+    requireAuth(() => {
+      setSelectedBookingItem(item);
+      setIsBookingOpen(true);
+    }, `/labs?book${item.type === "TEST" ? "TestId" : "PackageId"}=${item.id}`);
+  };
 
+  useEffect(() => {
+    if (isMounted && topTests.length > 0 && packages.length > 0) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const testId = searchParams.get("bookTestId");
+      const packageId = searchParams.get("bookPackageId");
+      
+      if (testId) {
+        const found = topTests.find(t => t.id === testId);
+        if (found) {
+          setSelectedBookingItem({
+            id: found.id,
+            name: found.name,
+            price: found.discountedPrice,
+            type: "TEST"
+          });
+          setIsBookingOpen(true);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } else if (packageId) {
+        const found = packages.find(p => p.id === packageId);
+        if (found) {
+          setSelectedBookingItem({
+            id: found.id,
+            name: found.name,
+            price: found.discountedPrice,
+            type: "PACKAGE"
+          });
+          setIsBookingOpen(true);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    }
+  }, [isMounted, topTests, packages]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -245,26 +295,80 @@ export default function LabsPage() {
               </div>
             ) : (
               topTests.map((test) => (
-                <div key={test.id} className="bg-white rounded-2xl border border-slate-200 p-5 min-w-[280px] max-w-[280px] flex flex-col snap-start hover:shadow-md transition-all">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-[#0F172A] text-lg leading-tight mb-2">{test.name}</h3>
-                    <div className="text-xs font-bold text-[#0d5c3a] bg-emerald-50 border border-emerald-100 px-2 py-1 rounded inline-block mb-4">
-                      Includes {test.includesCount} Test{test.includesCount > 1 ? 's' : ''}
+                <div key={test.id} className="bg-white rounded-3xl border border-slate-200 p-6 min-w-[320px] max-w-[320px] flex flex-col justify-between snap-start hover:shadow-lg transition-all relative overflow-hidden group">
+                  <div className="flex-1 flex flex-col gap-4">
+                    {/* Header: Title & Badges */}
+                    <div>
+                      <h3 className="font-extrabold text-[#0F172A] text-lg leading-snug group-hover:text-primary transition-colors mb-2">
+                        {test.name}
+                      </h3>
+                      {test.description && (
+                        <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed mb-3">
+                          {test.description}
+                        </p>
+                      )}
                     </div>
+
+                    {/* Includes Parameters badge */}
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className="text-[11px] font-black text-[#0d5c3a] bg-emerald-50 border border-emerald-100/50 px-2.5 py-0.5 rounded-full">
+                        Includes {test.includesCount} Parameter{test.includesCount > 1 ? 's' : ''}
+                      </span>
+                      {test.reportTimeHours && (
+                        <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                          <Clock size={12} className="text-slate-400" /> {test.reportTimeHours} Hrs
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Parameters list (chips/tag pills) */}
+                    {test.parametersIncluded && test.parametersIncluded.length > 0 && (
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Checks Included</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {test.parametersIncluded.slice(0, 5).map((param, idx) => (
+                            <span key={idx} className="bg-slate-50 text-slate-600 font-semibold px-2 py-0.5 rounded-md text-[10px] border border-slate-100">
+                              {param}
+                            </span>
+                          ))}
+                          {test.parametersIncluded.length > 5 && (
+                            <span className="text-[10px] font-bold text-slate-400 self-center">
+                              +{test.parametersIncluded.length - 5} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Free home collection checkmark */}
+                    {test.freeHomeCollection && (
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                        <CheckCircle2 size={13} className="text-emerald-500" /> Free Home Collection
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-end justify-between">
+
+                  {/* Pricing and CTA Button */}
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-end justify-between">
                     <div>
                       {test.discountPercent > 0 && (
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-xs text-slate-400 line-through">₹{test.price}</span>
-                          <span className="text-[10px] bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded">{test.discountPercent}% OFF</span>
+                          <span className="text-xs text-slate-400 line-through font-semibold">₹{test.price}</span>
+                          <span className="text-[10px] bg-red-100 text-red-600 font-black px-1.5 py-0.5 rounded">
+                            {test.discountPercent}% OFF
+                          </span>
                         </div>
                       )}
-                      <p className="text-xl font-black text-[#0F172A]">₹{test.discountedPrice}</p>
+                      <p className="text-2xl font-black text-[#0F172A]">₹{test.discountedPrice}</p>
                     </div>
                     <Button 
-                      onClick={() => requireAuth(() => toast.success(`Booking initiated for ${test.name}! Our representative will contact you shortly.`, { icon: "🧪" }), "/labs")}
-                      className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-xl text-xs active:scale-95 transition-all"
+                      onClick={() => handleBookClick({
+                        id: test.id,
+                        name: test.name,
+                        price: test.discountedPrice,
+                        type: "TEST"
+                      })}
+                      className="bg-primary hover:bg-primary/95 text-white font-black h-10 px-5 rounded-2xl text-xs active:scale-95 transition-all shadow-md shadow-primary/10 border-none"
                     >
                       Book Now
                     </Button>
@@ -326,7 +430,12 @@ export default function LabsPage() {
                      <div className="flex items-center justify-between">
                         <p className="text-2xl font-black text-[#0F172A]">₹{pkg.discountedPrice}</p>
                         <Button 
-                          onClick={() => requireAuth(() => toast.success(`Booking initiated for ${pkg.name}! Our representative will contact you shortly.`, { icon: "🧪" }), "/labs")}
+                          onClick={() => handleBookClick({
+                            id: pkg.id,
+                            name: pkg.name,
+                            price: pkg.discountedPrice,
+                            type: "PACKAGE"
+                          })}
                           className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-xl text-xs active:scale-95 transition-all"
                         >
                           Book Now
@@ -340,8 +449,11 @@ export default function LabsPage() {
         </div>
       </div>
 
-
-
+      <LabBookingModal 
+        isOpen={isBookingOpen} 
+        onClose={() => setIsBookingOpen(false)} 
+        item={selectedBookingItem} 
+      />
     </div>
   );
 }
