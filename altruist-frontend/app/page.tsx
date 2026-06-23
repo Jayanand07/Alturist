@@ -20,6 +20,7 @@ import SpecialistSection from "@/components/shared/SpecialistSection";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import api from "@/lib/axios";
 
 // ── CONSTANTS ────────────────────────────────────────────────────────────
 
@@ -186,6 +187,8 @@ export default function RedesignedHomePage() {
 
   const [medicines, setMedicines] = useState<any[]>([]);
   const [medicinesLoading, setMedicinesLoading] = useState(true);
+  const [featuredMeds, setFeaturedMeds] = useState<any[]>([]);
+  const [featuredMedsLoading, setFeaturedMedsLoading] = useState(true);
   const [labPackages, setLabPackages] = useState<any[]>([]);
   const [labPackagesLoading, setLabPackagesLoading] = useState(true);
   const [topDoctors, setTopDoctors] = useState<any[]>([]);
@@ -197,11 +200,8 @@ export default function RedesignedHomePage() {
     // 1. Fetch medicines
     const fetchMedicines = async () => {
       try {
-        const res = await fetch("/api/medicines?page=0&size=5");
-        if (res.ok) {
-          const data = await res.json();
-          setMedicines(data.content || data || []);
-        }
+        const res = await api.get("/medicines?page=0&size=5");
+        setMedicines(res.data.content || res.data || []);
       } catch (err) {
         console.error("Failed to fetch medicines", err);
       } finally {
@@ -212,11 +212,8 @@ export default function RedesignedHomePage() {
     // 2. Fetch lab packages
     const fetchLabPackages = async () => {
       try {
-        const res = await fetch("/api/lab-packages");
-        if (res.ok) {
-          const data = await res.json();
-          setLabPackages(data || []);
-        }
+        const res = await api.get("/lab-packages");
+        setLabPackages(res.data || []);
       } catch (err) {
         console.error("Failed to fetch lab packages", err);
       } finally {
@@ -227,11 +224,8 @@ export default function RedesignedHomePage() {
     // 3. Fetch top doctors
     const fetchTopDoctors = async () => {
       try {
-        const res = await fetch("/api/doctors?size=5");
-        if (res.ok) {
-          const data = await res.json();
-          setTopDoctors(data.content || data || []);
-        }
+        const res = await api.get("/doctors?size=5");
+        setTopDoctors(res.data.content || res.data || []);
       } catch (err) {
         console.error("Failed to fetch top doctors", err);
       } finally {
@@ -242,13 +236,8 @@ export default function RedesignedHomePage() {
     // 4. Fetch testimonials
     const fetchTestimonials = async () => {
       try {
-        const res = await fetch("/api/testimonials?featured=true&limit=3");
-        if (res.ok) {
-          const data = await res.json();
-          setTestimonials(data || []);
-        } else {
-          setTestimonials([]);
-        }
+        const res = await api.get("/testimonials?featured=true&limit=3");
+        setTestimonials(res.data || []);
       } catch (err) {
         console.error("Failed to fetch testimonials", err);
         setTestimonials([]);
@@ -257,10 +246,23 @@ export default function RedesignedHomePage() {
       }
     };
 
+    // 5. Fetch featured medicines
+    const fetchFeaturedMeds = async () => {
+      try {
+        const res = await api.get("/medicines/featured");
+        setFeaturedMeds(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch featured medicines", err);
+      } finally {
+        setFeaturedMedsLoading(false);
+      }
+    };
+
     fetchMedicines();
     fetchLabPackages();
     fetchTopDoctors();
     fetchTestimonials();
+    fetchFeaturedMeds();
   }, []);
 
   const handleAddProduct = (prod: any) => {
@@ -428,6 +430,101 @@ export default function RedesignedHomePage() {
 
       {/* 4. CONSULT TOP SPECIALISTS — live data from /api/doctors/specialties */}
       <SpecialistSection />
+
+      {/* Featured Medicines Section */}
+      {featuredMedsLoading || featuredMeds.length > 0 ? (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <Star className="text-amber-500 fill-amber-500" /> Featured Medicines
+              </h2>
+              <p className="text-slate-500 text-sm font-semibold mt-1">
+                Top recommended premium health and wellness essentials
+              </p>
+            </div>
+            <Link href="/medicines">
+              <Button className="bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+                Explore Catalog <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {featuredMedsLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 h-[280px] flex flex-col animate-pulse">
+                  <div className="h-36 bg-slate-100 rounded-2xl mb-4" />
+                  <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
+                </div>
+              ))
+            ) : (
+              featuredMeds.map((prod) => {
+                const originalPrice = prod.price;
+                const discountedPrice = prod.discountedPrice || prod.price;
+                const brandName = prod.manufacturer || "Generic";
+                const imageUrl = prod.imageUrl;
+                const discountPercent = originalPrice && discountedPrice && originalPrice > discountedPrice
+                  ? Math.round((1 - (discountedPrice / originalPrice)) * 100)
+                  : 0;
+
+                return (
+                  <Card key={prod.id} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
+                    <div className="p-4 flex flex-col gap-3">
+                      {/* Product Image Link */}
+                      <Link href={`/medicines?search=${encodeURIComponent(prod.name)}`}>
+                        <div className="h-36 w-full rounded-2xl overflow-hidden bg-slate-50 relative flex items-center justify-center flex-shrink-0 cursor-pointer">
+                          <img 
+                            src={imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=400&h=400&fit=crop&q=80"} 
+                            alt={prod.name} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {discountPercent > 0 && (
+                            <Badge className="absolute top-2 left-2 bg-red-500 text-white border-none py-0.5 px-2 font-bold text-[9px] rounded">
+                              {discountPercent}% OFF
+                            </Badge>
+                          )}
+                        </div>
+                      </Link>
+
+                      <div className="space-y-1">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
+                          {brandName}
+                        </span>
+                        <Link href={`/medicines?search=${encodeURIComponent(prod.name)}`}>
+                          <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug h-10 group-hover:text-amber-500 transition-colors cursor-pointer">
+                            {prod.name}
+                          </h3>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Price & Add to Cart */}
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-50 flex items-center justify-between">
+                      <div>
+                        {originalPrice > discountedPrice && (
+                          <span className="text-[10px] text-slate-400 line-through block font-medium leading-none">₹{originalPrice}</span>
+                        )}
+                        <span className="text-base font-black text-slate-900 leading-none">₹{discountedPrice}</span>
+                      </div>
+
+                      <Button 
+                        onClick={() => requireAuth(() => handleAddProduct(prod), "/")}
+                        size="sm"
+                        className="h-8 px-3 rounded-full bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white font-extrabold flex items-center gap-1 shadow-inner border-none transition-colors"
+                      >
+                        <Plus size={14} /> {t("bestSellers.add")}
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* 5. BEST SELLERS IN MEDICINES & HEALTH PRODUCTS (DYNAMIC ADD TO CART!) */}
       {!medicinesLoading && medicines.length === 0 ? null : (

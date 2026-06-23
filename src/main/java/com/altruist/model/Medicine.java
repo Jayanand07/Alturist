@@ -61,6 +61,12 @@ public class Medicine {
 
     private String imageUrl;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean isFeatured = false;
+
+    private LocalDateTime featuredAt;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

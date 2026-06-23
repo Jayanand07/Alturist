@@ -61,9 +61,9 @@ export default function Footer() {
             <div className="flex items-center gap-4 pt-2">
               {[
                 { icon: Facebook,  href: "https://www.facebook.com/profile.php?id=61582181543862",  label: "Facebook"  },
-                { icon: Linkedin,  href: "https://www.linkedin.com/company/altruistwellness/",  label: "LinkedIn"  },
+                { icon: Linkedin,  href: "https://www.linkedin.com/company/altruistwellness/?viewAsMember=true",  label: "LinkedIn"  },
               ].map((s) => (
-                <Link key={s.label} href={s.href} aria-label={s.label}
+                <Link key={s.label} href={s.href} aria-label={s.label} target="_blank" rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 hover:border-primary/30 transition-all">
                   <s.icon size={18} strokeWidth={1.5} />
                 </Link>
@@ -80,6 +80,16 @@ export default function Footer() {
               <div className="flex items-center gap-3 text-sm text-slate-400">
                 <MapPin size={14} className="text-primary flex-shrink-0" />
                 <span>Bengaluru, Karnataka, India</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-slate-400">
+                <Facebook size={14} className="text-primary flex-shrink-0" />
+                <a href="https://www.facebook.com/profile.php?id=61582181543862" target="_blank" rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors">Facebook</a>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-slate-400">
+                <Linkedin size={14} className="text-primary flex-shrink-0" />
+                <a href="https://www.linkedin.com/company/altruistwellness/?viewAsMember=true" target="_blank" rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors">LinkedIn</a>
               </div>
             </div>
           </div>

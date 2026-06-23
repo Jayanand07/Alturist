@@ -3,6 +3,7 @@ package com.altruist.controller;
 import com.altruist.dto.MedicineBulkResultDTO;
 import com.altruist.dto.MedicineDTO;
 import com.altruist.dto.MedicineResponseDTO;
+import com.altruist.dto.PublicMedicineDTO;
 import com.altruist.service.MedicineService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,8 @@ public class MedicineController {
         return ResponseEntity.ok(Map.of(
                 "totalCount", medicineService.getTotalMedicines(),
                 "inStockCount", medicineService.getInStockCount(),
-                "requiresPrescriptionCount", medicineService.getRequiresPrescriptionCount()
+                "requiresPrescriptionCount", medicineService.getRequiresPrescriptionCount(),
+                "featuredCount", medicineService.getFeaturedCount()
         ));
     }
 
@@ -90,5 +92,26 @@ public class MedicineController {
         // Force inStock = true for public queries
         Page<MedicineResponseDTO> result = medicineService.getMedicines(search, category, prescription, true, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    @PatchMapping("/api/admin/medicines/{id}/feature")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> setFeatured(@PathVariable UUID id, @RequestBody Map<String, Boolean> body) {
+        try {
+            Boolean featured = body.get("featured");
+            if (featured == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "The field 'featured' is required."));
+            }
+            return ResponseEntity.ok(medicineService.setFeatured(id, featured));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Unable to update featured status."));
+        }
+    }
+
+    @GetMapping("/api/medicines/featured")
+    public ResponseEntity<List<PublicMedicineDTO>> getFeaturedMedicines() {
+        return ResponseEntity.ok(medicineService.getFeaturedMedicines());
     }
 }

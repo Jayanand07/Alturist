@@ -60,7 +60,8 @@ export default function Header() {
   const servicesRef                         = useRef<HTMLDivElement>(null);
   const resourcesRef                        = useRef<HTMLDivElement>(null);
   const { getTotalItems }                   = useCartStore();
-  const cartCount                           = getTotalItems();
+  const [mounted, setMounted]               = useState(false);
+  const cartCount                           = mounted ? getTotalItems() : 0;
   const { selectedCity, selectedState }     = useLocationStore();
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
@@ -132,6 +133,7 @@ export default function Header() {
 
   // Scroll → sticky
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setIsSticky(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);

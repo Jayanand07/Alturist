@@ -19,6 +19,7 @@ ALTER TABLE public.support_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscription_plans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lab_bookings ENABLE ROW LEVEL SECURITY;
 
 -- ── 2. Revoke Select & Modify Permissions from anon and authenticated roles ──
 -- This removes the tables from the PostgREST API and pg_graphql schema completely,
@@ -38,6 +39,7 @@ REVOKE ALL ON TABLE public.medicines FROM anon, authenticated;
 REVOKE ALL ON TABLE public.orders FROM anon, authenticated;
 REVOKE ALL ON TABLE public.prescriptions FROM anon, authenticated;
 REVOKE ALL ON TABLE public.users FROM anon, authenticated;
+REVOKE ALL ON TABLE public.lab_bookings FROM anon, authenticated;
 
 -- ── 3. Grant full privileges back to postgres owner role (for double safety) ──
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres;

@@ -28,4 +28,8 @@ public interface MedicineRepository extends JpaRepository<Medicine, UUID> {
     long countByInStockTrue();
 
     long countByRequiresPrescriptionTrue();
+
+    long countByIsFeaturedTrue();
+
+    java.util.List<Medicine> findTop4ByIsFeaturedTrueOrderByFeaturedAtDesc();
 }

@@ -83,6 +83,8 @@ interface Medicine {
   stockQuantity: number;
   description: string;
   imageUrl?: string;
+  isFeatured?: boolean;
+  featuredAt?: string;
 }
 
 interface MedicineForm {
@@ -183,6 +185,20 @@ export default function MedicinesCatalogPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-medicines"] });
       queryClient.invalidateQueries({ queryKey: ["admin-medicines-stats"] });
+    }
+  });
+
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: ({ id, featured }: { id: string, featured: boolean }) => 
+      api.patch(`/admin/medicines/${id}/feature`, { featured }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-medicines"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-medicines-stats"] });
+      toast.success("Featured status updated");
+    },
+    onError: (err: any) => {
+      const errMsg = err?.response?.data?.error || "Failed to update featured status";
+      toast.error(errMsg);
     }
   });
 
@@ -415,6 +431,9 @@ export default function MedicinesCatalogPage() {
                     onChange={(e) => { setSearch(e.target.value); setPage(0); }}
                   />
                 </div>
+                <div className="text-sm font-black text-muted-foreground bg-surface-muted px-4 py-2 rounded-xl border border-border/50 shrink-0">
+                  {statsData?.featuredCount || 0}/4 Featured
+                </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   <Select value={categoryFilter} onValueChange={(val) => { setCategoryFilter(val ?? "all"); setPage(0); }}>
                     <SelectTrigger className="w-[180px] h-10 border-border/50 rounded-xl focus:ring-primary shadow-none font-semibold">
@@ -457,6 +476,7 @@ export default function MedicinesCatalogPage() {
                            <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Category</TableHead>
                            <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Pricing</TableHead>
                            <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Prescription</TableHead>
+                           <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Featured</TableHead>
                            <TableHead className="font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Stock</TableHead>
                            <TableHead className="text-right pr-6 font-black text-[11px] text-muted-foreground/70 uppercase tracking-widest">Actions</TableHead>
                          </TableRow>
@@ -488,6 +508,33 @@ export default function MedicinesCatalogPage() {
                                  ) : (
                                     <Badge className="bg-green-100 text-green-700 border-none text-[10px] font-black uppercase tracking-widest">OTC Safe</Badge>
                                  )}
+                              </TableCell>
+                              <TableCell>
+                                 <button
+                                   onClick={() => {
+                                     if (!med.isFeatured && (statsData?.featuredCount || 0) >= 4) {
+                                       toast.error("Maximum of 4 featured medicines reached");
+                                       return;
+                                     }
+                                     toggleFeaturedMutation.mutate({ id: med.id, featured: !med.isFeatured });
+                                   }}
+                                   disabled={toggleFeaturedMutation.isPending}
+                                   className={cn(
+                                     "px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all flex items-center gap-1",
+                                     med.isFeatured 
+                                       ? "bg-amber-500 text-white border-amber-500 hover:bg-amber-600 shadow-sm" 
+                                       : "bg-surface-muted text-muted-foreground border-border hover:bg-slate-100 disabled:opacity-50"
+                                   )}
+                                   title={!med.isFeatured && (statsData?.featuredCount || 0) >= 4 ? "Limit of 4 reached" : ""}
+                                 >
+                                   {toggleFeaturedMutation.isPending && toggleFeaturedMutation.variables?.id === med.id ? (
+                                     <Loader2 className="w-3 h-3 animate-spin" />
+                                   ) : med.isFeatured ? (
+                                     "★ Featured"
+                                   ) : (
+                                     "☆ Feature"
+                                   )}
+                                 </button>
                               </TableCell>
                               <TableCell>
                                  <div className="flex flex-col items-start gap-1">

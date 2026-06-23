@@ -3,6 +3,7 @@ package com.altruist.service;
 import com.altruist.dto.MedicineBulkResultDTO;
 import com.altruist.dto.MedicineDTO;
 import com.altruist.dto.MedicineResponseDTO;
+import com.altruist.dto.PublicMedicineDTO;
 import com.altruist.model.Medicine;
 import com.altruist.repository.MedicineRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -129,6 +131,39 @@ public class MedicineService {
         return medicineRepository.countByRequiresPrescriptionTrue();
     }
 
+    @Transactional(readOnly = true)
+    public long getFeaturedCount() {
+        return medicineRepository.countByIsFeaturedTrue();
+    }
+
+    @Transactional
+    public MedicineResponseDTO setFeatured(UUID id, boolean featured) {
+        Medicine medicine = medicineRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medicine not found"));
+
+        if (featured) {
+            long currentFeatured = medicineRepository.countByIsFeaturedTrue();
+            if (currentFeatured >= 4 && !medicine.getIsFeatured()) {
+                throw new IllegalArgumentException("Maximum of 4 featured medicines reached");
+            }
+            medicine.setIsFeatured(true);
+            medicine.setFeaturedAt(LocalDateTime.now());
+        } else {
+            medicine.setIsFeatured(false);
+            medicine.setFeaturedAt(null);
+        }
+
+        Medicine saved = medicineRepository.save(medicine);
+        return mapToResponseDTO(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PublicMedicineDTO> getFeaturedMedicines() {
+        return medicineRepository.findTop4ByIsFeaturedTrueOrderByFeaturedAtDesc().stream()
+                .map(this::mapToPublicDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     // --- Private Mappers ---
     
     private Medicine mapToEntity(MedicineDTO dto) {
@@ -159,8 +194,23 @@ public class MedicineService {
                 .inStock(md.getInStock())
                 .description(md.getDescription())
                 .imageUrl(md.getImageUrl())
+                .isFeatured(md.getIsFeatured() != null ? md.getIsFeatured() : false)
+                .featuredAt(md.getFeaturedAt())
                 .createdAt(md.getCreatedAt())
                 .updatedAt(md.getUpdatedAt())
+                .build();
+    }
+
+    private PublicMedicineDTO mapToPublicDTO(Medicine md) {
+        return PublicMedicineDTO.builder()
+                .id(md.getId())
+                .name(md.getName())
+                .manufacturer(md.getManufacturer())
+                .price(md.getPrice())
+                .discountedPrice(md.getDiscountedPrice())
+                .requiresPrescription(md.getRequiresPrescription() != null ? md.getRequiresPrescription() : false)
+                .description(md.getDescription())
+                .imageUrl(md.getImageUrl())
                 .build();
     }
 }
