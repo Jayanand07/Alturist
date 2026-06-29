@@ -96,7 +96,7 @@ export default function Sidebar() {
       {/* Desktop/Tablet Sidebar */}
       <aside
         className={cn(
-          "hidden md:flex flex-col bg-background border-r border-border transition-all duration-300 z-40 relative",
+          "hidden md:flex flex-col bg-surface-muted border-r border-border transition-all duration-300 z-40 relative",
           collapsed ? "w-[80px]" : "w-[240px]"
         )}
       >

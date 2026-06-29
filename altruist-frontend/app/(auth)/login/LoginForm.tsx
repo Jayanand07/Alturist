@@ -137,7 +137,7 @@ export default function LoginForm() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-surface">
-        <Loader2 className="w-10 h-10 animate-spin text-accent" />
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -145,12 +145,12 @@ export default function LoginForm() {
   if (user && !userType && syncing) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-surface">
-        <div className="bg-gradient-to-br from-accent to-primary p-6 rounded-3xl shadow-xl animate-pulse">
+        <div className="bg-gradient-to-br from-primary to-primary-hover p-6 rounded-3xl shadow-xl animate-pulse">
           <HeartPulse className="w-12 h-12 text-white" />
         </div>
         <h2 className="text-2xl font-heading font-extrabold text-foreground mt-4">Setting up your account...</h2>
         <p className="text-muted-foreground font-medium">Securing your healthcare profile</p>
-        <Loader2 className="w-6 h-6 animate-spin text-accent mt-4" />
+        <Loader2 className="w-6 h-6 animate-spin text-primary mt-4" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function LoginForm() {
     <div className="min-h-screen flex flex-col md:flex-row bg-surface">
       {/* Left Side: Trust Panel Hero */}
       <div className="hidden md:flex flex-1 relative bg-surface-muted overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#0D9488_1px,transparent_1px)] [background-size:20px_20px]" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#1A7A6D_1px,transparent_1px)] [background-size:20px_20px]" />
         
         <div className="relative z-10 flex flex-col justify-between p-12 w-full max-w-2xl mx-auto h-full">
           <div>
@@ -167,10 +167,10 @@ export default function LoginForm() {
               <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
             </Link>
             
-            <Badge variant="accent" className="mb-6 py-1.5 px-4"><ShieldCheck className="w-4 h-4 mr-2" /> 100% Secure & Confidential</Badge>
+            <Badge variant="primary" className="mb-6 py-1.5 px-4"><ShieldCheck className="w-4 h-4 mr-2" /> 100% Secure & Confidential</Badge>
             <h1 className="text-5xl font-heading font-extrabold leading-[1.1] text-foreground mb-6 tracking-tight">
               Your health data,<br />
-              <span className="text-accent">safely in your hands.</span>
+              <span className="text-primary">safely in your hands.</span>
             </h1>
             <p className="text-lg text-muted-foreground font-medium max-w-md">
               Log in to access your digital prescriptions, book chat consultations, and manage your health records seamlessly.
@@ -185,7 +185,7 @@ export default function LoginForm() {
               { icon: Lock, title: "Data Privacy", desc: "Strictly secure" }
             ].map((feature, i) => (
               <div key={i} className="flex gap-4 items-start bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-border">
-                <div className="bg-accent/10 p-3 rounded-xl text-accent shrink-0">
+                <div className="bg-primary/10 p-3 rounded-xl text-primary shrink-0">
                   <feature.icon className="w-5 h-5" />
                 </div>
                 <div>
@@ -214,7 +214,7 @@ export default function LoginForm() {
             <p className="text-muted-foreground font-medium text-lg">Log in to your account to continue</p>
           </div>
 
-          <Card className="border-border shadow-xl shadow-accent/5 rounded-3xl bg-white overflow-hidden">
+          <Card className="border-border shadow-xl shadow-primary/5 rounded-3xl bg-white overflow-hidden">
             <CardContent className="p-8">
               <form onSubmit={emailForm.handleSubmit(onEmailLogin)} className="space-y-5">
                 <div className="space-y-2">
@@ -223,7 +223,7 @@ export default function LoginForm() {
                       <Input 
                         type="email" 
                         placeholder="Email address" 
-                        className={cn("h-14 pl-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all font-medium", emailForm.formState.errors.email && "border-red-500 focus:border-red-500")}
+                        className={cn("h-14 pl-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all font-medium", emailForm.formState.errors.email && "border-red-500 focus:border-red-500")}
                         disabled={isLoading}
                         {...emailForm.register("email")}
                       />
@@ -239,14 +239,14 @@ export default function LoginForm() {
                       <Input 
                         type={showPassword ? "text" : "password"} 
                         placeholder="Password" 
-                        className={cn("h-14 pl-12 pr-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all font-medium", emailForm.formState.errors.password && "border-red-500 focus:border-red-500")}
+                        className={cn("h-14 pl-12 pr-12 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all font-medium", emailForm.formState.errors.password && "border-red-500 focus:border-red-500")}
                         disabled={isLoading}
                         {...emailForm.register("password")}
                       />
                       <button 
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -255,13 +255,13 @@ export default function LoginForm() {
                      <p className="text-sm text-red-500 font-bold px-1">{emailForm.formState.errors.password.message}</p>
                    )}
                    <div className="text-right pt-1">
-                      <Link href="#" className="text-sm font-bold text-muted-foreground hover:text-accent transition-colors">Forgot password?</Link>
+                      <Link href="#" className="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">Forgot password?</Link>
                    </div>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full h-14 text-base font-bold bg-accent hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20 transition-all active:scale-[0.98]"
+                  className="w-full h-14 text-base font-bold bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Log in to Account"}
@@ -293,7 +293,7 @@ export default function LoginForm() {
           </Card>
 
           <p className="text-center text-muted-foreground font-medium pt-2">
-            New to Altruist? <Link href="/register" className="text-accent font-bold hover:underline underline-offset-4">Create an account</Link>
+            New to Altruist? <Link href="/register" className="text-primary font-bold hover:underline underline-offset-4">Create an account</Link>
           </p>
         </div>
       </div>

@@ -213,7 +213,7 @@ export default function LabBookingModal({ isOpen, onClose, item }: LabBookingMod
                     required
                     value={preferredDate}
                     onChange={(e) => setPreferredDate(e.target.value)}
-                    className="rounded-xl border-slate-200 h-11 font-semibold text-slate-700 focus:ring-2 focus:ring-[#E8593C]/10 outline-none"
+                    className="rounded-xl border-slate-200 h-11 font-semibold text-slate-700 focus:ring-2 focus:ring-accent/10 outline-none"
                   />
                 </div>
 
@@ -248,7 +248,7 @@ export default function LabBookingModal({ isOpen, onClose, item }: LabBookingMod
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Enter your complete home address for hygienic sample pickup..."
-                    className="rounded-xl border-slate-200 min-h-[70px] text-slate-700 font-semibold focus:ring-2 focus:ring-[#E8593C]/10"
+                    className="rounded-xl border-slate-200 min-h-[70px] text-slate-700 font-semibold focus:ring-2 focus:ring-accent/10"
                   />
                 </div>
 
@@ -264,7 +264,7 @@ export default function LabBookingModal({ isOpen, onClose, item }: LabBookingMod
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
-                    className="rounded-xl border-slate-200 h-11 text-slate-700 font-semibold focus:ring-2 focus:ring-[#E8593C]/10 outline-none"
+                    className="rounded-xl border-slate-200 h-11 text-slate-700 font-semibold focus:ring-2 focus:ring-accent/10 outline-none"
                   />
                 </div>
 

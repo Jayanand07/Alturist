@@ -46,13 +46,28 @@ public class PrescriptionPdfService {
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER));
 
-            document.add(new Paragraph("Prescription ID: " + prescription.getId())
+            String prescriptionId = prescription.getId() != null ? prescription.getId().toString() : "N/A";
+            document.add(new Paragraph("Prescription ID: " + prescriptionId)
                     .setFontSize(10)
                     .setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Date: " + prescription.getCreatedAt().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm")))
+
+            String dateStr = "N/A";
+            if (prescription.getCreatedAt() != null) {
+                try {
+                    dateStr = prescription.getCreatedAt().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm"));
+                } catch (Exception ignored) {}
+            }
+            document.add(new Paragraph("Date: " + dateStr)
                     .setFontSize(10)
                     .setTextAlignment(TextAlignment.RIGHT));
-            document.add(new Paragraph("Valid Until: " + prescription.getValidUntil().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy")))
+
+            String validUntilStr = "N/A";
+            if (prescription.getValidUntil() != null) {
+                try {
+                    validUntilStr = prescription.getValidUntil().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"));
+                } catch (Exception ignored) {}
+            }
+            document.add(new Paragraph("Valid Until: " + validUntilStr)
                     .setFontSize(10)
                     .setBold()
                     .setTextAlignment(TextAlignment.RIGHT));
@@ -66,9 +81,21 @@ public class PrescriptionPdfService {
             
             doctorTable.addCell(new Cell().add(new Paragraph("DOCTOR DETAILS")
                     .setBold().setFontColor(tealColor)).setBorder(null));
-            doctorTable.addCell(new Cell().add(new Paragraph("Dr. " + prescription.getDoctor().getUser().getFullName()))
+            
+            String doctorName = "N/A";
+            String doctorSpecLicense = "N/A";
+            if (prescription.getDoctor() != null) {
+                if (prescription.getDoctor().getUser() != null && prescription.getDoctor().getUser().getFullName() != null) {
+                    doctorName = "Dr. " + prescription.getDoctor().getUser().getFullName();
+                }
+                String spec = prescription.getDoctor().getSpecialization() != null ? prescription.getDoctor().getSpecialization() : "N/A";
+                String license = prescription.getDoctor().getMedicalLicense() != null ? prescription.getDoctor().getMedicalLicense() : "N/A";
+                doctorSpecLicense = spec + " | License: " + license;
+            }
+
+            doctorTable.addCell(new Cell().add(new Paragraph(doctorName))
                     .setBorder(null));
-            doctorTable.addCell(new Cell().add(new Paragraph(prescription.getDoctor().getSpecialization() + " | License: " + prescription.getDoctor().getMedicalLicense()))
+            doctorTable.addCell(new Cell().add(new Paragraph(doctorSpecLicense))
                     .setFontSize(10).setBorder(null));
             document.add(doctorTable);
 
@@ -81,8 +108,20 @@ public class PrescriptionPdfService {
             patientTable.addCell(new Cell().add(new Paragraph("PATIENT DETAILS").setBold()));
             patientTable.addCell(new Cell().add(new Paragraph("CONSULTATION DATE").setBold()));
             
-            patientTable.addCell(new Cell().add(new Paragraph("Name: " + prescription.getPatient().getFullName())));
-            patientTable.addCell(new Cell().add(new Paragraph(prescription.getConsultation().getScheduledAt().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm")))));
+            String patientName = "Name: N/A";
+            if (prescription.getPatient() != null && prescription.getPatient().getFullName() != null) {
+                patientName = "Name: " + prescription.getPatient().getFullName();
+            }
+
+            String schedStr = "N/A";
+            if (prescription.getConsultation() != null && prescription.getConsultation().getScheduledAt() != null) {
+                try {
+                    schedStr = prescription.getConsultation().getScheduledAt().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm"));
+                } catch (Exception ignored) {}
+            }
+
+            patientTable.addCell(new Cell().add(new Paragraph(patientName)));
+            patientTable.addCell(new Cell().add(new Paragraph(schedStr)));
             
             document.add(patientTable);
 
@@ -107,9 +146,15 @@ public class PrescriptionPdfService {
 
             java.util.List<PrescriptionRequestDTO.MedicineDTO> medicines = Collections.emptyList();
             try {
-                medicines = objectMapper.readValue(prescription.getMedicines(), 
-                        new TypeReference<java.util.List<PrescriptionRequestDTO.MedicineDTO>>() {});
+                if (prescription.getMedicines() != null) {
+                    medicines = objectMapper.readValue(prescription.getMedicines(), 
+                            new TypeReference<java.util.List<PrescriptionRequestDTO.MedicineDTO>>() {});
+                }
             } catch (Exception ignored) {}
+
+            if (medicines == null) {
+                medicines = Collections.emptyList();
+            }
 
             for (PrescriptionRequestDTO.MedicineDTO med : medicines) {
                 medTable.addCell(new Cell().add(new Paragraph(med.getName())));
@@ -125,9 +170,15 @@ public class PrescriptionPdfService {
             // 6. Diagnostic Tests
             java.util.List<String> tests = Collections.emptyList();
             try {
-                tests = objectMapper.readValue(prescription.getDiagnosticTests(), 
-                        new TypeReference<java.util.List<String>>() {});
+                if (prescription.getDiagnosticTests() != null) {
+                    tests = objectMapper.readValue(prescription.getDiagnosticTests(), 
+                            new TypeReference<java.util.List<String>>() {});
+                }
             } catch (Exception ignored) {}
+
+            if (tests == null) {
+                tests = Collections.emptyList();
+            }
 
             if (!tests.isEmpty()) {
                 document.add(new Paragraph("RECOMMENDED TESTS:").setBold().setFontColor(tealColor));
@@ -139,8 +190,11 @@ public class PrescriptionPdfService {
             }
 
             if (prescription.getFollowUpDate() != null) {
-                document.add(new Paragraph("\nNEXT FOLLOW-UP RECOMMENDED: " + 
-                        prescription.getFollowUpDate().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy")))
+                String followUpStr = "N/A";
+                try {
+                    followUpStr = prescription.getFollowUpDate().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"));
+                } catch (Exception ignored) {}
+                document.add(new Paragraph("\nNEXT FOLLOW-UP RECOMMENDED: " + followUpStr)
                         .setBold().setFontColor(ColorConstants.ORANGE));
             }
 

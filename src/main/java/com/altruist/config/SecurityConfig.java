@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final FirebaseAuthFilter firebaseAuthFilter;
+    private final java.util.Optional<RequestLoggingFilter> requestLoggingFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -107,6 +108,9 @@ public class SecurityConfig {
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        requestLoggingFilter.ifPresent(filter ->
+                http.addFilterAfter(filter, FirebaseAuthFilter.class));
 
         return http.build();
     }

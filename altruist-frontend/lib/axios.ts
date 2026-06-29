@@ -26,6 +26,11 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status || "NO_STATUS";
+    const url = error.config?.url || error.response?.config?.url || "unknown";
+    const body = error.response?.data;
+    console.error(`[API ERROR] URL: ${url}, Status: ${status}, Body:`, body);
+
     if (error.response?.status === 401) {
       // Avoid redirect loop if already on login page
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {

@@ -73,7 +73,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
       <DialogContent className="sm:max-w-[500px] rounded-3xl border border-slate-100 p-6 bg-white gap-6">
         <DialogHeader className="relative">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E7F4F1] text-[#0D9373] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center">
               <MapPin className="w-5 h-5 animate-float" />
             </div>
             <div>
@@ -93,7 +93,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
             type="button"
             disabled={isDetecting}
             onClick={handleDetectLocation}
-            className="w-full h-12 bg-gradient-to-r from-[#0D9373] to-[#0A7A5F] hover:from-[#0A7A5F] hover:to-[#08614C] text-white font-extrabold rounded-2xl flex items-center justify-center gap-2.5 shadow-md border-none active:scale-95 transition-all"
+            className="w-full h-12 bg-gradient-to-r from-primary to-primary-hover hover:from-primary-hover hover:to-primary-active text-white font-extrabold rounded-2xl flex items-center justify-center gap-2.5 shadow-md border-none active:scale-95 transition-all"
           >
             {isDetecting ? (
               <>
@@ -148,7 +148,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
                   onClick={() => handleSelectCity(cityName)}
                   className={`cursor-pointer px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all border ${
                     isSelected
-                      ? "bg-[#E7F4F1] text-[#0D9373] border-[#0D9373] hover:bg-[#E7F4F1]"
+                      ? "bg-primary-light text-primary border-primary hover:bg-primary-light"
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100"
                   }`}
                 >
@@ -171,7 +171,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
               placeholder="Search by city or state name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-11 border-slate-200 focus:border-[#0D9373] rounded-2xl text-slate-800 text-sm font-semibold"
+              className="pl-10 h-11 border-slate-200 focus:border-primary rounded-2xl text-slate-800 text-sm font-semibold"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
                       </div>
                     </div>
                     {isSelected && (
-                      <Check className="w-4 h-4 text-[#0D9373] shrink-0" />
+                      <Check className="w-4 h-4 text-primary shrink-0" />
                     )}
                   </button>
                 );
@@ -210,7 +210,7 @@ export default function LocationSelectorModal({ isOpen, onClose }: LocationSelec
                 <span>No official matching city found.</span>
                 <button
                   onClick={() => handleSelectCity(searchQuery)}
-                  className="text-[#0D9373] hover:underline font-extrabold mt-1 text-xs"
+                  className="text-primary hover:underline font-extrabold mt-1 text-xs"
                 >
                   Use "{searchQuery}" anyway
                 </button>

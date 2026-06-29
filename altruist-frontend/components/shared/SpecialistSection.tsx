@@ -158,7 +158,7 @@ export default function SpecialistSection() {
             </p>
           </div>
           <Link href="/consult">
-            <Button className="bg-[#E7F4F1] hover:bg-[#0D9373] text-[#0D9373] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+            <Button className="bg-primary-light hover:bg-primary text-primary hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
               {t("specialty.viewAll")} <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>
@@ -183,10 +183,10 @@ export default function SpecialistSection() {
                     />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#0D9373] transition-colors leading-tight">
+                    <h3 className="font-bold text-sm text-slate-900 group-hover:text-primary transition-colors leading-tight">
                       {spec.specialization}
                     </h3>
-                    <p className="text-xs text-[#0D9373] font-bold mt-1 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                    <p className="text-xs text-primary font-bold mt-1 bg-primary-light px-2.5 py-0.5 rounded-full">
                       {spec.doctorCount} {spec.doctorCount === 1 ? "Doctor" : "Doctors"}
                     </p>
                   </div>

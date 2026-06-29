@@ -42,9 +42,9 @@ const SERVICES = [
     icon: Pill, 
     href: "/medicines", 
     cta: "Shop Now",
-    gradient: "from-[#FCEBE7] to-[#FFF5F2]",
-    iconBg: "bg-[#FCEBE7]",
-    iconColor: "text-[#E8593C]"
+    gradient: "from-accent-light/40 to-slate-50/20",
+    iconBg: "bg-accent-light/50",
+    iconColor: "text-accent/80"
   },
   { 
     title: "Consult Specialists", 
@@ -55,9 +55,9 @@ const SERVICES = [
     icon: MessageSquare, 
     href: "/consult", 
     cta: "Consult Now",
-    gradient: "from-[#E7F4F1] to-[#F3FAF8]",
-    iconBg: "bg-[#E7F4F1]",
-    iconColor: "text-[#0D9373]"
+    gradient: "from-primary-light to-primary-light/40",
+    iconBg: "bg-primary-light",
+    iconColor: "text-primary"
   },
   { 
     title: "Book Lab Tests", 
@@ -68,9 +68,9 @@ const SERVICES = [
     icon: FlaskConical, 
     href: "/labs", 
     cta: "Book Test",
-    gradient: "from-[#FFFBEB] to-[#FEF3C7]",
-    iconBg: "bg-[#FEF3C7]",
-    iconColor: "text-[#D97706]"
+    gradient: "from-amber-50/40 to-slate-50/20",
+    iconBg: "bg-amber-50/55",
+    iconColor: "text-amber-600/80"
   },
   { 
     title: "Health Insurance", 
@@ -81,9 +81,9 @@ const SERVICES = [
     icon: ShieldCheck, 
     href: "/insurance", 
     cta: "Get Insurance",
-    gradient: "from-[#EEF2FF] to-[#E0E7FF]",
-    iconBg: "bg-[#E0E7FF]",
-    iconColor: "text-indigo-600"
+    gradient: "from-indigo-50/40 to-slate-50/20",
+    iconBg: "bg-indigo-50/50",
+    iconColor: "text-indigo-600/80"
   }
 ];
 
@@ -94,9 +94,9 @@ const PROMO_CARDS = [
     href: "/consult",
     cta: "Start Now",
     icon: MessageSquare,
-    gradient: "from-[#E7F4F1] to-[#F3FAF8]",
-    iconBg: "bg-[#E7F4F1]",
-    iconColor: "text-[#0D9373]"
+    gradient: "from-primary-light to-primary-light/40",
+    iconBg: "bg-primary-light",
+    iconColor: "text-primary"
   },
   {
     title: "Comprehensive Health Screen",
@@ -104,9 +104,9 @@ const PROMO_CARDS = [
     href: "/labs",
     cta: "Start Now",
     icon: FlaskConical,
-    gradient: "from-[#FFFBEB] to-[#FEF3C7]",
-    iconBg: "bg-[#FEF3C7]",
-    iconColor: "text-[#D97706]"
+    gradient: "from-amber-50/40 to-slate-50/20",
+    iconBg: "bg-amber-50/55",
+    iconColor: "text-amber-600/80"
   },
   {
     title: "Order Genuine Medicine",
@@ -114,9 +114,9 @@ const PROMO_CARDS = [
     href: "/pharmacy",
     cta: "Start Now",
     icon: Pill,
-    gradient: "from-[#FCEBE7] to-[#FFF5F2]",
-    iconBg: "bg-[#FCEBE7]",
-    iconColor: "text-[#E8593C]"
+    gradient: "from-accent-light/40 to-slate-50/20",
+    iconBg: "bg-accent-light/50",
+    iconColor: "text-accent/80"
   },
   {
     title: "Affordable Health Insurance",
@@ -124,9 +124,9 @@ const PROMO_CARDS = [
     href: "/insurance",
     cta: "Start Now",
     icon: ShieldCheck,
-    gradient: "from-[#EEF2FF] to-[#E0E7FF]",
-    iconBg: "bg-[#E0E7FF]",
-    iconColor: "text-indigo-600"
+    gradient: "from-indigo-50/40 to-slate-50/20",
+    iconBg: "bg-indigo-50/50",
+    iconColor: "text-indigo-600/80"
   }
 ];
 
@@ -291,7 +291,7 @@ export default function RedesignedHomePage() {
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans antialiased text-slate-900 pb-16">
       
       {/* 1. HERO SECTION WITH MODERN GLASSMORPHISM & DYNAMIC PATTERN */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#0D9373] to-[#0A7A5F] py-20 lg:py-24 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-r from-primary to-primary-hover py-20 lg:py-24 text-white">
         {/* Subtle geometric pattern in background */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
         <div className="absolute top-[-50px] right-[-100px] w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
@@ -342,7 +342,7 @@ export default function RedesignedHomePage() {
               <img 
                 src="/hero_doctor.png" 
                 alt="Altruist Wellness Doctors" 
-                className="w-full h-full object-cover relative z-10 rounded-[32px] drop-shadow-[0_15px_30px_rgba(13,148,136,0.3)]" 
+                className="w-full h-full object-cover relative z-10 rounded-[32px] drop-shadow-[0_15px_30px_rgba(26,122,109,0.3)]" 
               />
             </motion.div>
           </div>
@@ -362,7 +362,7 @@ export default function RedesignedHomePage() {
                     </div>
                     
                     <div>
-                      <h3 className="font-black text-slate-900 text-lg mb-1 group-hover:text-[#0D9373] transition-colors">
+                      <h3 className="font-black text-slate-900 text-lg mb-1 group-hover:text-primary transition-colors">
                         {card.title}
                       </h3>
                       <p className="text-xs text-slate-500 font-semibold leading-relaxed">
@@ -372,8 +372,8 @@ export default function RedesignedHomePage() {
                   </div>
 
                   <div className="pt-6 flex items-center justify-between text-sm font-extrabold text-slate-700">
-                    <span className="group-hover:text-[#0D9373] transition-colors">{card.cta}</span>
-                    <div className="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-[#0D9373] group-hover:text-white transition-colors">
+                    <span className="group-hover:text-primary transition-colors">{card.cta}</span>
+                    <div className="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                       <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
@@ -406,7 +406,7 @@ export default function RedesignedHomePage() {
                     </div>
                     
                     <div>
-                      <h3 className="font-black text-slate-900 text-lg mb-1 group-hover:text-[#0D9373] transition-colors">
+                      <h3 className="font-black text-slate-900 text-lg mb-1 group-hover:text-primary transition-colors">
                         {t(serv.tTitleKey)}
                       </h3>
                       <p className="text-xs text-slate-500 font-semibold leading-relaxed">
@@ -416,8 +416,8 @@ export default function RedesignedHomePage() {
                   </div>
 
                   <div className="pt-6 flex items-center justify-between text-sm font-extrabold text-slate-700">
-                    <span className="group-hover:text-[#0D9373] transition-colors">{t(serv.tCtaKey)}</span>
-                    <div className="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-[#0D9373] group-hover:text-white transition-colors">
+                    <span className="group-hover:text-primary transition-colors">{t(serv.tCtaKey)}</span>
+                    <div className="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                       <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
@@ -539,7 +539,7 @@ export default function RedesignedHomePage() {
               </p>
             </div>
             <Link href="/medicines">
-              <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+              <Button className="bg-accent-light hover:bg-accent text-accent hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
                 {t("bestSellers.exploreStore")} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -587,7 +587,7 @@ export default function RedesignedHomePage() {
                         <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider leading-none">
                           {brandName}
                         </span>
-                        <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug h-10 group-hover:text-[#E8593C] transition-colors">
+                        <h3 className="font-bold text-sm text-slate-800 line-clamp-2 leading-snug h-10 group-hover:text-accent transition-colors">
                           {prod.name}
                         </h3>
                       </div>
@@ -605,7 +605,7 @@ export default function RedesignedHomePage() {
                       <Button 
                         onClick={() => requireAuth(() => handleAddProduct(prod), "/")}
                         size="sm"
-                        className="h-8 px-3 rounded-full bg-[#E7F4F1] hover:bg-[#0D9373] text-[#0D9373] hover:text-white font-extrabold flex items-center gap-1 shadow-inner border-none transition-colors"
+                        className="h-8 px-3 rounded-full bg-primary-light hover:bg-primary text-primary hover:text-white font-extrabold flex items-center gap-1 shadow-inner border-none transition-colors"
                       >
                         <Plus size={14} /> {t("bestSellers.add")}
                       </Button>
@@ -689,7 +689,7 @@ export default function RedesignedHomePage() {
                     <CardContent className="p-6 flex flex-col h-full justify-between gap-6">
                       <div>
                         <div className="flex justify-between items-center mb-4">
-                          <span className="text-xs font-black text-[#0D9373] bg-[#E7F4F1] px-2.5 py-0.5 rounded-full">
+                          <span className="text-xs font-black text-primary bg-primary-light px-2.5 py-0.5 rounded-full">
                             {testsCount} {t("labPackages.testParameters")}
                           </span>
                           <span className="text-xs text-slate-400 font-bold flex items-center">
@@ -735,7 +735,7 @@ export default function RedesignedHomePage() {
 
                           <Button 
                             onClick={() => requireAuth(() => toast.success(`Booking initiated for ${title}! Our representative will contact you shortly.`, { icon: "🧪" }), "/")}
-                            className="bg-[#0D9373] hover:bg-[#0A7A5F] text-white font-extrabold rounded-full px-6 shadow-sm border-none"
+                            className="bg-primary hover:bg-primary-hover text-white font-extrabold rounded-full px-6 shadow-sm border-none"
                           >
                             {t("labPackages.bookNow")}
                           </Button>
@@ -787,7 +787,7 @@ export default function RedesignedHomePage() {
             </div>
 
             <div className="flex flex-col items-center md:items-start p-4 space-y-3 pt-6 md:pt-0">
-              <div className="w-12 h-12 rounded-2xl bg-[#E8593C]/10 text-[#E8593C] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center">
                 <MessageSquare className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-white">{t("trust.card3Title")}</h3>
@@ -822,7 +822,7 @@ export default function RedesignedHomePage() {
               </p>
             </div>
             <Link href="/consult">
-              <Button className="bg-[#FFF5F2] hover:bg-[#E8593C] text-[#E8593C] hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
+              <Button className="bg-accent-light hover:bg-accent text-accent hover:text-white font-extrabold rounded-xl shadow-sm border-none transition-all active:scale-95">
                 {t("topDoctors.consultDoctor")} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
@@ -856,9 +856,9 @@ export default function RedesignedHomePage() {
                   <Card key={doc.id || idx} className="min-w-[280px] md:min-w-[320px] border-none shadow-md snap-start shrink-0 hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between">
                     <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
                       <div className="flex gap-4 items-start">
-                        <Avatar className="w-16 h-16 border-2 border-emerald-500/10 shadow-inner shrink-0">
+                        <Avatar className="w-16 h-16 border-2 border-primary/10 shadow-inner shrink-0">
                           <AvatarImage src={img} alt={doc.name} className="object-cover" />
-                          <AvatarFallback className="bg-[#E7F4F1] text-[#0D9373] font-bold">
+                          <AvatarFallback className="bg-primary-light text-primary font-bold">
                             {doc.name ? doc.name.split(" ").slice(-1)[0]?.charAt(0) : "D"}
                           </AvatarFallback>
                         </Avatar>
@@ -882,7 +882,7 @@ export default function RedesignedHomePage() {
                           <p className="font-black text-lg text-slate-900">₹{fee}</p>
                         </div>
                         <Link href="/consult">
-                          <Button className="bg-[#E8593C] hover:bg-[#D14A30] text-white font-extrabold rounded-full px-6 shadow-sm border-none">
+                          <Button className="bg-accent hover:bg-accent-hover text-white font-extrabold rounded-full px-6 shadow-sm border-none">
                             {t("topDoctors.consultNow")}
                           </Button>
                         </Link>
@@ -939,7 +939,7 @@ export default function RedesignedHomePage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{tItem.location}</p>
                       </div>
                       {tItem.tag && (
-                        <Badge className="bg-emerald-50 text-[#0D9373] border-none px-2 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
+                        <Badge className="bg-primary-light text-primary border-none px-2 py-0.5 text-[9px] font-black tracking-widest rounded-md uppercase">
                           {tItem.tag}
                         </Badge>
                       )}
@@ -973,11 +973,11 @@ export default function RedesignedHomePage() {
               >
                 <button
                   onClick={() => toggleFaq(index)}
-                  className="w-full flex items-center justify-between p-5 text-left font-bold text-sm md:text-base text-slate-800 hover:text-[#0D9373] transition-colors focus:outline-none"
+                  className="w-full flex items-center justify-between p-5 text-left font-bold text-sm md:text-base text-slate-800 hover:text-primary transition-colors focus:outline-none"
                 >
                   <span>{faq.q}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-5 h-5 text-[#0D9373] shrink-0" />
+                  {isOpen && faqOpenIndex !== null ? (
+                    <ChevronUp className="w-5 h-5 text-primary shrink-0" />
                   ) : (
                     <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
                   )}

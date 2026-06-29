@@ -26,8 +26,8 @@ const fuse = new Fuse(searchIndex, {
 // ── Category pill colours ─────────────────────────────────────────────────────
 const CATEGORY_STYLES: Record<string, string> = {
   Doctor:       "bg-blue-100 text-blue-700",
-  Medicine:     "bg-[#E8593C]/10 text-[#E8593C]",
-  Service:      "bg-[#0D9373]/10 text-[#0D9373]",
+  Medicine:     "bg-accent/10 text-accent",
+  Service:      "bg-primary/10 text-primary",
   "Lab Test":   "bg-amber-100 text-amber-700",
   "Health Plan":"bg-purple-100 text-purple-700",
   Page:         "bg-slate-100 text-slate-600",
@@ -162,7 +162,7 @@ export default function FuzzySearchBar({
             onClick={onLocationClick}
             className="flex items-center w-full md:w-auto px-3 border-b md:border-b-0 md:border-r border-slate-100 py-2 md:py-0 select-none cursor-pointer hover:bg-slate-50 rounded-xl transition-all shrink-0"
           >
-            <MapPin className="w-5 h-5 text-[#0D9373] shrink-0 mr-2" />
+            <MapPin className="w-5 h-5 text-primary shrink-0 mr-2" />
             <span className="text-sm font-bold text-slate-800 shrink-0 truncate max-w-[100px]">
               {selectedCity}
             </span>
@@ -198,7 +198,7 @@ export default function FuzzySearchBar({
         <Link href={searchButtonHref} className="w-full md:w-auto shrink-0">
           <Button
             onClick={() => { setIsOpen(false); setQuery(""); }}
-            className="w-full md:w-auto h-11 px-8 rounded-xl font-extrabold text-base bg-[#E8593C] text-white hover:bg-[#D14A30] shadow-md hover:shadow-lg transition-all active:scale-95 border-none"
+            className="w-full md:w-auto h-11 px-8 rounded-xl font-extrabold text-base bg-accent text-white hover:bg-accent-hover shadow-md hover:shadow-lg transition-all active:scale-95 border-none"
           >
             Search
           </Button>
@@ -230,13 +230,13 @@ export default function FuzzySearchBar({
                     onMouseEnter={() => setActiveIdx(flatIdx)}
                     onClick={() => navigate(item)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                      isActive ? "bg-[#0D9373]/8 border-l-2 border-[#0D9373]" : "hover:bg-slate-50"
+                      isActive ? "bg-primary/10 border-l-2 border-primary" : "hover:bg-slate-50"
                     }`}
                   >
                     {/* Category dot */}
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{ background: category === "Doctor" ? "#3B82F6" : category === "Medicine" ? "#E8593C" : category === "Lab Test" ? "#F59E0B" : category === "Health Plan" ? "#9333EA" : "#0D9373" }}
+                      style={{ background: category === "Doctor" ? "#3B82F6" : category === "Medicine" ? "var(--color-accent)" : category === "Lab Test" ? "#F59E0B" : category === "Health Plan" ? "#9333EA" : "var(--color-primary)" }}
                     />
                     <span className="text-sm font-semibold text-slate-800">{item.label}</span>
                     <span className="ml-auto text-xs text-slate-400 font-medium shrink-0">{item.route}</span>
@@ -251,7 +251,7 @@ export default function FuzzySearchBar({
             <span className="text-[10px] text-slate-400 font-semibold">
               ↑ ↓ Navigate &nbsp;·&nbsp; ↵ Go &nbsp;·&nbsp; Esc Close
             </span>
-            <span className="text-[10px] text-[#0D9373] font-bold">
+            <span className="text-[10px] text-primary font-bold">
               {results.length} result{results.length !== 1 ? "s" : ""}
             </span>
           </div>

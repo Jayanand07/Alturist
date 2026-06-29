@@ -11,6 +11,7 @@ import com.altruist.repository.ConsultationRepository;
 import com.altruist.repository.DoctorRepository;
 import com.altruist.repository.UserRepository;
 import com.altruist.repository.PrescriptionRepository;
+import com.altruist.security.FirebaseAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class AdminService {
     private final PrescriptionRepository prescriptionRepository;
     private final com.altruist.repository.MedicineRepository medicineRepository;
     private final FirebaseAuth firebaseAuth;
+    private final FirebaseAuthFilter firebaseAuthFilter;
 
     @Transactional(readOnly = true)
     public AdminDashboardDTO getDashboardStats() {
@@ -118,7 +120,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public Page<ConsultationAdminDTO> getAdminConsultations(String search, ConsultationStatus status, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return consultationRepository.findAdminConsultations(
-                search == null || search.trim().isEmpty() ? null : search.trim(),
+                search == null || search.trim().isEmpty() ? "" : search.trim(),
                 status,
                 from,
                 to,
@@ -225,7 +227,8 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public Page<PatientListDTO> getPatients(String search, Pageable pageable) {
-        return userRepository.searchPatients(search, pageable)
+        String normalizedSearch = search == null || search.trim().isEmpty() ? "" : search.trim();
+        return userRepository.searchPatients(normalizedSearch, pageable)
                 .map(u -> PatientListDTO.builder()
                         .id(u.getId())
                         .fullName(u.getFullName())
@@ -404,6 +407,7 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setUserType(UserType.valueOf(newRole));
         userRepository.save(user);
+        firebaseAuthFilter.evictUser(user.getFirebaseUid());
         return Map.of("id", user.getId(), "role", user.getUserType().name());
     }
 
@@ -430,6 +434,7 @@ public class AdminService {
         // Promote to DOCTOR role
         user.setUserType(UserType.DOCTOR);
         userRepository.save(user);
+        firebaseAuthFilter.evictUser(user.getFirebaseUid());
 
         // 2. Create corresponding Doctor profile
         java.util.Optional<Doctor> existingDoctorOpt = doctorRepository.findByUserId(user.getId());
@@ -439,6 +444,10 @@ public class AdminService {
         } else {
             doctor = new Doctor();
             doctor.setUser(user);
+        }
+
+        if (doctor.getMedicalLicense() == null) {
+            doctor.setMedicalLicense("LIC-" + java.util.UUID.randomUUID().toString().substring(0, 8));
         }
 
         doctor.setSpecialization(dto.getSpecialization());
@@ -472,6 +481,7 @@ public class AdminService {
         if (changes.containsKey("fullName")) user.setFullName((String) changes.get("fullName"));
         if (changes.containsKey("userType")) {
             user.setUserType(UserType.valueOf((String) changes.get("userType")));
+            firebaseAuthFilter.evictUser(user.getFirebaseUid());
         }
         userRepository.save(user);
     }

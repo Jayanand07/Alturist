@@ -54,7 +54,7 @@ public class PrescriptionService {
         prescription.setValidUntil(request.getValidUntil());
         prescription.setFollowUpDate(request.getFollowUpDate());
         
-        Prescription saved = prescriptionRepository.save(prescription);
+        Prescription saved = prescriptionRepository.saveAndFlush(prescription);
 
         // Update consultation status and metadata
         consultation.setStatus(ConsultationStatus.COMPLETED);

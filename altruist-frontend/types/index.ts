@@ -1,6 +1,6 @@
 // ── User ─────────────────────────────────────────────────────────────────────
 
-export type UserType = "PATIENT" | "DOCTOR" | "ADMIN";
+export type UserType = "PATIENT" | "DOCTOR" | "ADMIN" | "SUPER_ADMIN";
 export type Gender = "MALE" | "FEMALE" | "OTHER";
 
 export interface User {

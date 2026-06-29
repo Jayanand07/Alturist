@@ -106,7 +106,9 @@ public class LabBookingService {
 
     @Transactional(readOnly = true)
     public Page<LabBookingResponseDTO> getAdminBookings(String status, String search, Pageable pageable) {
-        Page<LabBooking> bookings = labBookingRepository.findAdminBookings(status, search, pageable);
+        String normalizedStatus = status == null || status.trim().isEmpty() ? null : status.trim();
+        String normalizedSearch = search == null || search.trim().isEmpty() ? "" : search.trim();
+        Page<LabBooking> bookings = labBookingRepository.findAdminBookings(normalizedStatus, normalizedSearch, pageable);
         return bookings.map(this::mapToResponseDTO);
     }
 

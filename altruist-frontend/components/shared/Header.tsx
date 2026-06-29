@@ -165,15 +165,15 @@ export default function Header() {
   return (
     <header className="w-full flex flex-col font-sans">
       {/* Top Bar */}
-      <div className="bg-accent text-accent-foreground py-2 px-4 md:px-8 flex justify-between items-center text-xs font-medium tracking-tight overflow-hidden whitespace-nowrap">
+      <div className="bg-primary/5 text-primary border-b border-primary/10 py-2 px-4 md:px-8 flex justify-between items-center text-xs font-medium tracking-tight overflow-hidden whitespace-nowrap">
         <div 
           onClick={() => setIsLocationOpen(true)}
           className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-90"
         >
-          <div className="flex items-center bg-black/10 rounded-full px-3 py-1 gap-1.5 backdrop-blur-sm border border-black/5">
-            <MapPin size={12} className="text-accent-foreground/80" />
+          <div className="flex items-center bg-primary/8 rounded-full px-3 py-1 gap-1.5 border border-primary/10">
+            <MapPin size={12} className="text-primary/70" />
             <span className="truncate max-w-[120px] md:max-w-none">{selectedCity}, {selectedState}</span>
-            <ChevronDown size={10} className="text-accent-foreground/60" />
+            <ChevronDown size={10} className="text-primary/50" />
           </div>
         </div>
 
@@ -181,7 +181,7 @@ export default function Header() {
         <div className="flex items-center gap-4 md:gap-8">
           <DropdownMenu>
             <DropdownMenuTrigger render={
-              <button className="flex items-center gap-2 cursor-pointer hover:text-accent-foreground/80 transition-colors bg-transparent border-none text-xs font-medium text-inherit focus:outline-none p-0">
+              <button className="flex items-center gap-2 cursor-pointer hover:text-primary/70 transition-colors bg-transparent border-none text-xs font-medium text-inherit focus:outline-none p-0">
                 <Globe size={12} />
                 <span className="opacity-80">{t("nav.language")}:</span>
                 <span className="font-bold uppercase">{language}</span>
@@ -191,23 +191,23 @@ export default function Header() {
             <DropdownMenuContent align="end" className="mt-1 border-border shadow-md rounded-xl bg-background p-1 min-w-[120px]">
               <DropdownMenuItem onClick={() => setLanguage("en")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
                 <span>English</span>
-                {language === "en" && <span className="text-[#0D9373] font-bold">✓</span>}
+                {language === "en" && <span className="text-primary font-bold">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setLanguage("hi")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
                 <span>हिंदी (Hindi)</span>
-                {language === "hi" && <span className="text-[#0D9373] font-bold">✓</span>}
+                {language === "hi" && <span className="text-primary font-bold">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setLanguage("pa")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
                 <span>ਪੰਜਾਬੀ (Punjabi)</span>
-                {language === "pa" && <span className="text-[#0D9373] font-bold">✓</span>}
+                {language === "pa" && <span className="text-primary font-bold">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setLanguage("bn")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
                 <span>বাংলা (Bengali)</span>
-                {language === "bn" && <span className="text-[#0D9373] font-bold">✓</span>}
+                {language === "bn" && <span className="text-primary font-bold">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setLanguage("mr")} className="cursor-pointer font-semibold text-xs flex justify-between items-center px-3 py-2 rounded-lg hover:bg-muted">
                 <span>मराठी (Marathi)</span>
-                {language === "mr" && <span className="text-[#0D9373] font-bold">✓</span>}
+                {language === "mr" && <span className="text-primary font-bold">✓</span>}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -217,7 +217,7 @@ export default function Header() {
       {/* Main Navbar */}
       <nav className={cn(
         "bg-background border-b border-border transition-all duration-300 z-50 px-4 md:px-8 py-3 flex items-center justify-between",
-        isSticky ? "fixed top-0 left-0 w-full shadow-lg shadow-black/5 h-[110px]" : "relative h-[120px]"
+        isSticky ? "fixed top-0 left-0 w-full shadow-sm shadow-black/3 h-[64px]" : "relative h-[72px]"
       )}>
         {/* Left: Logo & Mobile Toggle */}
         <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[350px]">
               <SheetHeader className="mb-8">
                 <SheetTitle>
-                  <img src="/logo.png" alt="Altruist Wellness" className="h-20 w-auto object-contain" />
+                  <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-1">
@@ -287,7 +287,7 @@ export default function Header() {
  
           {/* Logo */}
           <Link href="/" className="flex items-center group transition-transform active:scale-95">
-            <img src="/logo.png" alt="Altruist Wellness" className="h-24 w-auto object-contain" />
+            <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
           </Link>
         </div>
 
@@ -313,7 +313,7 @@ export default function Header() {
 
             {/* Services mega-dropdown */}
             {servicesOpen && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[340px] bg-background rounded-2xl border border-border shadow-xl shadow-black/8 p-2 z-50">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[340px] bg-background rounded-2xl border border-border shadow-lg shadow-black/5 p-2 z-50">
                 {/* Triangle arrow */}
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-2 overflow-hidden">
                   <div className="w-3 h-3 bg-background border-l border-t border-border rotate-45 translate-y-1 translate-x-0.5" />
@@ -695,7 +695,7 @@ export default function Header() {
       </nav>
 
       {/* Sticky spacer */}
-      {isSticky && <div className="h-[120px]" />}
+      {isSticky && <div className="h-[72px]" />}
       {/* Location Selector Modal */}
       <LocationSelectorModal 
         isOpen={isLocationOpen} 

@@ -178,7 +178,7 @@ export default function RegisterPage() {
       {/* Left Side: Trust Panel Hero */}
       <div className="hidden md:flex flex-1 relative bg-surface-muted overflow-hidden sticky top-0 h-screen">
         {/* Background Decorative Pattern */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#0D9488_1px,transparent_1px)] [background-size:20px_20px]" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#1A7A6D_1px,transparent_1px)] [background-size:20px_20px]" />
         
         <div className="relative z-10 flex flex-col justify-between p-12 w-full max-w-2xl mx-auto h-full">
           <div>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
             
             <h1 className="text-5xl font-heading font-extrabold leading-[1.1] text-foreground mb-6 tracking-tight">
               Join the future of <br />
-              <span className="text-accent">digital healthcare.</span>
+              <span className="text-primary">digital healthcare.</span>
             </h1>
             <p className="text-lg text-muted-foreground font-medium max-w-md">
               Create an account to access verified doctors, secure medical records, and hassle-free prescription delivery.
@@ -203,7 +203,7 @@ export default function RegisterPage() {
               { icon: Lock, title: "Total Privacy", desc: "End-to-end encrypted" }
             ].map((feature, i) => (
               <div key={i} className="flex gap-4 items-start bg-white/60 backdrop-blur-sm p-4 rounded-2xl border border-border">
-                <div className="bg-accent/10 p-3 rounded-xl text-accent shrink-0">
+                <div className="bg-primary/10 p-3 rounded-xl text-primary shrink-0">
                   <feature.icon className="w-5 h-5" />
                 </div>
                 <div>
@@ -233,7 +233,7 @@ export default function RegisterPage() {
             <p className="text-muted-foreground font-medium text-lg">Join Altruist for quality medical consultation</p>
           </div>
 
-          <Card className="border-border shadow-xl shadow-accent/5 rounded-3xl bg-white">
+          <Card className="border-border shadow-xl shadow-primary/5 rounded-3xl bg-white">
             <CardContent className="p-8">
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 
@@ -246,7 +246,7 @@ export default function RegisterPage() {
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input 
                           placeholder="John Doe" 
-                          className={cn("h-12 pl-10 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-accent transition-all", form.formState.errors.fullName && "border-red-500")} 
+                          className={cn("h-12 pl-10 rounded-xl bg-surface-muted/50 border-transparent focus:bg-white focus:border-primary transition-all", form.formState.errors.fullName && "border-red-500")} 
                           {...form.register("fullName")}
                         />
                       </div>
@@ -329,7 +329,7 @@ export default function RegisterPage() {
                          <button 
                            type="button" 
                            onClick={() => setShowPassword(!showPassword)}
-                           className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                           className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                          >
                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                          </button>
@@ -341,8 +341,8 @@ export default function RegisterPage() {
                            <div className="flex gap-1 h-1.5 w-full rounded-full overflow-hidden">
                               <div className={cn("h-full flex-1", strengthScore >= 1 ? "bg-red-400" : "bg-surface-muted")} />
                               <div className={cn("h-full flex-1", strengthScore >= 2 ? "bg-amber-400" : "bg-surface-muted")} />
-                              <div className={cn("h-full flex-1", strengthScore >= 3 ? "bg-accent/60" : "bg-surface-muted")} />
-                              <div className={cn("h-full flex-1", strengthScore >= 4 ? "bg-accent" : "bg-surface-muted")} />
+                              <div className={cn("h-full flex-1", strengthScore >= 3 ? "bg-primary/60" : "bg-surface-muted")} />
+                              <div className={cn("h-full flex-1", strengthScore >= 4 ? "bg-primary" : "bg-surface-muted")} />
                            </div>
                            <p className="text-xs text-muted-foreground font-medium mt-2">
                              {strengthScore < 2 && "Weak"}
@@ -374,14 +374,14 @@ export default function RegisterPage() {
                       <Checkbox 
                         id="terms" 
                         onCheckedChange={(checked) => form.setValue("termsAccepted", checked === true)} 
-                        className="mt-1 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                        className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <div className="grid gap-1.5 leading-none">
                         <label
                           htmlFor="terms"
                           className="text-sm font-medium text-foreground leading-snug cursor-pointer"
                         >
-                          I agree to the <Link href="/terms" className="text-accent hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-accent hover:underline">Privacy Policy</Link>.
+                          I agree to the <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
                         </label>
                         {form.formState.errors.termsAccepted && (
                           <p className="text-xs text-red-500 font-bold">{form.formState.errors.termsAccepted.message}</p>
@@ -392,7 +392,7 @@ export default function RegisterPage() {
 
                 <Button 
                   type="submit" 
-                  className="w-full h-14 text-base font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] bg-accent hover:bg-accent/90 shadow-accent/20"
+                  className="w-full h-14 text-base font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] bg-primary hover:bg-primary/90 shadow-primary/20"
                   disabled={isLoading || !form.formState.isValid}
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Complete Registration"}
@@ -402,7 +402,7 @@ export default function RegisterPage() {
           </Card>
 
           <p className="text-center text-muted-foreground font-medium pt-2">
-            Already have an account? <Link href="/login" className="text-accent font-bold hover:underline underline-offset-4">Log in here</Link>
+            Already have an account? <Link href="/login" className="text-primary font-bold hover:underline underline-offset-4">Log in here</Link>
           </p>
         </div>
       </div>

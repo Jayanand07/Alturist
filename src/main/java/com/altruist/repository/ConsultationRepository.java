@@ -89,7 +89,7 @@ public interface ConsultationRepository extends JpaRepository<Consultation, UUID
            "(:status IS NULL OR c.status = :status) AND " +
            "(CAST(:dateFrom AS timestamp) IS NULL OR c.scheduledAt >= :dateFrom) AND " +
            "(CAST(:dateTo AS timestamp) IS NULL OR c.scheduledAt <= :dateTo) AND " +
-           "(:search IS NULL OR LOWER(c.patient.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.doctor.user.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "(:search = '' OR LOWER(c.patient.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.doctor.user.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
     @EntityGraph(attributePaths = {"doctor", "doctor.user", "patient"})
     org.springframework.data.domain.Page<Consultation> findAdminConsultations(
             @Param("search") String search,

@@ -7,6 +7,7 @@ import com.altruist.repository.ConsultationRepository;
 import com.altruist.repository.DoctorRepository;
 import com.altruist.repository.PrescriptionRepository;
 import com.altruist.repository.UserRepository;
+import com.altruist.security.FirebaseAuthFilter;
 import com.altruist.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -40,6 +41,7 @@ public class DoctorService {
     private final ConsultationRatingRepository ratingRepository;
     private final PrescriptionRepository prescriptionRepository;
     private final UserRepository userRepository;
+    private final FirebaseAuthFilter firebaseAuthFilter;
 
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
@@ -110,7 +112,12 @@ public class DoctorService {
      */
     @Transactional
     public Map<String, UUID> acceptInstantConsultation(UUID userId, UUID consultationId) {
-        User callingUser = userRepository.findByFirebaseUid(SecurityContextHolder.getContext().getAuthentication().getName())
+        org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof User)) {
+            throw new UnauthorizedException("User not authenticated");
+        }
+        User principal = (User) auth.getPrincipal();
+        User callingUser = userRepository.findById(principal.getId())
             .orElseThrow(() -> new UnauthorizedException("User not found"));
         if (!callingUser.getUserType().equals(UserType.DOCTOR)) {
             throw new UnauthorizedException("Only doctors can accept consultations");
@@ -391,7 +398,12 @@ public class DoctorService {
 
     @Transactional
     public void deleteDoctorEntity(UUID id) {
-        User callingUser = userRepository.findByFirebaseUid(SecurityContextHolder.getContext().getAuthentication().getName())
+        org.springframework.security.core.Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof User)) {
+            throw new UnauthorizedException("User not authenticated");
+        }
+        User principal = (User) auth.getPrincipal();
+        User callingUser = userRepository.findById(principal.getId())
             .orElseThrow(() -> new UnauthorizedException("User not found"));
         if (!callingUser.getUserType().equals(UserType.ADMIN)) {
             throw new UnauthorizedException("Only admins can delete doctor profiles");
@@ -419,5 +431,7 @@ public class DoctorService {
         User user = doctor.getUser();
         doctorRepository.delete(doctor);
         user.setUserType(UserType.PATIENT);
+        userRepository.save(user);
+        firebaseAuthFilter.evictUser(user.getFirebaseUid());
     }
 }

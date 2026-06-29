@@ -129,6 +129,14 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         }
     }
 
+    /** Expose a cache-eviction method for immediate user cache invalidation. */
+    public void evictUser(String firebaseUid) {
+        if (firebaseUid != null) {
+            userCache.remove(firebaseUid);
+            logger.info("Evicted user with firebaseUid {} from role cache", firebaseUid);
+        }
+    }
+
     /**
      * SECURITY: Always return the same generic 401 body.
      * Never include token details, Firebase error codes, or stack traces.
