@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import {
   MapPin, Search, ShoppingCart, User, Menu, ChevronDown, LogOut,
@@ -23,11 +25,22 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useLocationStore } from "@/store/locationStore";
 import LocationSelectorModal from "@/components/shared/LocationSelectorModal";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 import { useLanguage } from "@/context/LanguageContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/lib/axios";
-import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+
+const NotificationBell = dynamic(() => import("@/components/shared/NotificationBell"), {
+  ssr: false,
+  loading: () => (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="Notifications"
+      className="relative h-11 w-11 rounded-full"
+    >
+      <Bell className="w-5 h-5 text-muted-foreground" />
+    </Button>
+  ),
+});
 
 
 // ── Services dropdown items ────────────────────────────────────────────────
@@ -59,77 +72,15 @@ export default function Header() {
   const [resourcesOpen,  setResourcesOpen]  = useState(false);
   const servicesRef                         = useRef<HTMLDivElement>(null);
   const resourcesRef                        = useRef<HTMLDivElement>(null);
+  const searchRef                           = useRef<HTMLInputElement>(null);
   const { getTotalItems }                   = useCartStore();
   const [mounted, setMounted]               = useState(false);
   const cartCount                           = mounted ? getTotalItems() : 0;
   const { selectedCity, selectedState }     = useLocationStore();
+  // Hydration guard: persist-backed stores start with their SSR defaults, so render
+  // a stable placeholder on the first paint and swap to the persisted value after mount.
+  const locationDisplay                     = mounted ? `${selectedCity}, ${selectedState}` : "Select location";
   const [isLocationOpen, setIsLocationOpen] = useState(false);
-
-  const queryClient = useQueryClient();
-
-  // Fetch Notifications
-  const { data: notifications = [] } = useQuery<any[]>({
-    queryKey: ["notifications"],
-    queryFn: async () => {
-      if (!user) return [];
-      try {
-        const res = await api.get("/notifications");
-        return res.data;
-      } catch (err) {
-        return [];
-      }
-    },
-    enabled: !!user,
-    refetchInterval: 30000, // Refetch every 30 seconds automatically
-  });
-
-  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
-
-  // Mark single as read mutation
-  const readMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.post(`/notifications/${id}/read`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    }
-  });
-
-  // Mark all as read mutation
-  const readAllMutation = useMutation({
-    mutationFn: async () => {
-      await api.post("/notifications/read-all");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("All notifications marked as read");
-    }
-  });
-
-  // Delete notification mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.delete(`/notifications/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("Notification dismissed");
-    }
-  });
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "APPOINTMENT":
-        return <Calendar className="w-4 h-4 text-orange-500" />;
-      case "CHAT":
-        return <MessageSquare className="w-4 h-4 text-blue-500" />;
-      case "SYSTEM":
-        return <Globe className="w-4 h-4 text-emerald-500" />;
-      default:
-        return <Bell className="w-4 h-4 text-primary" />;
-    }
-  };
-
 
   // Scroll → sticky
   useEffect(() => {
@@ -153,6 +104,26 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // '/' keyboard shortcut to focus search input (skips when typing in another input/textarea/contenteditable).
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      if (!(el instanceof HTMLElement)) return false;
+      const tag = el.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+      if (el.isContentEditable) return true;
+      return false;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "/") return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      if (isEditable(e.target)) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   // All mobile nav links (flat)
@@ -172,13 +143,14 @@ export default function Header() {
         >
           <div className="flex items-center bg-primary/8 rounded-full px-3 py-1 gap-1.5 border border-primary/10">
             <MapPin size={12} className="text-primary/70" />
-            <span className="truncate max-w-[120px] md:max-w-none">{selectedCity}, {selectedState}</span>
+            <span className="truncate max-w-[120px] md:max-w-none">{locationDisplay}</span>
             <ChevronDown size={10} className="text-primary/50" />
           </div>
         </div>
 
 
-        <div className="flex items-center gap-4 md:gap-8">
+        <div className="flex items-center gap-2 md:gap-4">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <button className="flex items-center gap-2 cursor-pointer hover:text-primary/70 transition-colors bg-transparent border-none text-xs font-medium text-inherit focus:outline-none p-0">
@@ -231,7 +203,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[350px]">
               <SheetHeader className="mb-8">
                 <SheetTitle>
-                  <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
+                  <Image src="/logo.png" alt="Altruist Wellness" width={210} height={64} priority className="h-16 w-auto object-contain" />
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-1">
@@ -287,7 +259,7 @@ export default function Header() {
  
           {/* Logo */}
           <Link href="/" className="flex items-center group transition-transform active:scale-95">
-            <img src="/logo.png" alt="Altruist Wellness" className="h-10 w-auto object-contain" />
+            <Image src="/logo.png" alt="Altruist Wellness" width={210} height={64} priority className="h-16 w-auto object-contain" />
           </Link>
         </div>
 
@@ -404,6 +376,7 @@ export default function Header() {
           {/* Search Bar */}
           <div className={cn("relative transition-all duration-300", isSearchOpen ? "w-[250px] md:w-[300px]" : "w-10 lg:w-[220px]")}>
             <Input
+              ref={searchRef}
               placeholder="Search health products..."
               className={cn("pl-11 h-11 border-border focus:border-primary transition-all bg-muted/50 rounded-full", !isSearchOpen && "hidden lg:flex")}
             />
@@ -431,101 +404,8 @@ export default function Header() {
               </Link>
             )}
 
-            {/* Notification Bell — with dropdown */}
-            {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Notifications"
-                    className="relative hover:bg-primary/10 transition-colors h-11 w-11 rounded-full group shrink-0"
-                  >
-                    <Bell className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary border-2 border-background animate-pulse" />
-                    )}
-                  </Button>
-                } />
-                
-                <DropdownMenuContent align="end" className="w-80 p-2 mt-2 rounded-2xl border-border shadow-xl bg-background max-h-[480px] overflow-y-auto custom-scrollbar">
-                  <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                    <span className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 text-primary" /> Notifications
-                      {unreadCount > 0 && (
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-none font-bold text-[10px] py-0 px-2 rounded-full">
-                          {unreadCount} new
-                        </Badge>
-                      )}
-                    </span>
-                    {unreadCount > 0 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          readAllMutation.mutate();
-                        }}
-                        className="text-[10px] font-black uppercase text-primary tracking-wider hover:underline"
-                        disabled={readAllMutation.isPending}
-                      >
-                        Mark all read
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="py-1 space-y-1 mt-1">
-                    {notifications.length === 0 ? (
-                      <div className="p-8 text-center flex flex-col items-center justify-center gap-2">
-                        <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary">
-                          <Bell className="w-5 h-5" />
-                        </div>
-                        <p className="font-bold text-xs text-foreground mt-2">All caught up!</p>
-                        <p className="text-[10px] text-muted-foreground max-w-xs">You have no active notifications at the moment.</p>
-                      </div>
-                    ) : (
-                      notifications.map((n: any) => (
-                        <div
-                          key={n.id}
-                          onClick={() => !n.isRead && readMutation.mutate(n.id)}
-                          className={cn(
-                            "p-3 rounded-xl transition-all cursor-pointer relative group/item flex gap-3 text-left border border-transparent",
-                            n.isRead 
-                              ? "hover:bg-muted/30" 
-                              : "bg-primary/5 hover:bg-primary/10 border-primary/5 shadow-inner"
-                          )}
-                        >
-                          <div className="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center shrink-0">
-                            {getNotificationIcon(n.type)}
-                          </div>
-                          <div className="flex-1 space-y-0.5 min-w-0 pr-4">
-                            <div className="flex items-center justify-between">
-                              <p className={cn("text-xs leading-none truncate", n.isRead ? "font-bold text-foreground/80" : "font-extrabold text-foreground")}>
-                                {n.title}
-                              </p>
-                              <span className="text-[9px] text-muted-foreground/60 font-semibold shrink-0">
-                                {formatDistanceToNow(new Date(n.createdAt), { addSuffix: false })}
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground font-medium leading-normal line-clamp-2">
-                              {n.message}
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteMutation.mutate(n.id);
-                            }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 text-slate-400 hover:text-red-500 rounded-full hover:bg-slate-100"
-                            title="Dismiss notification"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            {/* Notification Bell — extracted to dynamic-imported NotificationBell component */}
+            {user && <NotificationBell />}
 
             {/* Cart Icon */}
             <Link href="/cart" aria-label={`Cart (${cartCount} items)`}>

@@ -39,22 +39,12 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
     private final FirebaseAuth firebaseAuth;
     private final UserService userService;
 
-    /** Value = [User, expiry epoch ms] */
-    private final Map<String, CacheEntry> userCache = new ConcurrentHashMap<>();
-
-    private static class CacheEntry {
-        final User user;
-        final long expiresAt;
-
-        CacheEntry(User user) {
-            this.user = user;
-            this.expiresAt = Instant.now().toEpochMilli() + CACHE_TTL_MS;
-        }
-
-        boolean isExpired() {
-            return Instant.now().toEpochMilli() > expiresAt;
-        }
-    }
+    /** TTL cache for verified users. Evicts automatically in the background. */
+    private final com.github.benmanes.caffeine.cache.Cache<String, User> userCache =
+            com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+                    .expireAfterWrite(5, java.util.concurrent.TimeUnit.MINUTES)
+                    .maximumSize(5000)
+                    .build();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -83,19 +73,10 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             String phone = (String) decodedToken.getClaims().get("phone_number");
 
             // TTL-based cache: evict expired entries and re-fetch if needed
-            CacheEntry entry = userCache.get(uid);
-            User user;
-            if (entry == null || entry.isExpired()) {
-                // Evict the expired entry
-                userCache.remove(uid);
+            User user = userCache.getIfPresent(uid);
+            if (user == null) {
                 user = userService.findOrCreateUserByFirebaseUid(uid, email, phone);
-                userCache.put(uid, new CacheEntry(user));
-                // Periodically clean up stale entries (simple amortized cleanup)
-                if (!userCache.isEmpty()) {
-                    evictExpiredEntries();
-                }
-            } else {
-                user = entry.user;
+                userCache.put(uid, user);
             }
 
             SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getUserType().name());
@@ -106,7 +87,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         } catch (FirebaseAuthException e) {
             // SECURITY: Log at WARN (not ERROR) — expected for expired/invalid tokens.
             //           Never expose Firebase error codes or token details in the response.
-            logger.warn("Firebase token verification failed for request {} {}", request.getMethod(), request.getRequestURI());
+            logger.warn("Firebase token verification failed for request {} {}: {}", request.getMethod(), request.getRequestURI(), e.getMessage());
             sendUnauthorizedError(response);
             return;
         } catch (Exception e) {
@@ -119,20 +100,10 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /** Remove all expired entries from cache (called on every cache miss). */
-    private void evictExpiredEntries() {
-        Iterator<Map.Entry<String, CacheEntry>> it = userCache.entrySet().iterator();
-        while (it.hasNext()) {
-            if (it.next().getValue().isExpired()) {
-                it.remove();
-            }
-        }
-    }
-
     /** Expose a cache-eviction method for immediate user cache invalidation. */
     public void evictUser(String firebaseUid) {
         if (firebaseUid != null) {
-            userCache.remove(firebaseUid);
+            userCache.invalidate(firebaseUid);
             logger.info("Evicted user with firebaseUid {} from role cache", firebaseUid);
         }
     }

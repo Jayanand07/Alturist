@@ -158,28 +158,8 @@ const FALLBACK_TESTIMONIALS = [
   }
 ];
 
-const FAQS = [
-  {
-    q: "How do I upload a prescription to buy medicines?",
-    a: "It's extremely simple! Navigate to our 'Order Medicines' page. You can click on 'Upload Prescription', select your doctor's PDF or image, and click Submit. Our NABL-verified pharmacist will review the notes, prepare your medicine cart, and send a checkout link to your account in under 10 minutes."
-  },
-  {
-    q: "How does the home sample collection for diagnostic tests work?",
-    a: "Once you book a diagnostic test or full body checkup, our certified, hygienic phlebotomist is dispatched to your selected address at your selected time slot. They collect samples using single-use vacuum tubes in sterilized packages. Samples are sent to our NABL-accredited partner laboratory immediately in temperature-controlled kits. Reports are delivered digitally in 12-24 hours."
-  },
-  {
-    q: "Are the doctors on Altruist verified and qualified?",
-    a: "Absolutely. Altruist enforces a zero-exception verification policy. Every doctor registered on our platform holds certified medical degrees (MBBS, MD, MS, DM) from recognized national/international universities and is verified through the National Medical Commission (NMC) or State Medical Councils. We perform thorough credentials checks before licensing."
-  },
-  {
-    q: "Is Altruist safe and secure for my records?",
-    a: "Yes. Security is our paramount non-negotiable rule. Your patient PII, consulting chats, and digital prescriptions are encrypted both in transit and at rest. We utilize Supabase Row Level Security (RLS) policies to ensure that absolutely no one except you and your authorized practitioner can view your private medical history."
-  }
-];
-
 export default function RedesignedHomePage() {
   const { t } = useLanguage();
-  const [faqOpenIndex, setFaqOpenIndex] = useState<number | null>(null);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const { addItem } = useCartStore();
@@ -283,9 +263,7 @@ export default function RedesignedHomePage() {
     });
   };
 
-  const toggleFaq = (index: number) => {
-    setFaqOpenIndex(faqOpenIndex === index ? null : index);
-  };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans antialiased text-slate-900 pb-16">
@@ -296,7 +274,7 @@ export default function RedesignedHomePage() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
         <div className="absolute top-[-50px] right-[-100px] w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-30 flex flex-col lg:flex-row items-center justify-between gap-12">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative z-30 flex flex-col lg:flex-row items-center justify-between gap-12">
           {/* Hero Left Content */}
           <div className="w-full lg:w-3/5 space-y-6 text-left">
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight">
@@ -350,8 +328,8 @@ export default function RedesignedHomePage() {
       </section>
 
       {/* 2. DYNAMIC PROMO CARDS */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 mb-16 mt-16 md:mt-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative z-10 mb-16 mt-16 md:mt-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {PROMO_CARDS.map((card, i) => (
             <Link key={i} href={card.href} className="h-full block">
               <Card className="border-none shadow-md hover:shadow-2xl transition-all cursor-pointer group bg-white rounded-3xl h-full overflow-hidden flex flex-col justify-between">
@@ -385,7 +363,7 @@ export default function RedesignedHomePage() {
       </section>
 
       {/* 3. CORE SERVICES QUICK ACTION GRID */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
         <div className="text-center md:text-left mb-8">
           <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             {t("quick.title")}
@@ -395,7 +373,7 @@ export default function RedesignedHomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {SERVICES.map((serv, index) => (
             <Link key={index} href={serv.href}>
               <Card className="border-none shadow-md hover:shadow-2xl transition-all cursor-pointer group bg-white rounded-3xl h-full overflow-hidden flex flex-col justify-between">
@@ -433,7 +411,7 @@ export default function RedesignedHomePage() {
 
       {/* Featured Medicines Section */}
       {featuredMedsLoading || featuredMeds.length > 0 ? (
-        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
@@ -450,13 +428,13 @@ export default function RedesignedHomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {featuredMedsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 h-[280px] flex flex-col animate-pulse">
-                  <div className="h-36 bg-slate-100 rounded-2xl mb-4" />
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 flex flex-col animate-pulse">
+                  <div className="w-full aspect-square bg-slate-100 rounded-2xl mb-4" />
                   <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
-                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto animate-pulse" style={{ minHeight: "12px" }} />
                   <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
                 </div>
               ))
@@ -475,11 +453,11 @@ export default function RedesignedHomePage() {
                     <div className="p-4 flex flex-col gap-3">
                       {/* Product Image Link */}
                       <Link href={`/medicines?search=${encodeURIComponent(prod.name)}`}>
-                        <div className="h-36 w-full rounded-2xl overflow-hidden bg-slate-50 relative flex items-center justify-center flex-shrink-0 cursor-pointer">
+                        <div className="w-full aspect-square bg-white relative flex items-center justify-center flex-shrink-0 cursor-pointer">
                           <img 
                             src={imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=400&h=400&fit=crop&q=80"} 
                             alt={prod.name} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           />
                           {discountPercent > 0 && (
                             <Badge className="absolute top-2 left-2 bg-red-500 text-white border-none py-0.5 px-2 font-bold text-[9px] rounded">
@@ -528,7 +506,7 @@ export default function RedesignedHomePage() {
 
       {/* 5. BEST SELLERS IN MEDICINES & HEALTH PRODUCTS (DYNAMIC ADD TO CART!) */}
       {!medicinesLoading && medicines.length === 0 ? null : (
-        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
@@ -545,13 +523,13 @@ export default function RedesignedHomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {medicinesLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 h-[280px] flex flex-col animate-pulse">
-                  <div className="h-36 bg-slate-100 rounded-2xl mb-4" />
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-4 flex flex-col animate-pulse">
+                  <div className="w-full aspect-square bg-slate-100 rounded-2xl mb-4" />
                   <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
-                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto animate-pulse" style={{ minHeight: "12px" }} />
                   <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
                 </div>
               ))
@@ -570,11 +548,11 @@ export default function RedesignedHomePage() {
                   <Card key={prod.id} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between h-full group">
                     <div className="p-4 flex flex-col gap-3">
                       {/* Product Image */}
-                      <div className="h-36 w-full rounded-2xl overflow-hidden bg-slate-50 relative flex items-center justify-center flex-shrink-0">
+                      <div className="w-full aspect-square bg-white relative flex items-center justify-center flex-shrink-0">
                         <img 
                           src={imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5e1a3bcbe?w=400&h=400&fit=crop&q=80"} 
                           alt={prod.name} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                         />
                         {discountPercent > 0 && (
                           <Badge className="absolute top-2 left-2 bg-red-500 text-white border-none py-0.5 px-2 font-bold text-[9px] rounded">
@@ -620,7 +598,7 @@ export default function RedesignedHomePage() {
 
       {/* 6. FEATURED LAB TESTS ( tata 1mg styled ) WITH PREMIUM LAB IMAGES */}
       {!labPackagesLoading && labPackages.length === 0 ? null : (
-        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -637,13 +615,13 @@ export default function RedesignedHomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {labPackagesLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 h-[340px] flex flex-col animate-pulse">
-                  <div className="h-40 bg-slate-100 rounded-2xl mb-4" />
+                <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col animate-pulse">
+                  <div className="w-full aspect-[16/10] bg-slate-100 rounded-2xl mb-4" />
                   <div className="h-4 bg-slate-100 rounded-md w-3/4 mb-2" />
-                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" />
+                  <div className="h-3 bg-slate-100 rounded-md w-1/2 mb-auto" style={{ minHeight: "12px" }} />
                   <div className="h-8 bg-slate-100 rounded-md w-full mt-4" />
                 </div>
               ))
@@ -669,11 +647,11 @@ export default function RedesignedHomePage() {
                 return (
                   <Card key={pkg.id || i} className="border-none shadow-md hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between group">
                     {/* Card Banner Image */}
-                    <div className="h-40 w-full overflow-hidden bg-slate-100 relative">
+                    <div className="w-full aspect-[16/10] rounded-t-3xl overflow-hidden bg-slate-100 relative">
                       <img 
                         src={img} 
                         alt={title} 
-                        className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500" 
+                        className="w-full h-full object-cover rounded-t-3xl group-hover:scale-103 transition-transform duration-500" 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <Badge className="absolute top-4 left-4 bg-emerald-500 text-white border-none px-3 py-1 font-black text-xs tracking-wider rounded-lg">
@@ -755,12 +733,12 @@ export default function RedesignedHomePage() {
         {/* Abstract background light */}
         <div className="absolute left-[-100px] bottom-[-100px] w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-white tracking-tight">
               {t("trust.title")}
             </h2>
-            <p className="text-slate-400 text-sm font-semibold mt-1">
+            <p className="text-slate-300 text-sm font-semibold mt-1">
               {t("trust.subtitle")}
             </p>
           </div>
@@ -771,7 +749,7 @@ export default function RedesignedHomePage() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-white">{t("trust.card1Title")}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed font-semibold">
+              <p className="text-slate-300 text-xs leading-relaxed font-semibold">
                 {t("trust.card1Desc")}
               </p>
             </div>
@@ -781,7 +759,7 @@ export default function RedesignedHomePage() {
                 <Truck className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-white">{t("trust.card2Title")}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed font-semibold">
+              <p className="text-slate-300 text-xs leading-relaxed font-semibold">
                 {t("trust.card2Desc")}
               </p>
             </div>
@@ -791,7 +769,7 @@ export default function RedesignedHomePage() {
                 <MessageSquare className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-white">{t("trust.card3Title")}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed font-semibold">
+              <p className="text-slate-300 text-xs leading-relaxed font-semibold">
                 {t("trust.card3Desc")}
               </p>
             </div>
@@ -801,7 +779,7 @@ export default function RedesignedHomePage() {
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg text-white">{t("trust.card4Title")}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed font-semibold">
+              <p className="text-slate-300 text-xs leading-relaxed font-semibold">
                 {t("trust.card4Desc")}
               </p>
             </div>
@@ -811,7 +789,7 @@ export default function RedesignedHomePage() {
 
       {/* 8. TOP DOCTORS ( CAROUSEL / GRID ) */}
       {!doctorsLoading && (topDoctors.length === 0 || !topDoctors.some(doc => (doc.rating || 0) > 0)) ? null : (
-        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -856,8 +834,8 @@ export default function RedesignedHomePage() {
                   <Card key={doc.id || idx} className="min-w-[280px] md:min-w-[320px] border-none shadow-md snap-start shrink-0 hover:shadow-2xl transition-all rounded-3xl bg-white overflow-hidden flex flex-col justify-between">
                     <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
                       <div className="flex gap-4 items-start">
-                        <Avatar className="w-16 h-16 border-2 border-primary/10 shadow-inner shrink-0">
-                          <AvatarImage src={img} alt={doc.name} className="object-cover" />
+                        <Avatar className="w-16 h-16 border-2 border-primary/10 shadow-inner shrink-0 aspect-square">
+                          <AvatarImage src={img} alt={doc.name} className="object-cover rounded-full" />
                           <AvatarFallback className="bg-primary-light text-primary font-bold">
                             {doc.name ? doc.name.split(" ").slice(-1)[0]?.charAt(0) : "D"}
                           </AvatarFallback>
@@ -899,7 +877,7 @@ export default function RedesignedHomePage() {
 
       {/* 10. TESTIMONIALS SLIDER SECTION */}
       {!testimonialsLoading && testimonials.length === 0 ? null : (
-        <section className="max-w-7xl mx-auto px-6 md:px-8 mb-16">
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-16">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
               {t("testimonials.title")}
@@ -909,7 +887,7 @@ export default function RedesignedHomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {testimonialsLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="bg-white rounded-3xl border border-slate-200 p-6 h-[200px] flex flex-col animate-pulse space-y-4">
@@ -952,56 +930,7 @@ export default function RedesignedHomePage() {
         </section>
       )}
 
-      {/* 11. FAQS COMPONENT ( ACCORDION-STYLED ) */}
-      <section className="max-w-4xl mx-auto px-6 md:px-8 mt-8">
-        <div className="text-center mb-10">
-          <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {t("faqs.title")}
-          </h2>
-          <p className="text-slate-500 text-sm font-semibold mt-1">
-            {t("faqs.subtitle")}
-          </p>
-        </div>
 
-        <div className="space-y-4">
-          {FAQS.map((faq, index) => {
-            const isOpen = faqOpenIndex === index;
-            return (
-              <div 
-                key={index} 
-                className="border-none rounded-2xl bg-white shadow-md overflow-hidden transition-all duration-300"
-              >
-                <button
-                  onClick={() => toggleFaq(index)}
-                  className="w-full flex items-center justify-between p-5 text-left font-bold text-sm md:text-base text-slate-800 hover:text-primary transition-colors focus:outline-none"
-                >
-                  <span>{faq.q}</span>
-                  {isOpen && faqOpenIndex !== null ? (
-                    <ChevronUp className="w-5 h-5 text-primary shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
-                  )}
-                </button>
-                
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
-                    >
-                      <div className="px-5 pb-5 pt-1 text-xs md:text-sm text-slate-500 leading-relaxed font-medium border-t border-slate-50">
-                        {faq.a}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </div>
-      </section>
 
       {/* Location Selector Modal */}
       <LocationSelectorModal 

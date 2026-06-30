@@ -16,6 +16,8 @@ public interface LabBookingRepository extends JpaRepository<LabBooking, UUID> {
     
     List<LabBooking> findByPatientIdOrderByCreatedAtDesc(UUID patientId);
 
+    Page<LabBooking> findByPatientIdOrderByCreatedAtDesc(UUID patientId, Pageable pageable);
+
     @Query("SELECT b FROM LabBooking b " +
            "WHERE (:status IS NULL OR b.status = :status) " +
            "AND (:search = '' OR LOWER(b.patient.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(b.phone) LIKE LOWER(CONCAT('%', :search, '%')))")

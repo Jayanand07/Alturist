@@ -159,6 +159,25 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.60 0.10 175);           /* Teal ring — dark mode */
 
+  --color-primary: oklch(0.60 0.10 175);
+  --color-primary-hover: oklch(0.65 0.10 175);
+  --color-primary-active: oklch(0.55 0.10 175);
+  --color-primary-light: oklch(0.20 0.05 175);
+
+  --color-accent: oklch(0.68 0.14 25);
+  --color-accent-hover: oklch(0.73 0.14 25);
+  --color-accent-active: oklch(0.63 0.14 25);
+  --color-accent-light: oklch(0.20 0.05 25);
+
+  --color-text: #FFFFFF;
+  --color-text-muted: #94A7B5;
+  --color-text-light: #5A7184;
+  --color-surface: #1E293B;
+  --color-surface-muted: #334155;
+  --color-surface-sunken: #0F172A;
+  --color-border: oklch(1 0 0 / 10%);
+  --color-border-hover: oklch(1 0 0 / 20%);
+
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
 }
@@ -213,12 +232,12 @@
   a:hover {
     text-decoration-color: currentColor;
   }
-}
 
-/* Base Headings */
-h1, h2, h3, h4, h5, h6 {
-  @apply font-heading text-text;
-  letter-spacing: -0.025em;
+  /* Base Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-text;
+    letter-spacing: -0.025em;
+  }
 }
 
 /* Custom Scrollbar — now uses primary (teal) */
@@ -361,6 +380,11 @@ textarea:focus {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-card {
+  background: rgba(15, 20, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Glow utilities — now use primary (teal) */

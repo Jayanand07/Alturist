@@ -2,6 +2,7 @@ package com.altruist.service;
 
 import com.altruist.dto.LabBookingRequestDTO;
 import com.altruist.dto.LabBookingResponseDTO;
+import com.altruist.dto.NotificationDTO;
 import com.altruist.model.*;
 import com.altruist.repository.LabBookingRepository;
 import com.altruist.repository.LabPackageRepository;
@@ -28,6 +29,7 @@ public class LabBookingService {
     private final LabTestRepository labTestRepository;
     private final LabPackageRepository labPackageRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Transactional
     public LabBookingResponseDTO createBooking(User patient, LabBookingRequestDTO dto) {
@@ -78,6 +80,21 @@ public class LabBookingService {
 
         LabBooking saved = labBookingRepository.save(booking);
 
+        // Notify patient that the lab booking has been created
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    patient.getId(),
+                    "Lab Booking Confirmed",
+                    String.format("Your %s booking for %s on %s is confirmed.",
+                            bookingType, itemName,
+                            saved.getPreferredDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy"))),
+                    "LAB_BOOKED"
+            );
+            notificationService.publish(patient.getId(), notification);
+        } catch (Exception e) {
+            log.error("Failed to publish LAB_BOOKED notification for booking {}", saved.getId(), e);
+        }
+
         // Send confirmation email asynchronously
         try {
             String formattedDate = saved.getPreferredDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
@@ -105,6 +122,12 @@ public class LabBookingService {
     }
 
     @Transactional(readOnly = true)
+    public Page<LabBookingResponseDTO> getPatientBookings(UUID patientId, Pageable pageable) {
+        return labBookingRepository.findByPatientIdOrderByCreatedAtDesc(patientId, pageable)
+                .map(this::mapToResponseDTO);
+    }
+
+    @Transactional(readOnly = true)
     public Page<LabBookingResponseDTO> getAdminBookings(String status, String search, Pageable pageable) {
         String normalizedStatus = status == null || status.trim().isEmpty() ? null : status.trim();
         String normalizedSearch = search == null || search.trim().isEmpty() ? "" : search.trim();
@@ -117,6 +140,8 @@ public class LabBookingService {
         LabBooking booking = labBookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Lab Booking not found"));
 
+        String previousStatus = booking.getStatus();
+
         if (status != null && !status.trim().isEmpty()) {
             booking.setStatus(status.toUpperCase());
         }
@@ -125,6 +150,37 @@ public class LabBookingService {
         }
 
         LabBooking saved = labBookingRepository.save(booking);
+
+        // Fire SSE notification on meaningful lab status transitions
+        String newStatus = saved.getStatus();
+        if (status != null && !status.trim().isEmpty() && !newStatus.equalsIgnoreCase(previousStatus)) {
+            String type = null;
+            String title = null;
+            String message = null;
+            if ("SAMPLE_COLLECTED".equalsIgnoreCase(newStatus)) {
+                type = "LAB_SAMPLE_COLLECTED";
+                title = "Sample Collected";
+                message = String.format("Your sample for booking #%s has been collected and is being processed.", saved.getId());
+            } else if ("COMPLETED".equalsIgnoreCase(newStatus) || "RESULTS_READY".equalsIgnoreCase(newStatus)) {
+                type = "LAB_RESULTS_READY";
+                title = "Lab Results Ready";
+                message = String.format("Your lab results for booking #%s are now ready. Tap to view the report.", saved.getId());
+            }
+            if (type != null && saved.getPatient() != null) {
+                try {
+                    NotificationDTO notification = notificationService.createNotification(
+                            saved.getPatient().getId(),
+                            title,
+                            message,
+                            type
+                    );
+                    notificationService.publish(saved.getPatient().getId(), notification);
+                } catch (Exception e) {
+                    log.error("Failed to publish {} notification for booking {}", type, saved.getId(), e);
+                }
+            }
+        }
+
         return mapToResponseDTO(saved);
     }
 

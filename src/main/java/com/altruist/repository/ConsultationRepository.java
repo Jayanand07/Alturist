@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 
+
 @Repository
 public interface ConsultationRepository extends JpaRepository<Consultation, UUID>, JpaSpecificationExecutor<Consultation> {
 
@@ -73,6 +74,14 @@ public interface ConsultationRepository extends JpaRepository<Consultation, UUID
     long countByDoctorId(UUID doctorId);
 
     long countByPatientId(UUID patientId);
+
+    /**
+     * Batch-counts consultations per patient for a given set of patient IDs.
+     * Returns Object[] pairs of [patientId (UUID), count (Long)] in a single query,
+     * eliminating N+1 COUNT calls when rendering patient list pages.
+     */
+    @Query("SELECT c.patient.id, COUNT(c) FROM Consultation c WHERE c.patient.id IN :patientIds GROUP BY c.patient.id")
+    List<Object[]> batchCountByPatientIds(@Param("patientIds") List<UUID> patientIds);
 
     @EntityGraph(attributePaths = {"doctor", "doctor.user", "patient"})
     List<Consultation> findByPatientIdOrderByScheduledAtDesc(UUID patientId);

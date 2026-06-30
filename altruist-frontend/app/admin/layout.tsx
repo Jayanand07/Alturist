@@ -21,7 +21,8 @@ import {
   Home,
   FlaskConical,
   Video,
-  Calendar
+  Calendar,
+  Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -54,6 +55,7 @@ export default function AdminLayout({
     { title: "Doctors", href: "/admin/doctors", icon: UserRound },
     { title: "Patients", href: "/admin/patients", icon: Users },
     { title: "Medicines", href: "/admin/medicines", icon: Pill },
+    { title: "Orders", href: "/admin/orders", icon: Package },
     { title: "Lab Tests & Packages", href: "/admin/lab-management", icon: FlaskConical },
     { title: "Lab Bookings", href: "/admin/lab-bookings", icon: Calendar },
     { title: "Consultations", href: "/admin/consultations", icon: ClipboardList },

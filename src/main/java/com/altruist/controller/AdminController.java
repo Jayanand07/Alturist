@@ -113,10 +113,30 @@ public class AdminController {
     }
 
     // --- ORDERS ENDPOINTS ---
-    
+
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderResponseDTO>> getAdminOrders(Pageable pageable) {
         return ResponseEntity.ok(orderService.getAllOrders(pageable));
+    }
+
+    /**
+     * Transitions an order through the state machine.
+     *
+     * Valid transitions:
+     *   PENDING   → CONFIRMED, CANCELLED
+     *   CONFIRMED → SHIPPED,   CANCELLED
+     *   SHIPPED   → DELIVERED
+     *   DELIVERED → (terminal)
+     *   CANCELLED → (terminal)
+     *
+     * Invalid status strings and illegal transitions return 400.
+     * Concurrent updates on the same order return 409 (optimistic lock).
+     */
+    @PatchMapping("/orders/{orderId}/status")
+    public ResponseEntity<OrderResponseDTO> updateOrderStatus(
+            @PathVariable UUID orderId,
+            @Valid @RequestBody UpdateOrderStatusRequest req) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, req.getStatus()));
     }
 
     // --- SUPER ADMIN ENDPOINTS ---
@@ -173,6 +193,7 @@ public class AdminController {
     }
 
     @PostMapping("/patients/{id}/promote-to-doctor")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<Map<String, Object>> promotePatientToDoctor(
             @PathVariable UUID id,
             @Valid @RequestBody AdminPromoteDoctorRequestDTO request) {
@@ -243,5 +264,14 @@ public class AdminController {
     public static class PromoteRequest {
         private UUID userId;
         private String newRole;
+    }
+
+    @lombok.Data
+    public static class UpdateOrderStatusRequest {
+        @jakarta.validation.constraints.NotBlank(message = "status is required")
+        @jakarta.validation.constraints.Pattern(
+                regexp = "PENDING|CONFIRMED|SHIPPED|DELIVERED|CANCELLED",
+                message = "status must be one of: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED")
+        private String status;
     }
 }

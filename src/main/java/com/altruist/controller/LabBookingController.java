@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,13 +37,13 @@ public class LabBookingController {
 
     @GetMapping("/patient/lab-bookings")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<List<LabBookingResponseDTO>> getPatientBookings() {
+    public ResponseEntity<Page<LabBookingResponseDTO>> getPatientBookings(Pageable pageable) {
         User patient = getAuthenticatedUser();
         if (patient == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         // Securing user details by deriving patient id strictly from context principal
-        return ResponseEntity.ok(labBookingService.getPatientBookings(patient.getId()));
+        return ResponseEntity.ok(labBookingService.getPatientBookings(patient.getId(), pageable));
     }
 
     @GetMapping("/admin/lab-bookings")

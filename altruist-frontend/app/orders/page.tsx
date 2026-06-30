@@ -22,7 +22,7 @@ type Order = {
   items: string;
   totalAmount: number;
   deliveryAddress: string;
-  status: "PENDING" | "CONFIRMED" | "DELIVERED";
+  status: "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED";
   createdAt: string;
 };
 
@@ -33,7 +33,9 @@ type OrdersResponse = {
 const statusStyles: Record<Order["status"], string> = {
   PENDING: "border-amber-200 bg-amber-50 text-amber-700",
   CONFIRMED: "border-blue-200 bg-blue-50 text-blue-700",
+  SHIPPED: "border-indigo-200 bg-indigo-50 text-indigo-700",
   DELIVERED: "border-primary/20 bg-primary/10 text-primary",
+  CANCELLED: "border-red-200 bg-red-50 text-red-700",
 };
 
 function parseItems(items: string): OrderItem[] {

@@ -126,15 +126,21 @@ public class ConsultationController {
             }
 
             // Create JWT Header
-            String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+            java.util.Map<String, String> headerMap = new java.util.HashMap<>();
+            headerMap.put("alg", "HS256");
+            headerMap.put("typ", "JWT");
+            String headerJson = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(headerMap);
             String headerB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // Create Custom Payload syncing Firebase UID to Supabase RLS
             long iat = System.currentTimeMillis() / 1000;
             long exp = iat + 3600; // 1 hour expiration
-            // SECURITY: Sanitize firebaseUid to prevent JSON injection in JWT payload
-            String safeUid = user.getFirebaseUid().replace("\\", "\\\\").replace("\"", "\\\"");
-            String payloadJson = String.format("{\"role\":\"authenticated\",\"firebase_uid\":\"%s\",\"iat\":%d,\"exp\":%d}", safeUid, iat, exp);
+            java.util.Map<String, Object> payloadMap = new java.util.HashMap<>();
+            payloadMap.put("role", "authenticated");
+            payloadMap.put("firebase_uid", user.getFirebaseUid());
+            payloadMap.put("iat", iat);
+            payloadMap.put("exp", exp);
+            String payloadJson = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(payloadMap);
             String payloadB64 = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             // Sign using HMAC SHA256

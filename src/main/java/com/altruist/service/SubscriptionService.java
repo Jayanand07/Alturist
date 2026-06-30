@@ -1,5 +1,6 @@
 package com.altruist.service;
 
+import com.altruist.dto.NotificationDTO;
 import com.altruist.dto.SubscriptionPlanDTO;
 import com.altruist.dto.UserSubscriptionDTO;
 import com.altruist.model.SubscriptionPlan;
@@ -9,6 +10,7 @@ import com.altruist.repository.SubscriptionPlanRepository;
 import com.altruist.repository.UserRepository;
 import com.altruist.repository.UserSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
@@ -27,6 +30,7 @@ public class SubscriptionService {
     private final SubscriptionPlanRepository planRepository;
     private final UserSubscriptionRepository userSubscriptionRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Cacheable(value = "subscriptionPlans")
     public List<SubscriptionPlanDTO> getAllActivePlans() {
@@ -73,6 +77,21 @@ public class SubscriptionService {
         subscription.setConsultationsRemaining(plan.getConsultationsPerMonth());
 
         UserSubscription saved = userSubscriptionRepository.save(subscription);
+
+        // Notify the user that their subscription is active
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    user.getId(),
+                    "Subscription Activated",
+                    String.format("Your %s subscription to the %s plan is now active until %s.",
+                            billingCycle, plan.getName(), saved.getEndDate()),
+                    "SUBSCRIPTION_ACTIVATED"
+            );
+            notificationService.publish(user.getId(), notification);
+        } catch (Exception e) {
+            log.error("Failed to publish SUBSCRIPTION_ACTIVATED notification for user {}", user.getId(), e);
+        }
+
         return toSubscriptionDTO(saved);
     }
 
@@ -82,7 +101,22 @@ public class SubscriptionService {
                 .orElseThrow(() -> new RuntimeException("No active subscription found"));
 
         subscription.setStatus("CANCELLED");
-        return toSubscriptionDTO(userSubscriptionRepository.save(subscription));
+        UserSubscription saved = userSubscriptionRepository.save(subscription);
+
+        // Notify the user that their subscription was cancelled
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    user.getId(),
+                    "Subscription Cancelled",
+                    String.format("Your subscription to the %s plan has been cancelled.", saved.getPlan().getName()),
+                    "SUBSCRIPTION_CANCELLED"
+            );
+            notificationService.publish(user.getId(), notification);
+        } catch (Exception e) {
+            log.error("Failed to publish SUBSCRIPTION_CANCELLED notification for user {}", user.getId(), e);
+        }
+
+        return toSubscriptionDTO(saved);
     }
 
     @Transactional
@@ -92,6 +126,19 @@ public class SubscriptionService {
 
         currentSub.setStatus("EXPIRED");
         userSubscriptionRepository.save(currentSub);
+
+        // Notify the user that their subscription was renewed
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    user.getId(),
+                    "Subscription Renewed",
+                    String.format("Your %s plan subscription has been renewed.", currentSub.getPlan().getName()),
+                    "SUBSCRIPTION_RENEWED"
+            );
+            notificationService.publish(user.getId(), notification);
+        } catch (Exception e) {
+            log.error("Failed to publish SUBSCRIPTION_RENEWED notification for user {}", user.getId(), e);
+        }
 
         return subscribePatient(user, currentSub.getPlan().getId(), billingCycle);
     }

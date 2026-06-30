@@ -27,7 +27,7 @@ export default function Sidebar() {
   const { userType, loading } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
-  if (loading) return <div className="w-[240px] border-r bg-white hidden md:block" />;
+  if (loading) return <div className="w-[240px] border-r bg-background hidden md:block" />;
 
   const isDoctor = userType === "DOCTOR";
   const isPatient = userType === "PATIENT" || !userType;

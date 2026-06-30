@@ -25,6 +25,12 @@ interface CartStore {
   getTotalPrice: () => number
 }
 
+// NOTE: This store uses zustand `persist` middleware which reads from localStorage.
+// During Next.js SSR the persisted value is unavailable, so consumers MUST render
+// a stable placeholder until hydration and swap to the live value via a mounted-flag:
+//   const [mounted, setMounted] = useState(false);
+//   useEffect(() => setMounted(true), []);
+//   const value = mounted ? storeValue() : 0;
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({

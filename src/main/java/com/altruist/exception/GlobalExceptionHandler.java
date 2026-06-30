@@ -67,12 +67,35 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, "Conflict", "The requested action cannot be completed at this time.");
     }
 
+    @ExceptionHandler(jakarta.persistence.OptimisticLockException.class)
+    public ResponseEntity<Map<String, Object>> handleOptimisticLock(jakarta.persistence.OptimisticLockException ex) {
+        // Two concurrent admins tried to update the same record simultaneously.
+        // One won; the other gets a safe retry signal.
+        log.warn("Optimistic lock conflict: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, "Conflict",
+                "This record was modified by another request. Please refresh and try again.");
+    }
+
+    @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEntityNotFound(jakarta.persistence.EntityNotFoundException ex) {
+        log.warn("Entity not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, "Not Found", "The requested resource was not found.");
+    }
+
     // ── 400 Bad Request / Validation ─────────────────────────────────────
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Validation error: {}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", "The request contains invalid data.");
+    }
+
+    @ExceptionHandler(jakarta.validation.ValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(jakarta.validation.ValidationException ex) {
+        // Safe to surface: message is always our own literal (e.g. "Medicine X is out of stock"),
+        // never an internal exception message.
+        log.warn("Business validation error: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -1,5 +1,6 @@
 package com.altruist.service;
 
+import com.altruist.dto.NotificationDTO;
 import com.altruist.dto.PrescriptionRequestDTO;
 import com.altruist.dto.PrescriptionResponseDTO;
 import com.altruist.exception.ConsultationNotFoundException;
@@ -15,9 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PrescriptionService {
@@ -27,6 +30,7 @@ public class PrescriptionService {
     private final DoctorRepository doctorRepository;
     private final PrescriptionPdfService prescriptionPdfService;
     private final SupabaseStorageService supabaseStorageService;
+    private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -83,9 +87,23 @@ public class PrescriptionService {
         // Save URL to prescription and consultation
         saved.setPrescriptionUrl(publicUrl);
         prescriptionRepository.save(saved);
-        
+
         consultation.setPrescriptionUrl(publicUrl);
         consultationRepository.save(consultation);
+
+        // Notify the patient that a prescription is ready
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    saved.getPatient().getId(),
+                    "Prescription Ready",
+                    String.format("Your prescription from Dr. %s is ready. Tap to view the details.",
+                            saved.getDoctor().getUser().getFullName()),
+                    "PRESCRIPTION_READY"
+            );
+            notificationService.publish(saved.getPatient().getId(), notification);
+        } catch (Exception e) {
+            log.error("Failed to publish PRESCRIPTION_READY notification for prescription {}", saved.getId(), e);
+        }
 
         return mapToResponseDTO(saved);
     }

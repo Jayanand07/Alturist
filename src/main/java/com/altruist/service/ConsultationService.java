@@ -3,6 +3,7 @@ package com.altruist.service;
 import com.altruist.dto.CompleteConsultationRequestDTO;
 import com.altruist.dto.ConsultationResponseDTO;
 import com.altruist.dto.InstantBookingRequestDTO;
+import com.altruist.dto.NotificationDTO;
 import com.altruist.dto.RoomJoinResponseDTO;
 import com.altruist.exception.ConsultationNotFoundException;
 import com.altruist.exception.DoctorNotAvailableException;
@@ -31,6 +32,7 @@ public class ConsultationService {
 
     private final ConsultationRepository consultationRepository;
     private final DoctorRepository doctorRepository;
+    private final NotificationService notificationService;
 
     /**
      * Books an instant consultation.
@@ -122,14 +124,44 @@ public class ConsultationService {
             consultation.setVideoRoomId(generateVideoRoomName(consultationId));
         }
 
-        // Transition PENDING → ONGOING on first join, record call start time
+// Transition PENDING → ONGOING on first join, record call start time
+        boolean justStarted = false;
         if (status == ConsultationStatus.PENDING) {
             consultation.setStatus(ConsultationStatus.ONGOING);
             consultation.setCallStartedAt(LocalDateTime.now());
+            justStarted = true;
             logger.info("Consultation {} is now ONGOING", consultationId);
         }
 
         consultationRepository.save(consultation);
+
+        // Notify the patient and doctor that the consultation just started
+        if (justStarted) {
+            try {
+                NotificationDTO patientNotification = notificationService.createNotification(
+                        consultation.getPatient().getId(),
+                        "Consultation Started",
+                        String.format("Your consultation with Dr. %s has started.",
+                                consultation.getDoctor().getUser().getFullName()),
+                        "CONSULTATION_STARTED"
+                );
+                notificationService.publish(consultation.getPatient().getId(), patientNotification);
+            } catch (Exception e) {
+                logger.error("Failed to publish CONSULTATION_STARTED notification to patient for consultation {}", consultationId, e);
+            }
+            try {
+                NotificationDTO doctorNotification = notificationService.createNotification(
+                        consultation.getDoctor().getUser().getId(),
+                        "Consultation Started",
+                        String.format("Your consultation with %s has started.",
+                                consultation.getPatient().getFullName()),
+                        "CONSULTATION_STARTED"
+                );
+                notificationService.publish(consultation.getDoctor().getUser().getId(), doctorNotification);
+            } catch (Exception e) {
+                logger.error("Failed to publish CONSULTATION_STARTED notification to doctor for consultation {}", consultationId, e);
+            }
+        }
 
         // Determine role and display name
         String userRole = isDoctor ? "doctor" : "patient";
@@ -193,6 +225,20 @@ public class ConsultationService {
         logger.info("Consultation completed: {} | Doctor: {} | Duration: {} min",
                 saved.getId(), doctor.getUser().getFullName(), request.getCallDurationMinutes());
 
+        // Notify the patient that the consultation is complete
+        try {
+            NotificationDTO notification = notificationService.createNotification(
+                    saved.getPatient().getId(),
+                    "Consultation Completed",
+                    String.format("Your consultation with Dr. %s has been completed.",
+                            doctor.getUser().getFullName()),
+                    "CONSULTATION_COMPLETED"
+            );
+            notificationService.publish(saved.getPatient().getId(), notification);
+        } catch (Exception e) {
+            logger.error("Failed to publish CONSULTATION_COMPLETED notification for consultation {}", saved.getId(), e);
+        }
+
         return toResponseDTO(saved);
     }
 
@@ -245,7 +291,33 @@ public class ConsultationService {
             doctorRepository.save(doctor);
         }
 
-        consultationRepository.save(consultation);
+                consultationRepository.save(consultation);
+
+        // Notify both patient and doctor that the consultation was cancelled
+        try {
+            NotificationDTO patientNotification = notificationService.createNotification(
+                    patient.getId(),
+                    "Consultation Cancelled",
+                    String.format("Your consultation with Dr. %s has been cancelled.",
+                            consultation.getDoctor().getUser().getFullName()),
+                    "CONSULTATION_CANCELLED"
+            );
+            notificationService.publish(patient.getId(), patientNotification);
+        } catch (Exception e) {
+            logger.error("Failed to publish CONSULTATION_CANCELLED notification to patient for consultation {}", consultationId, e);
+        }
+        try {
+            NotificationDTO doctorNotification = notificationService.createNotification(
+                    consultation.getDoctor().getUser().getId(),
+                    "Consultation Cancelled",
+                    String.format("Your consultation with %s has been cancelled.",
+                            consultation.getPatient().getFullName()),
+                    "CONSULTATION_CANCELLED"
+            );
+            notificationService.publish(consultation.getDoctor().getUser().getId(), doctorNotification);
+        } catch (Exception e) {
+            logger.error("Failed to publish CONSULTATION_CANCELLED notification to doctor for consultation {}", consultationId, e);
+        }
     }
 
     @Transactional

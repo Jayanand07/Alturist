@@ -91,7 +91,7 @@ export default function SpecialistSection() {
   if (status === "loading") {
     return (
       <section className="py-16 bg-white border-y border-slate-100 mb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -102,7 +102,7 @@ export default function SpecialistSection() {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
@@ -116,7 +116,7 @@ export default function SpecialistSection() {
   if (status === "error") {
     return (
       <section className="py-16 bg-white border-y border-slate-100 mb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -146,7 +146,7 @@ export default function SpecialistSection() {
   // ── Success state — render real specialty cards ──────────────────────────
   return (
     <section className="py-16 bg-white border-y border-slate-100 mb-16">
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
@@ -165,7 +165,7 @@ export default function SpecialistSection() {
         </div>
 
         {/* Specialty cards grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
           {specialties.map((spec, i) => (
             <motion.div
               key={spec.specialization}
@@ -175,11 +175,11 @@ export default function SpecialistSection() {
             >
               <Link href={`/consult?specialty=${encodeURIComponent(spec.specialization)}`}>
                 <div className="bg-white border-none shadow-md hover:shadow-2xl hover:bg-emerald-50/10 transition-all cursor-pointer text-center p-4 rounded-3xl group flex flex-col items-center gap-3">
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-500/10 shadow-inner group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-emerald-500/10 shadow-inner group-hover:scale-105 transition-transform flex-shrink-0 relative aspect-square">
                     <img
                       src={getSpecialtyImage(spec.specialization)}
                       alt={spec.specialization}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
                     />
                   </div>
                   <div>

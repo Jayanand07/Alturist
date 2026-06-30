@@ -101,6 +101,12 @@ interface LocationStore {
   detectLocation: (onSuccess?: (city: string) => void, onError?: (err: string) => void) => void;
 }
 
+// NOTE: This store uses zustand `persist` middleware which reads from localStorage.
+// During Next.js SSR the persisted value is unavailable, so consumers MUST render
+// a stable placeholder until hydration and swap to the live value via a mounted-flag:
+//   const [mounted, setMounted] = useState(false);
+//   useEffect(() => setMounted(true), []);
+//   const display = mounted ? `${selectedCity}, ${selectedState}` : "Select location";
 export const useLocationStore = create<LocationStore>()(
   persist(
     (set, get) => ({

@@ -34,7 +34,7 @@ spring:
     hibernate:
       # NEVER use 'update' in production — use 'validate' or 'none'
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true

@@ -37,13 +37,30 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html 
-      lang="en" 
-      className={`${plusJakartaSans.variable} ${outfit.variable} h-full`} 
+    <html
+      lang="en"
+      className={`${plusJakartaSans.variable} ${outfit.variable} h-full`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        {process.env.NEXT_PUBLIC_API_URL && (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL} crossOrigin="anonymous" />
+        )}
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} crossOrigin="anonymous" />
+        )}
+        {process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN && (
+          <link rel="dns-prefetch" href={`https://${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}`} />
+        )}
+      </head>
       <body className="min-h-full flex flex-col antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
         <Providers>
           <AppShell>
             {children}

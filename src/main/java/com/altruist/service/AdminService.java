@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -228,17 +229,29 @@ public class AdminService {
     @Transactional(readOnly = true)
     public Page<PatientListDTO> getPatients(String search, Pageable pageable) {
         String normalizedSearch = search == null || search.trim().isEmpty() ? "" : search.trim();
-        return userRepository.searchPatients(normalizedSearch, pageable)
-                .map(u -> PatientListDTO.builder()
-                        .id(u.getId())
-                        .fullName(u.getFullName())
-                        .email(u.getEmail())
-                        .phone(u.getPhone())
-                        .gender(u.getGender())
-                        .dateOfBirth(u.getDateOfBirth())
-                        .createdAt(u.getCreatedAt())
-                        .totalConsultations(consultationRepository.countByPatientId(u.getId()))
-                        .build());
+        Page<User> userPage = userRepository.searchPatients(normalizedSearch, pageable);
+
+        // Batch-fetch consultation counts in a single GROUP BY query instead of N COUNT calls.
+        List<UUID> patientIds = userPage.getContent().stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+        Map<UUID, Long> countMap = patientIds.isEmpty()
+                ? Collections.emptyMap()
+                : consultationRepository.batchCountByPatientIds(patientIds).stream()
+                        .collect(Collectors.toMap(
+                                row -> (UUID) row[0],
+                                row -> (Long) row[1]));
+
+        return userPage.map(u -> PatientListDTO.builder()
+                .id(u.getId())
+                .fullName(u.getFullName())
+                .email(u.getEmail())
+                .phone(u.getPhone())
+                .gender(u.getGender())
+                .dateOfBirth(u.getDateOfBirth())
+                .createdAt(u.getCreatedAt())
+                .totalConsultations(countMap.getOrDefault(u.getId(), 0L))
+                .build());
     }
 
     @Transactional(readOnly = true)

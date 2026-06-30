@@ -34,6 +34,14 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    /**
+     * Optimistic locking version. Prevents concurrent admin status updates
+     * from silently overwriting each other (last-write-wins). Any concurrent
+     * update that sees a stale version triggers OptimisticLockException → 409.
+     */
+    @Version
+    private Long version;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String deliveryAddress;
 
